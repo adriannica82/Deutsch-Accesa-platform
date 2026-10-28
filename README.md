@@ -23,3 +23,7 @@ python3 build.py --check  # doar validează
 Fiecare întrebare trebuie să aibă traducere (`ro`) și explicație (`explain`) în română; validarea se oprește dacă lipsesc.
 Editează conținutul în `content/` și `src/`, nu în `deutsch.html` (fișier generat).
 Progresul se salvează în `localStorage`, doar în browserul folosit.
+
+## Publicare (Vercel)
+
+Proiectul este static: preset „Other”, fără build command, directorul rădăcină `./`. `vercel.json` trimite adresa `/` către `deutsch.html`.
