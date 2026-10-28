@@ -24,6 +24,8 @@ Fiecare întrebare trebuie să aibă traducere (`ro`) și explicație (`explain`
 Editează conținutul în `content/` și `src/`, nu în `deutsch.html` (fișier generat).
 Progresul se salvează în `localStorage`, doar în browserul folosit.
 
+Timpul de exersare se măsoară ca timp **activ** din teste (se oprește după 90 s fără nicio acțiune și cât timp fila nu este vizibilă) și se afișează în timpul testului, la rezultate și în „Progresul tău” (azi, săptămâna aceasta, pe zile). Durata fiecărei sesiuni se salvează în `sessions.duration_s`.
+
 Butonul **Exportă (.md)** din „Progresul tău” descarcă un raport Markdown (rezumat, pe teme, sesiuni recente, puncte slabe) care conține la sfârșit și datele complete; **Importă** citește acest fișier (și, pentru compatibilitate, vechiul `.json`).
 
 ## Publicare (Vercel)

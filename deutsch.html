@@ -12,6 +12,7 @@
 .options.wide{grid-template-columns:1fr}
 input[type=email],input[type=password]{width:100%;border:1px solid #cbd6d1;border-radius:10px;background:#fff;color:var(--ink);padding:12px}.userbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}.userbar #userEmail{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.loginbox{max-width:440px;margin:40px auto}
 .history li{align-items:baseline}.history li span{min-width:0}.history li b{white-space:nowrap;flex:none}
+.sessionbar{display:inline-flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:4px 10px}.timer{font-size:13px;padding:4px 10px;border-radius:20px;background:#edf2ed;border:1px solid var(--line);color:var(--ink);font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}.timer:hover:not(:disabled){background:#e0eadf}.week{display:flex;gap:6px;margin-top:14px}.week .d{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}.week .col{height:52px;display:flex;align-items:flex-end}.week .bar{display:block;width:100%;min-height:3px;border-radius:4px 4px 0 0;background:#b9cdb8}.week .today .bar{background:var(--green)}.week .future .bar{background:#e3e9e3}.week span{font-size:11px;text-align:center;color:var(--muted)}.week .today span{color:var(--ink);font-weight:800}
 
 </style>
 </head><body>
@@ -28,6 +29,7 @@ input[type=email],input[type=password]{width:100%;border:1px solid #cbd6d1;borde
 <div class="controls"><div class="field" style="grid-column:1/-1"><label for="todayCount">Număr de întrebări</label><select id="todayCount"><option value="10">10 · sesiune scurtă</option><option value="20" selected>20 · antrenament</option><option value="30">30 · sesiune lungă</option></select></div></div>
 <button id="todayStart" class="primary allwidth">Începe repetiția →</button><p class="small muted guide" id="todayInfo"></p></div>
 <aside class="card"><div class="label">PROGRESUL TĂU</div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” pentru a-l păstra.</p><div class="tools"><button type="button" class="quiet back" id="exportP">Exportă (.md)</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back" id="resetP">Resetează</button></div><input type="file" id="importFile" accept=".md,.markdown,text/markdown,.json,application/json" hidden>
+<div class="mini"><div class="label">TIMP DE EXERSARE</div><div id="timeStats"></div></div>
 <div class="mini"><div class="label">SESIUNI RECENTE</div><ul class="history" id="history"></ul></div>
 <p class="small muted" style="margin-top:12px" id="storeNote">Progresul se salvează doar în acest browser. Exportă-l ca să-l muți pe alt dispozitiv.</p></aside>
 </div>
@@ -49,9 +51,9 @@ input[type=email],input[type=password]{width:100%;border:1px solid #cbd6d1;borde
 <div id="tGuide"></div>
 </section>
 
-<section id="quiz" hidden aria-label="Test în desfășurare"><div class="row"><button class="quiet back" id="quit">← Încheie sesiunea</button><span class="small muted" id="sessionLabel"></span></div><div class="progress" role="progressbar" aria-label="Întrebări parcurse" aria-valuemin="0" aria-valuemax="100" id="progress"><div id="bar"></div></div><div class="card"><div class="row"><span class="label" id="qCounter"></span><span class="small muted" id="runningScore"></span></div><div id="qContent"></div><div id="answerArea"></div><p id="validation" class="error" role="alert" hidden></p><div id="feedback" aria-live="polite"></div><div class="actions"><div class="group"><button id="prev" class="quiet" hidden>← Anterioara</button><button id="skip" class="quiet">Nu știu</button></div><button id="check" class="primary">Verifică răspunsul</button><button id="next" class="primary" hidden>Următoarea →</button></div></div><p class="small muted guide">Tastatură: 1–4 pentru variante · Enter pentru verificare / continuare.</p></section>
+<section id="quiz" hidden aria-label="Test în desfășurare"><div class="row"><button class="quiet back" id="quit">← Încheie sesiunea</button><span class="small muted sessionbar"><button type="button" class="timer" id="timer" aria-pressed="false" title="Ascunde cronometrul">⏱ 00:00</button><span id="sessionLabel"></span></span></div><div class="progress" role="progressbar" aria-label="Întrebări parcurse" aria-valuemin="0" aria-valuemax="100" id="progress"><div id="bar"></div></div><div class="card"><div class="row"><span class="label" id="qCounter"></span><span class="small muted" id="runningScore"></span></div><div id="qContent"></div><div id="answerArea"></div><p id="validation" class="error" role="alert" hidden></p><div id="feedback" aria-live="polite"></div><div class="actions"><div class="group"><button id="prev" class="quiet" hidden>← Anterioara</button><button id="skip" class="quiet">Nu știu</button></div><button id="check" class="primary">Verifică răspunsul</button><button id="next" class="primary" hidden>Următoarea →</button></div></div><p class="small muted guide">Tastatură: 1–4 pentru variante · Enter pentru verificare / continuare.</p></section>
 
-<section id="results" hidden><div class="card"><div class="label">SESIUNE ÎNCHEIATĂ</div><h1 style="font-size:36px">Ce ai reținut?</h1><div class="score" id="score"></div><p id="resultMessage"></p><div class="stats" id="breakdown"></div><div class="actions"><button id="retry" class="primary">Repetă greșelile</button><button id="newTest">Configurează alt test</button><button id="resultStudy" class="quiet">Recapitulează lista</button></div><p class="small muted guide" id="resultNote"></p></div><details class="card" open><summary id="reviewTitle">Corectarea răspunsurilor</summary><div id="reviewList"></div></details></section>
+<section id="results" hidden><div class="card"><div class="label">SESIUNE ÎNCHEIATĂ</div><h1 style="font-size:36px">Ce ai reținut?</h1><div class="score" id="score"></div><p id="resultMessage"></p><div class="stats" id="breakdown"></div><div class="mini"><div class="label">TIMP DE EXERSARE</div><div class="stats" id="timeResult" style="margin-top:12px"></div></div><div class="actions"><button id="retry" class="primary">Repetă greșelile</button><button id="newTest">Configurează alt test</button><button id="resultStudy" class="quiet">Recapitulează lista</button></div><p class="small muted guide" id="resultNote"></p></div><details class="card" open><summary id="reviewTitle">Corectarea răspunsurilor</summary><div id="reviewList"></div></details></section>
 
 <section id="study" hidden><div class="row"><div><div class="label">FIȘĂ DE RECAPITULARE</div><h1 style="font-size:36px" id="studyTitle"></h1></div><button id="studyBack" class="primary">← Înapoi</button></div><p class="muted" id="studyIntro"></p><div id="studyGuide"></div><div class="card"><div class="controls" style="margin-top:0"><div class="field"><label for="search">Caută în listă</label><input type="search" id="search" placeholder="Ex.: mit, a mulțumi, fahren…"></div><div class="field" id="studyFilterField"><label for="studyFilter" id="studyFilterLabel">Filtrează</label><select id="studyFilter"></select></div></div><p class="small muted" id="studyCount"></p><div class="tablewrap"><table class="verbs"><thead><tr><th scope="col">Element</th><th scope="col">Sens</th><th scope="col">Exemplu</th><th scope="col">Progres</th></tr></thead><tbody id="verbTable"></tbody></table></div></div></section>
 
@@ -83,8 +85,8 @@ let state={active:false},currentView='home',studyReturn='home',cur=null,builtFor
 
 // ---------- Progres salvat local ----------
 function clean(o){const out=Object.create(null);if(o&&typeof o==='object')for(const k in o){const id=byId[k]?k:'verben-praepositionen/'+k,p=o[k];if(byId[id]&&p&&['box','due','seen','right','wrong'].every(f=>Number.isFinite(p[f])))out[id]={box:Math.max(0,Math.min(STEPS.length-1,Math.floor(p.box))),due:p.due,seen:p.seen,right:p.right,wrong:p.wrong,last:Number.isFinite(p.last)?p.last:0}}return out}
-const cleanHistory=v=>Array.isArray(v)?v.filter(h=>h&&['t','pct','n','correct'].every(f=>Number.isFinite(h[f]))&&(h.topic==='mix'||topicById[h.topic])).map(h=>({t:h.t,topic:h.topic,pct:h.pct,n:h.n,correct:h.correct})).slice(-40):[];
-function loadProgress(){progress=Object.create(null);history=[];try{const raw=localStorage.getItem(PKEY+sfx()),old=CLOUD?null:localStorage.getItem(OLD_PKEY);progress=clean(JSON.parse(raw||old));history=cleanHistory(JSON.parse(localStorage.getItem(HKEY+sfx())));if(!raw&&old)save()}catch{storageOK=false}}
+const cleanHistory=v=>Array.isArray(v)?v.filter(h=>h&&['t','pct','n','correct'].every(f=>Number.isFinite(h[f]))&&(h.topic==='mix'||topicById[h.topic])).map(h=>({t:h.t,topic:h.topic,pct:h.pct,n:h.n,correct:h.correct,sec:Number.isFinite(h.sec)&&h.sec>0?Math.round(h.sec):undefined})).slice(-40):[];
+function loadProgress(){progress=Object.create(null);history=[];try{const raw=localStorage.getItem(PKEY+sfx()),old=CLOUD?null:localStorage.getItem(OLD_PKEY);progress=clean(JSON.parse(raw||old));history=cleanHistory(JSON.parse(localStorage.getItem(HKEY+sfx())));if(!raw&&old)save()}catch{storageOK=false}loadTime()}
 function save(){try{localStorage.setItem(PKEY+sfx(),JSON.stringify(progress));localStorage.setItem(HKEY+sfx(),JSON.stringify(history))}catch{storageOK=false}$('storeWarn').hidden=storageOK}
 function record(q,ok){const p=progress[q.gid]||{box:0,due:0,seen:0,right:0,wrong:0,last:0};p.seen++;if(ok){p.right++;p.box=Math.min(p.box+1,STEPS.length-1)}else{p.wrong++;p.box=0}p.last=Date.now();p.due=p.last+STEPS[p.box]*DAY;progress[q.gid]=p;if(auth)queueProgress(q.gid)}
 const P=q=>progress[q.gid],isDue=q=>P(q)&&P(q).due<=Date.now();
@@ -102,11 +104,11 @@ const guideDetails=(t,open)=>t.guideHtml?'<details class="card prep-guide"'+(ope
 function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;$('navHome').hidden=id==='home'||id==='quiz'||id==='login';if(id==='home')renderHome();if(id==='topic')renderTopic();window.scrollTo(0,0)}
 function renderHome(){
 $('heroTopics').textContent=countRo(topics.length,['temă','teme']);$('heroItems').textContent=countRo(allItems.length,['întrebare','întrebări']);
-$('progressStats').innerHTML=statsHtml(allItems);$('storeWarn').hidden=storageOK;
+$('progressStats').innerHTML=statsHtml(allItems);$('timeStats').innerHTML=timeHtml();$('storeWarn').hidden=storageOK;
 const r=pickFrom(allItems,'smart',Number($('todayCount').value)),due=allItems.filter(isDue).length,fresh=allItems.filter(q=>!P(q)).length;
 $('todayInfo').textContent=r.filled?'Nu mai ai nimic scadent; primești cele mai apropiate repetări.':due+' de repetat acum · '+fresh+' noi, din '+allItems.length+' întrebări în toate temele.';
 $('topicGrid').innerHTML=topics.map(t=>{const c=counts(t.qs),due=t.qs.filter(isDue).length;return '<button type="button" class="topic" data-topic="'+t.id+'"><div class="row"><span class="label">'+escape(t.level)+'</span><span class="pill">'+countRo(t.qs.length,t.unit)+'</span></div><h3>'+escape(t.title)+'</h3><div class="small muted" lang="de">'+escape(t.titleDe||'')+'</div><p class="small">'+escape(t.summary)+'</p>'+bar(c,t.qs.length)+'<div class="small muted">'+(due?due+' de repetat · ':'')+c.new+' noi · '+c.done+' stăpânite</div></button>'}).join('');
-$('history').innerHTML=history.length?history.slice(-6).reverse().map(h=>'<li><span>'+new Date(h.t).toLocaleDateString('ro-RO')+' · '+escape(h.topic==='mix'?'Repetiția de azi':topicById[h.topic].title)+'</span><b>'+h.pct+'% · '+h.correct+'/'+h.n+'</b></li>').join(''):'<li class="muted">Încă nu ai finalizat o sesiune.</li>'}
+$('history').innerHTML=history.length?history.slice(-6).reverse().map(h=>'<li><span>'+new Date(h.t).toLocaleDateString('ro-RO')+' · '+escape(h.topic==='mix'?'Repetiția de azi':topicById[h.topic].title)+(h.sec?' · '+fmtShort(h.sec):'')+'</span><b>'+h.pct+'% · '+h.correct+'/'+h.n+'</b></li>').join(''):'<li class="muted">Încă nu ai finalizat o sesiune.</li>'}
 function openTopic(id){
 cur=topicById[id];$('tLevel').textContent='TEMĂ · '+cur.level;$('tTitle').textContent=cur.title;$('tSummary').textContent=cur.summary;
 if(builtFor!==id){
@@ -148,7 +150,7 @@ return shuffled([q.answer,...chosen])}
 function modeFor(q){const ms=q.topic.modes,m=state.mode;return m==='auto'?(ms.includes('choice')?'choice':ms[0]):ms.includes(m)?m:m==='both'&&ms.includes('write')?'write':ms[0]}
 
 // ---------- Sesiunea de test ----------
-function begin(qs,cfg){if(!qs.length)return;state={active:true,qs,index:0,answers:[],opts:[],mode:cfg.mode,feedbackMode:cfg.feedbackMode,topic:cfg.topic,selected:'',selectedCase:'',locked:false,sid:uuid()};if(auth)enqueue({k:'s',row:{id:state.sid,topic:cfg.topic?cfg.topic.id:'mix',mode:cfg.mode,feedback_mode:cfg.feedbackMode,started_at:new Date().toISOString()}});show('quiz');renderQuestion()}
+function begin(qs,cfg){if(!qs.length)return;state={active:true,qs,index:0,answers:[],opts:[],mode:cfg.mode,feedbackMode:cfg.feedbackMode,topic:cfg.topic,selected:'',selectedCase:'',locked:false,sid:uuid()};if(auth)enqueue({k:'s',row:{id:state.sid,topic:cfg.topic?cfg.topic.id:'mix',mode:cfg.mode,feedback_mode:cfg.feedbackMode,started_at:new Date().toISOString()}});startClock();show('quiz');renderQuestion();renderTimer()}
 function renderQuestion(){
 const q=state.qs[state.index],m=modeFor(q),t=q.topic,prev=state.answers[state.index],exam=state.feedbackMode==='exam',n=state.qs.length,done=state.answers.filter(Boolean);
 state.locked=false;state.selected=prev&&!prev.skip&&m==='choice'?prev.raw:'';state.selectedCase=prev&&!prev.skip?prev.cas:'';
@@ -188,7 +190,7 @@ if(auth&&state.feedbackMode==='exam'){const rows=[];state.answers.forEach((a,i)=
 state.answers=state.answers.filter(Boolean);
 if(state.feedbackMode==='exam'){state.answers.forEach(a=>record(byId[a.id],a.ok))}
 const n=state.answers.length,correct=state.answers.filter(a=>a.ok).length,pct=n?Math.round(correct/n*100):0,t=state.topic;
-history.push({t:Date.now(),topic:t?t.id:'mix',pct,n,correct});history=history.slice(-40);save();if(auth)enqueue({k:'sf',id:state.sid,patch:{finished_at:new Date().toISOString(),n,correct,pct}});show('results');
+const dur=stopClock();history.push({t:Date.now(),topic:t?t.id:'mix',pct,n,correct,sec:dur||undefined});history=history.slice(-40);save();if(auth)enqueue({k:'sf',id:state.sid,patch:{finished_at:new Date().toISOString(),n,correct,pct,duration_s:dur}});show('results');$('timeResult').innerHTML=timeResultHtml(dur,n);
 $('score').innerHTML=pct+'% <small>'+correct+' / '+n+' corecte</small>';
 $('resultMessage').textContent=pct===100?'Excelent. Ai răspuns corect la toate întrebările acestei sesiuni.':pct>=80?'Foarte bine. Repetă construcțiile care încă te încurcă.':pct>=50?'Baza este acolo. Repetă greșelile și revino la fișa de recapitulare.':'Recapitulează lista, apoi încearcă din nou un test scurt.';
 let breakdown='';const keyOf=a=>t?byId[a.id].group:byId[a.id].topic.title;
@@ -220,15 +222,54 @@ L.push('# Progres Deutsch','','Exportat: '+now.toLocaleString('ro-RO')+(auth?' �
 L.push('## Rezumat','','- Întrebări: **'+allItems.length+'** în '+topics.length+' teme','- Noi: '+c.new+' · În învățare: '+c.learn+' · Consolidare: '+c.mid+' · Stăpânit: '+c.done,'- De repetat acum: '+allItems.filter(isDue).length,'');
 L.push('## Pe teme','','| Temă | Nivel | Noi | În învățare | Consolidare | Stăpânit | De repetat |','|---|---|---|---|---|---|---|');
 topics.forEach(t=>{const k=counts(t.qs);L.push('| '+mdCell(t.title)+' | '+t.level+' | '+k.new+' | '+k.learn+' | '+k.mid+' | '+k.done+' | '+t.qs.filter(isDue).length+' |')});
+{const s=timeStats();L.push('','## Timp de exersare','','- Azi: **'+fmtShort(s.today)+'**','- Săptămâna aceasta: **'+fmtShort(s.week)+'**','- Săptămâna trecută: '+fmtShort(s.lastWeek),'','| '+DAYSFULL.map(d=>d.slice(0,2)).join(' | ')+' |','|'+'---|'.repeat(7),'| '+s.days.map(fmtShort).join(' | ')+' |','','Zilele sunt cele din săptămâna aceasta (luni–duminică); se numără doar timpul activ din teste.')}
 L.push('','## Sesiuni recente','');
-if(history.length){L.push('| Data | Sesiune | Scor |','|---|---|---|');history.slice().reverse().forEach(h=>L.push('| '+new Date(h.t).toLocaleDateString('ro-RO')+' | '+mdCell(h.topic==='mix'?'Repetiția de azi':topicById[h.topic].title)+' | '+h.pct+'% · '+h.correct+'/'+h.n+' |'))}else L.push('Încă nu ai finalizat o sesiune.');
+if(history.length){L.push('| Data | Sesiune | Scor | Durată |','|---|---|---|---|');history.slice().reverse().forEach(h=>L.push('| '+new Date(h.t).toLocaleDateString('ro-RO')+' | '+mdCell(h.topic==='mix'?'Repetiția de azi':topicById[h.topic].title)+' | '+h.pct+'% · '+h.correct+'/'+h.n+' | '+(h.sec?fmtDur(h.sec):'–')+' |'))}else L.push('Încă nu ai finalizat o sesiune.');
 const weak=allItems.filter(q=>P(q)&&P(q).wrong>0&&P(q).box<=2).sort((a,b)=>P(b).wrong-P(a).wrong||P(a).box-P(b).box).slice(0,50);
 L.push('','## Puncte slabe','');
 if(weak.length){L.push('| Întrebare | Temă | Corecte / văzute | Revezi |','|---|---|---|---|');weak.forEach(q=>L.push('| '+mdCell(q.label||q.answer)+' | '+mdCell(q.topic.title)+' | '+P(q).right+'/'+P(q).seen+' | '+nextText(P(q))+' |'))}else L.push('Nu ai încă puncte slabe.');
-L.push('','## Date pentru import','','Nu modifica blocul de mai jos: îl citește butonul „Importă” din aplicație.','','```json',JSON.stringify({version:2,progress,history}),'```','');
+L.push('','## Date pentru import','','Nu modifica blocul de mai jos: îl citește butonul „Importă” din aplicație.','','```json',JSON.stringify({version:3,progress,history,time:timeArray()}),'```','');
 return L.join('\n')}
 // Importul acceptă fișierul .md exportat de aplicație și, pentru compatibilitate, vechiul .json.
 function parseImport(txt){const t=txt.trim();if(t.startsWith('{'))return JSON.parse(t);const m=t.match(/```json\s*([\s\S]*?)```/);if(!m)throw new Error('format');return JSON.parse(m[1])}
+
+// ---------- Timp de exersare ----------
+// Se numără doar timpul activ din teste: se oprește după 90 s fără nicio acțiune și cât timp fila nu este vizibilă.
+// Fiecare sesiune are propria înregistrare (id, început, secunde); „azi” și „săptămâna aceasta” se calculează din ele.
+const TKEY='deutsch-time-v1',TWINDOW=120*DAY,IDLE=90000,DAYS=['Lu','Ma','Mi','Jo','Vi','Sâ','Du'],DAYSFULL=['luni','marți','miercuri','joi','vineri','sâmbătă','duminică'];
+let timeLog=Object.create(null),clock=null,lastTick=Date.now(),lastInput=Date.now(),lastSaveT=0,timeDirty=false,timerHidden=false;
+try{timerHidden=localStorage.getItem('deutsch-timer-hidden')==='1'}catch{}
+const cleanTime=v=>Array.isArray(v)?v.filter(e=>e&&typeof e.id==='string'&&Number.isFinite(e.t)&&Number.isFinite(e.sec)&&e.sec>=0&&e.t>=Date.now()-TWINDOW).map(e=>({id:e.id,t:e.t,sec:Math.round(e.sec)})):[];
+const timeArray=()=>Object.keys(timeLog).map(id=>({id,t:timeLog[id].t,sec:timeLog[id].sec}));
+function mergeTime(list){for(const e of list){const c=timeLog[e.id];if(!c)timeLog[e.id]={t:e.t,sec:e.sec};else if(e.sec>c.sec)c.sec=e.sec}}
+function loadTime(){timeLog=Object.create(null);try{mergeTime(cleanTime(JSON.parse(localStorage.getItem(TKEY+sfx()))))}catch{}}
+function saveTime(){for(const id in timeLog)if(timeLog[id].t<Date.now()-TWINDOW)delete timeLog[id];try{localStorage.setItem(TKEY+sfx(),JSON.stringify(timeArray()))}catch{}}
+const fmtClock=s=>{s=Math.floor(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),p=n=>String(n).padStart(2,'0');return h?h+':'+p(m)+':'+p(s%60):p(m)+':'+p(s%60)};
+const fmtDur=s=>{s=Math.round(s);if(s<60)return s+' s';const m=Math.floor(s/60);if(m<60)return m+' min'+(s%60?' '+s%60+' s':'');return Math.floor(m/60)+' h'+(m%60?' '+m%60+' min':'')};
+const fmtShort=s=>{if(s<=0)return '0 min';if(s<60)return '<1 min';const m=Math.round(s/60);return m<60?m+' min':Math.floor(m/60)+' h'+(m%60?' '+String(m%60).padStart(2,'0')+' min':'')};
+const activeNow=()=>currentView==='quiz'&&state.active&&!document.hidden&&Date.now()-lastInput<IDLE;
+function startClock(){const now=Date.now();clock={sid:state.sid,start:now,sec:0,sent:0};lastTick=lastInput=now;timeLog[clock.sid]={t:now,sec:0};timeDirty=true}
+function stopClock(){if(!clock)return 0;const d=Math.round(clock.sec);timeLog[clock.sid]={t:clock.start,sec:d};saveTime();if(auth&&outbox.d)delete outbox.d[clock.sid];clock=null;timeDirty=false;return d}
+function renderTimer(){const b=$('timer');if(!clock)return;const paused=!activeNow();b.textContent=timerHidden?'⏱ ··:··':(paused?'⏸ ':'⏱ ')+fmtClock(clock.sec);b.setAttribute('aria-pressed',String(timerHidden));b.title=(timerHidden?'Arată cronometrul':'Ascunde cronometrul')+(paused&&!timerHidden?' · în pauză: nicio acțiune de peste 90 s sau fila nu este activă':'')}
+function tick(){
+const now=Date.now(),dt=Math.min(now-lastTick,3000)/1000;lastTick=now;if(!clock)return;
+if(activeNow()){clock.sec+=dt;timeLog[clock.sid]={t:clock.start,sec:Math.round(clock.sec)};timeDirty=true}
+if(timeDirty&&now-lastSaveT>5000){saveTime();lastSaveT=now;timeDirty=false}
+if(auth&&Math.floor(clock.sec)-clock.sent>=15){clock.sent=Math.floor(clock.sec);outbox.d[clock.sid]=clock.sent;saveOutbox();flush()}
+if(currentView==='quiz')renderTimer()}
+setInterval(tick,1000);
+['pointerdown','pointermove','keydown','touchstart','wheel','scroll'].forEach(e=>addEventListener(e,()=>{lastInput=Date.now()},{passive:true,capture:true}));
+document.addEventListener('visibilitychange',()=>{lastTick=Date.now();if(!document.hidden)lastInput=Date.now()});
+// Săptămâna începe luni; o sesiune se numără în ziua în care a început.
+function timeStats(){
+const n=new Date(),Y=n.getFullYear(),M=n.getMonth(),D=n.getDate(),dow=(n.getDay()+6)%7,today=new Date(Y,M,D).getTime(),week=new Date(Y,M,D-dow).getTime(),prev=new Date(Y,M,D-dow-7).getTime(),days=Array(7).fill(0);let t=0,w=0,lw=0;
+for(const id in timeLog){const e=timeLog[id];if(e.t>=today)t+=e.sec;if(e.t>=week){w+=e.sec;const d=new Date(e.t);days[Math.max(0,Math.min(6,Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()-week)/DAY)))]+=e.sec}else if(e.t>=prev)lw+=e.sec}
+return{today:t,week:w,lastWeek:lw,days,dow}}
+function timeHtml(){
+const s=timeStats(),max=Math.max(60,...s.days);
+return '<div class="mstats"><div><b>'+fmtShort(s.today)+'</b><span>Azi</span></div><div><b>'+fmtShort(s.week)+'</b><span>Săptămâna aceasta</span></div></div><div class="week" role="img" aria-label="Timp de exersare pe zile: '+s.days.map((v,i)=>DAYS[i]+' '+fmtShort(v)).join(', ')+'">'+s.days.map((v,i)=>'<div class="d'+(i===s.dow?' today':i>s.dow?' future':'')+'" title="'+DAYSFULL[i]+': '+fmtShort(v)+'"><div class="col"><i class="bar" style="height:'+(v>0?Math.max(8,Math.round(v/max*100)):0)+'%"></i></div><span>'+DAYS[i]+'</span></div>').join('')+'</div><p class="small muted" style="margin-top:10px">Săptămâna trecută: '+fmtShort(s.lastWeek)+'. Se numără doar timpul activ din teste.</p>'}
+const timeResultHtml=(dur,n)=>{const s=timeStats();return '<div><strong>'+fmtDur(dur)+'</strong><span>Durata sesiunii</span></div><div><strong>'+(n?fmtDur(dur/n):'–')+'</strong><span>Medie pe întrebare</span></div><div><strong>'+fmtShort(s.today)+'</strong><span>Azi</span></div><div><strong>'+fmtShort(s.week)+'</strong><span>Săptămâna aceasta</span></div>'};
+$('timer').onclick=()=>{timerHidden=!timerHidden;try{localStorage.setItem('deutsch-timer-hidden',timerHidden?'1':'0')}catch{}renderTimer()};
 
 // ---------- Evenimente ----------
 $('start').onclick=()=>begin(pickFrom(pool(),$('selection').value,countValue(),$('shuffle').checked).qs,{mode:$('mode').value,feedbackMode:$('feedbackMode').value,topic:cur});
@@ -236,15 +277,15 @@ $('todayStart').onclick=()=>begin(pickFrom(allItems,'smart',Number($('todayCount
 $('retry').onclick=()=>begin(shuffled(state.answers.filter(a=>!a.ok).map(a=>byId[a.id])),{mode:state.mode,feedbackMode:'practice',topic:state.topic});
 $('check').onclick=()=>check();$('skip').onclick=()=>check(true);$('next').onclick=advance;
 $('prev').onclick=()=>{if(state.active&&state.index>0){state.index--;renderQuestion()}};
-$('quit').onclick=()=>{if(!confirm('Închei sesiunea acum? Vei vedea scorul pentru întrebările la care ai răspuns.'))return;if(state.answers.some(Boolean))finish();else{state.active=false;show(state.topic?'topic':'home')}};
+$('quit').onclick=()=>{if(!confirm('Închei sesiunea acum? Vei vedea scorul pentru întrebările la care ai răspuns.'))return;if(state.answers.some(Boolean))finish();else{state.active=false;const dur=stopClock();if(auth&&dur){outbox.d[state.sid]=dur;saveOutbox();flush()}show(state.topic?'topic':'home')}};
 $('newTest').onclick=()=>show(state.topic?'topic':'home');$('navHome').onclick=()=>show('home');
 $('resultStudy').onclick=()=>openStudy(state.topic);$('topicStudy').onclick=()=>openStudy(cur);$('studyBack').onclick=()=>show(studyReturn);
 $('search').oninput=renderStudy;$('studyFilter').onchange=renderStudy;
 $('topicGrid').onclick=e=>{const b=e.target.closest('[data-topic]');if(b)openTopic(b.dataset.topic)};
 $('exportP').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([exportMarkdown()],{type:'text/markdown;charset=utf-8'}));a.download='progres-deutsch-'+new Date().toISOString().slice(0,10)+'.md';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $('importP').onclick=()=>$('importFile').click();
-$('importFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;f.text().then(txt=>{const j=parseImport(txt),incoming=clean(j.progress),n=Object.keys(incoming).length;if(!n){alert('Fișierul nu conține progres valid pentru aceste teme.');return}if(!confirm(auth?'Combini progresul din fișier ('+n+' întrebări) cu cel din cont? Se păstrează varianta cea mai recentă pentru fiecare întrebare.':'Înlocuiești progresul actual cu cel din fișier ('+n+' întrebări)?'))return;if(auth){for(const g in incoming){const p=progress[g];if(!p||incoming[g].last>p.last){progress[g]=incoming[g];queueProgress(g)}}}else{progress=incoming;history=cleanHistory(j.history)}save();renderHome()}).catch(()=>alert('Fișierul nu a putut fi citit. Alege un fișier exportat din această pagină.'))};
-$('resetP').onclick=()=>{if(!confirm(auth?'Ștergi tot progresul de repetare din cont? Istoricul sesiunilor rămâne înregistrat. Acțiunea nu poate fi anulată.':'Ștergi tot progresul salvat în acest browser? Acțiunea nu poate fi anulată.'))return;progress=Object.create(null);if(auth){outbox.p=[];enqueue({k:'dp'})}else history=[];save();renderHome()};
+$('importFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;f.text().then(txt=>{const j=parseImport(txt),incoming=clean(j.progress),n=Object.keys(incoming).length;if(!n){alert('Fișierul nu conține progres valid pentru aceste teme.');return}if(!confirm(auth?'Combini progresul din fișier ('+n+' întrebări) cu cel din cont? Se păstrează varianta cea mai recentă pentru fiecare întrebare.':'Înlocuiești progresul actual cu cel din fișier ('+n+' întrebări)?'))return;if(auth){for(const g in incoming){const p=progress[g];if(!p||incoming[g].last>p.last){progress[g]=incoming[g];queueProgress(g)}}}else{progress=incoming;history=cleanHistory(j.history)}mergeTime(cleanTime(j.time));saveTime();save();renderHome()}).catch(()=>alert('Fișierul nu a putut fi citit. Alege un fișier exportat din această pagină.'))};
+$('resetP').onclick=()=>{if(!confirm(auth?'Ștergi tot progresul de repetare din cont? Istoricul sesiunilor rămâne înregistrat. Acțiunea nu poate fi anulată.':'Ștergi tot progresul salvat în acest browser? Acțiunea nu poate fi anulată.'))return;progress=Object.create(null);if(auth){outbox.p=[];enqueue({k:'dp'})}else{history=[];timeLog=Object.create(null);saveTime()}save();renderHome()};
 document.addEventListener('keydown',e=>{
 if(currentView!=='quiz'||e.repeat)return;
 if(e.key==='Enter'){const t=e.target;if(t.tagName==='BUTTON'&&!t.matches('.option,[data-case]'))return;e.preventDefault();if(state.locked)advance();else check()}
@@ -254,7 +295,7 @@ if(!state.locked&&state.active&&modeFor(state.qs[state.index])==='choice'&&/^[1-
 // Dacă la build nu există config.json, aplicația rămâne locală (fără cont) și nu face nicio cerere de rețea.
 const CFG=(()=>{try{return JSON.parse(document.getElementById('config').textContent)}catch{return null}})();
 const CLOUD=!!(CFG&&CFG.url&&CFG.key),AKEY='deutsch-auth-v1',OKEY='deutsch-outbox-v1';
-let auth=null,outbox={q:[],p:[]},flushing=false;
+let auth=null,outbox={q:[],p:[],d:{}},flushing=false;
 const sfx=()=>auth?':'+auth.user.id:'';
 const uuid=()=>crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=crypto.getRandomValues(new Uint8Array(1))[0]&15;return(c==='x'?r:(r&3|8)).toString(16)});
 const answerRow=(a,i)=>({id:uuid(),session_id:state.sid,position:i+1,item_id:a.id,mode:a.mode,given:a.raw,given_extra:a.cas||'',correct:a.ok,skipped:a.skip,answered_at:new Date().toISOString()});
@@ -266,7 +307,7 @@ const j=await r.json().catch(()=>({}));
 if(r.ok&&j.access_token&&j.user){setAuth(j);return}
 throw new Error(r.status>=500||r.status===429?'net':'bad')}
 const refreshSession=()=>authCall('refresh_token',{refresh_token:auth.refresh_token}).then(()=>true,e=>{if(e.message==='bad')dropSession();return false});
-function dropSession(){auth=null;progress=Object.create(null);history=[];outbox={q:[],p:[]};state={active:false};try{localStorage.removeItem(AKEY)}catch{}showLogin()}
+function dropSession(){auth=null;progress=Object.create(null);history=[];timeLog=Object.create(null);clock=null;outbox={q:[],p:[],d:{}};state={active:false};try{localStorage.removeItem(AKEY)}catch{}showLogin()}
 async function api(path,opt={}){
 if(auth.expires_at<Date.now()&&!await refreshSession())throw new Error('auth');
 const go=()=>fetch(CFG.url+path,{method:opt.method||'GET',headers:{apikey:CFG.key,Authorization:'Bearer '+auth.access_token,'Content-Type':'application/json',...(opt.headers||{})},body:opt.body===undefined?undefined:JSON.stringify(opt.body)});
@@ -275,10 +316,10 @@ if(r.status===401&&await refreshSession())r=await go();
 return r}
 // Coada de trimitere: ce nu ajunge pe server (offline, eroare) rămâne salvat local și se retrimite.
 const saveOutbox=()=>{try{localStorage.setItem(OKEY+sfx(),JSON.stringify(outbox))}catch{}};
-function loadOutbox(){try{const o=JSON.parse(localStorage.getItem(OKEY+sfx()));outbox={q:Array.isArray(o&&o.q)?o.q:[],p:Array.isArray(o&&o.p)?o.p:[]}}catch{outbox={q:[],p:[]}}}
+function loadOutbox(){try{const o=JSON.parse(localStorage.getItem(OKEY+sfx()));outbox={q:Array.isArray(o&&o.q)?o.q:[],p:Array.isArray(o&&o.p)?o.p:[],d:o&&o.d&&typeof o.d==='object'&&!Array.isArray(o.d)?o.d:{}}}catch{outbox={q:[],p:[],d:{}}}}
 function enqueue(op){outbox.q.push(op);saveOutbox();flush()}
 function queueProgress(g){if(!outbox.p.includes(g))outbox.p.push(g);saveOutbox();flush()}
-function setSync(){if(!auth)return;const n=outbox.q.length+outbox.p.length;$('syncState').textContent=!navigator.onLine?'Offline':n?n+' de trimis':'Sincronizat'}
+function setSync(){if(!auth)return;const n=outbox.q.length+outbox.p.length+Object.keys(outbox.d).length;$('syncState').textContent=!navigator.onLine?'Offline':n?n+' de trimis':'Sincronizat'}
 async function send(path,method,body,prefer){const r=await api(path,{method,body,headers:{Prefer:[prefer,'return=minimal'].filter(Boolean).join(',')}});return r.ok?'ok':(r.status>=500||r.status===429||r.status===401||r.status===408)?'retry':(console.warn('Sincronizare respinsă',r.status,path),'drop')}
 function sendOp(op){
 if(op.k==='s')return send('/rest/v1/sessions?on_conflict=id','POST',[op.row],'resolution=ignore-duplicates');
@@ -291,6 +332,7 @@ if(!auth||flushing)return;flushing=true;
 try{for(let guard=0;guard<500;guard++){
 if(outbox.q.length){if(await sendOp(outbox.q[0])==='retry')break;outbox.q.shift();saveOutbox();continue}
 if(outbox.p.length){const gids=outbox.p.slice(0,200),rows=gids.filter(g=>progress[g]).map(rowOf);if(rows.length&&await send('/rest/v1/progress?on_conflict=user_id,item_id','POST',rows,'resolution=merge-duplicates')==='retry')break;outbox.p=outbox.p.filter(g=>!gids.includes(g));saveOutbox();continue}
+const sids=Object.keys(outbox.d);if(sids.length){const sid=sids[0],v=outbox.d[sid];if(await send('/rest/v1/sessions?id=eq.'+encodeURIComponent(sid),'PATCH',{duration_s:v},'')==='retry')break;if(outbox.d[sid]===v)delete outbox.d[sid];saveOutbox();continue}
 break}}catch{}
 flushing=false;setSync()}
 // La autentificare: trimite ce e în așteptare, apoi combină progresul din cont cu cel local (câștigă cel mai recent).
@@ -303,9 +345,11 @@ for(const x of rows)remote[x.item_id]={box:x.box,due:Number(x.due),seen:x.seen,r
 const inc=clean(remote);
 for(const g in inc){const p=progress[g];if(!p||inc[g].last>p.last)progress[g]=inc[g];else if(p.last>inc[g].last)queueProgress(g)}
 for(const g in progress)if(!remote[g])queueProgress(g)}
-if(!outbox.q.length){const s=await api('/rest/v1/sessions?select=topic,started_at,n,correct,pct&finished_at=not.is.null&order=started_at.desc&limit=40');
-if(s.ok)history=cleanHistory((await s.json()).map(x=>({t:Date.parse(x.started_at),topic:x.topic,pct:x.pct,n:x.n,correct:x.correct})).reverse())}
-save();if(currentView==='home')renderHome();if(currentView==='topic')renderTopic()}catch{}
+if(!outbox.q.length){const s=await api('/rest/v1/sessions?select=topic,started_at,n,correct,pct,duration_s&finished_at=not.is.null&order=started_at.desc&limit=40');
+if(s.ok)history=cleanHistory((await s.json()).map(x=>({t:Date.parse(x.started_at),topic:x.topic,pct:x.pct,n:x.n,correct:x.correct,sec:x.duration_s})).reverse())}
+const tr=await api('/rest/v1/sessions?select=id,started_at,duration_s&duration_s=not.is.null&started_at=gte.'+encodeURIComponent(new Date(Date.now()-TWINDOW).toISOString())+'&order=started_at.desc&limit=1000');
+if(tr.ok)mergeTime(cleanTime((await tr.json()).map(x=>({id:x.id,t:Date.parse(x.started_at),sec:x.duration_s}))));
+save();saveTime();if(currentView==='home')renderHome();if(currentView==='topic')renderTopic()}catch{}
 setSync()}
 function showLogin(){$('logout').hidden=$('userEmail').hidden=$('syncState').hidden=true;$('loginError').hidden=true;show('login')}
 async function afterLogin(){
