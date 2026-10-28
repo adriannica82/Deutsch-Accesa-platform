@@ -153,6 +153,12 @@ def main():
         if html.count(marker) != 1:
             sys.exit(f"Marcajul {marker} trebuie să apară exact o dată în src/template.html")
         html = html.replace(marker, value)
+    icon_path = os.path.join(ROOT, "src", "icon.png")
+    if os.path.exists(icon_path):
+        import base64
+        html = html.replace("/*__ICON__*/", "data:image/png;base64," + base64.b64encode(open(icon_path, "rb").read()).decode())
+    elif "/*__ICON__*/" in html:
+        html = html.replace("/*__ICON__*/", "")
     out = os.path.join(ROOT, "deutsch.html")
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)

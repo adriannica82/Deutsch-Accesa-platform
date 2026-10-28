@@ -38,7 +38,7 @@ const modeLabel=(t,m)=>m==='choice'?'Alege '+t.answerNoun:m==='write'?'Scrie '+t
 const guideDetails=(t,open)=>t.guideHtml?'<details class="card prep-guide"'+(open?' open':'')+'><summary>'+escape(t.guideTitle)+'</summary>'+t.guideHtml+'</details>':'';
 
 // ---------- Navigare ----------
-function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;$('navHome').hidden=id==='home'||id==='quiz'||id==='login';if(id==='home')renderHome();if(id==='topic')renderTopic();window.scrollTo(0,0)}
+function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;$('navHome').hidden=id==='home'||id==='quiz'||id==='login';if(id==='home')renderHome();if(id==='topic')renderTopic();if(id!=='login')pushView(id);window.scrollTo(0,0)}
 function renderHome(){
 $('heroTopics').textContent=countRo(topics.length,['temă','teme']);$('heroItems').textContent=countRo(allItems.length,['întrebare','întrebări']);
 $('progressStats').innerHTML=statsHtml(allItems);$('timeStats').innerHTML=timeHtml();$('storeWarn').hidden=storageOK;
@@ -92,7 +92,7 @@ function renderQuestion(){
 const q=state.qs[state.index],m=modeFor(q),t=q.topic,prev=state.answers[state.index],exam=state.feedbackMode==='exam',n=state.qs.length,done=state.answers.filter(Boolean);
 state.locked=false;state.selected=prev&&!prev.skip&&m==='choice'?prev.raw:'';state.selectedCase=prev&&!prev.skip?prev.cas:'';
 if(!state.opts[state.index])state.opts[state.index]=optionsFor(q);
-$('qCounter').textContent='Întrebarea '+(state.index+1)+' / '+n;$('bar').style.width=(state.index/n*100)+'%';$('progress').setAttribute('aria-valuenow',Math.round(state.index/n*100));
+window.scrollTo(0,0);$('qCounter').textContent='Întrebarea '+(state.index+1)+' / '+n;$('bar').style.width=(state.index/n*100)+'%';$('progress').setAttribute('aria-valuenow',Math.round(state.index/n*100));
 $('sessionLabel').textContent=(state.topic?state.topic.title.toUpperCase()+' · ':'REPETIȚIA DE AZI · ')+(exam?'corectare la final':'feedback imediat');
 $('runningScore').textContent=exam?done.length+' / '+n+' răspunsuri înregistrate':done.filter(a=>a.ok).length+' corecte / '+done.length+' răspunsuri';
 $('qContent').innerHTML=(state.topic?'':'<span class="pill qtopic">'+escape(t.title)+'</span>')+'<p class="sentence" lang="de">'+escape(q.prompt).replace('___','<span class="blank">…</span>')+'</p>'+(q.hint?'<p class="small hint">'+escape(q.hint)+'</p>':'')+'<p class="muted">'+escape(q.ro)+'</p><p class="small muted">'+(m==='both'?'Completează răspunsul și alege '+escape(t.extra.label.toLowerCase())+'.':escape(t.instruction))+'</p>';
@@ -100,7 +100,7 @@ $('feedback').innerHTML='';$('validation').hidden=true;$('check').hidden=false;
 $('check').textContent=exam?(state.index===n-1?'Înregistrează și finalizează':prev?'Actualizează răspunsul':'Înregistrează răspunsul'):'Verifică răspunsul';
 $('next').hidden=true;$('skip').hidden=false;$('prev').hidden=!(exam&&state.index>0);
 if(m==='choice'){$('answerArea').innerHTML='<div class="options'+(state.opts[state.index].some(o=>o.length>24)?' wide':'')+'">'+state.opts[state.index].map((p,i)=>'<button class="option'+(p===state.selected?' selected':'')+'" type="button" data-value="'+escape(p)+'" aria-pressed="'+(p===state.selected)+'"><span>'+(i+1)+'</span>'+escape(p)+'</button>').join('')+'</div>';$('answerArea').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(state.locked)return;state.selected=b.dataset.value;$('answerArea').querySelectorAll('button').forEach(x=>{const on=x===b;x.classList.toggle('selected',on);x.setAttribute('aria-pressed',String(on))});$('validation').hidden=true})}
-else{$('answerArea').innerHTML='<div class="entry"><label class="small" for="answerInput">'+escape(cap(t.answerNoun))+'</label><input type="text" id="answerInput" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Scrie aici…" lang="de" value="'+(prev&&!prev.skip?escape(prev.raw):'')+'"><p class="small muted" style="margin-top:6px">Poți scrie ä, ö, ü, ß și ca „ae”, „oe”, „ue”, „ss” (ex.: „fuer”, „weiss”).</p></div>'+(m==='both'?'<div class="cases" role="group" aria-label="'+escape(t.extra.label)+'">'+t.extra.options.map(c=>'<button type="button" data-case="'+escape(c)+'" aria-pressed="'+(c===state.selectedCase)+'">'+escape(c)+'</button>').join('')+'</div>':'');$('answerInput').addEventListener('input',()=>{$('validation').hidden=true});$('answerArea').querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{if(state.locked)return;state.selectedCase=b.dataset.case;$('answerArea').querySelectorAll('[data-case]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('validation').hidden=true});if(window.matchMedia('(min-width: 721px)').matches)$('answerInput').focus()}}
+else{$('answerArea').innerHTML='<div class="entry"><label class="small" for="answerInput">'+escape(cap(t.answerNoun))+'</label><input type="text" id="answerInput" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="Scrie aici…" lang="de" value="'+(prev&&!prev.skip?escape(prev.raw):'')+'"><p class="small muted" style="margin-top:6px">Poți scrie ä, ö, ü, ß și ca „ae”, „oe”, „ue”, „ss” (ex.: „fuer”, „weiss”).</p></div>'+(m==='both'?'<div class="cases" role="group" aria-label="'+escape(t.extra.label)+'">'+t.extra.options.map(c=>'<button type="button" data-case="'+escape(c)+'" aria-pressed="'+(c===state.selectedCase)+'">'+escape(c)+'</button>').join('')+'</div>':'');$('answerInput').addEventListener('input',()=>{$('validation').hidden=true});$('answerArea').querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{if(state.locked)return;state.selectedCase=b.dataset.case;$('answerArea').querySelectorAll('[data-case]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('validation').hidden=true});$('answerInput').focus()}}
 function evaluate(q,raw,cas,skip){
 const m=modeFor(q),a=canon(raw),prepOK=!skip&&(a===canon(q.answer)||q.alt.some(x=>a===canon(x))),viaAlt=prepOK&&a!==canon(q.answer),caseOK=!skip&&(m!=='both'||cas===q.extra);
 return{id:q.gid,mode:m,raw:skip?'':raw,cas:skip?'':cas,skip,prepOK,caseOK,viaAlt,ok:prepOK&&caseOK}}
@@ -113,7 +113,7 @@ state.locked=true;record(q,a.ok);save();if(auth)enqueue({k:'a',rows:[answerRow(a
 $('answerArea').querySelectorAll('input,button').forEach(x=>x.disabled=true);$('answerArea').querySelectorAll('[data-value]').forEach(b=>{b.classList.toggle('correct',b.dataset.value===q.answer);b.classList.toggle('incorrect',!a.ok&&canon(b.dataset.value)===prep&&prep!==canon(q.answer))});
 const title=a.ok?'Corect!':skip?'De reținut':a.prepOK&&m==='both'?'Răspunsul este corect. Verifică '+q.topic.extra.label.toLowerCase()+'.':'Răspunsul corect';
 $('feedback').innerHTML='<div class="feedback '+(a.ok?'':'wrong')+'"><strong>'+title+(q.label?' · <span lang="de">'+escape(q.label)+'</span>':'')+(q.extra?' + '+escape(q.extra):'')+'</strong>'+(q.gloss?'<p class="small">Sens: <b>'+escape(q.gloss)+'</b></p>':'')+'<p lang="de">'+escape(q.prompt).replace('___','<b>'+escape(q.answer)+'</b>')+'</p><p class="small muted">'+escape(q.ro)+'</p>'+(a.viaAlt?'<p class="small">Varianta ta, „<span lang="de">'+escape(prep)+'</span>”, este corectă și ea; forma standard în acest test este „<span lang="de">'+escape(q.answer)+'</span>”.</p>':'')+'<p class="small">'+escape(q.explain)+'</p><p class="small muted">Revezi '+nextText(progress[q.gid])+'.</p></div>';
-$('check').hidden=true;$('skip').hidden=true;$('next').hidden=false;$('next').textContent=state.index===state.qs.length-1?'Vezi rezultatele →':'Următoarea →';$('next').focus()}
+$('check').hidden=true;$('skip').hidden=true;$('next').hidden=false;$('next').textContent=state.index===state.qs.length-1?'Vezi rezultatele →':'Următoarea →';$('next').focus({preventScroll:true});$('feedback').scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
 function advance(){
 const last=state.index>=state.qs.length-1;
 if(state.feedbackMode==='exam'&&last){
@@ -143,7 +143,7 @@ $('reviewList').innerHTML=state.answers.map((a,i)=>{const q=byId[a.id],p=progres
 function renderStudy(){
 const t=studyTopic,query=fold($('search').value.trim()),g=$('studyFilter').value,qs=t.qs.filter(q=>(g==='all'||q.group===g)&&[q.label||'',q.answer,q.gloss||'',q.hint||'',q.ro,q.prompt].some(s=>fold(s).includes(query)));
 $('studyCount').textContent=countRo(qs.length,t.unit)+' afișate';
-$('verbTable').innerHTML=qs.length?qs.map(q=>{const p=P(q),st=status(p),sense=q.sense||q.gloss||q.hint||q.ro;return '<tr><td><b lang="de">'+escape(q.label||q.answer)+'</b>'+(q.group?'<br>'+groupPill(q.group):'')+'</td><td><b>'+escape(sense)+'</b></td><td><span lang="de">'+escape(q.prompt).replace('___','<b>'+escape(q.answer)+'</b>')+'</span>'+(sense!==q.ro?'<br><span class="small muted">'+escape(q.ro)+'</span>':'')+'</td><td><span class="pill p-'+st+'">'+statusLabel[st]+'</span>'+(p?'<br><span class="small muted">'+p.right+'/'+p.seen+' corecte · revezi '+nextText(p)+'</span>':'')+'</td></tr>'}).join(''):'<tr><td colspan="4">Niciun rezultat. Încearcă alt cuvânt sau sens.</td></tr>'}
+$('verbTable').innerHTML=qs.length?qs.map(q=>{const p=P(q),st=status(p),sense=q.sense||q.gloss||q.hint||q.ro;return '<tr><td data-label="Element"><b lang="de">'+escape(q.label||q.answer)+'</b>'+(q.group?'<br>'+groupPill(q.group):'')+'</td><td data-label="Sens"><b>'+escape(sense)+'</b></td><td data-label="Exemplu"><span lang="de">'+escape(q.prompt).replace('___','<b>'+escape(q.answer)+'</b>')+'</span>'+(sense!==q.ro?'<br><span class="small muted">'+escape(q.ro)+'</span>':'')+'</td><td data-label="Progres"><span class="pill p-'+st+'">'+statusLabel[st]+'</span>'+(p?'<br><span class="small muted">'+p.right+'/'+p.seen+' corecte · revezi '+nextText(p)+'</span>':'')+'</td></tr>'}).join(''):'<tr><td colspan="4">Niciun rezultat. Încearcă alt cuvânt sau sens.</td></tr>'}
 function openStudy(t){
 studyReturn=currentView;studyTopic=t;$('studyTitle').textContent=t.title;
 $('studyIntro').textContent='Toate cele '+t.qs.length+(t.qs.length<20?' ':' de ')+t.unit[1]+' din temă'+(t.groups?': '+t.groups.map(g=>g+': '+t.qs.filter(q=>q.group===g).length).join(' · '):'')+'.';
@@ -214,7 +214,7 @@ $('todayStart').onclick=()=>begin(pickFrom(allItems,'smart',Number($('todayCount
 $('retry').onclick=()=>begin(shuffled(state.answers.filter(a=>!a.ok).map(a=>byId[a.id])),{mode:state.mode,feedbackMode:'practice',topic:state.topic});
 $('check').onclick=()=>check();$('skip').onclick=()=>check(true);$('next').onclick=advance;
 $('prev').onclick=()=>{if(state.active&&state.index>0){state.index--;renderQuestion()}};
-$('quit').onclick=()=>{if(!confirm('Închei sesiunea acum? Vei vedea scorul pentru întrebările la care ai răspuns.'))return;if(state.answers.some(Boolean))finish();else{state.active=false;const dur=stopClock();if(auth&&dur){outbox.d[state.sid]=dur;saveOutbox();flush()}show(state.topic?'topic':'home')}};
+$('quit').onclick=()=>{if(!confirm('Închei sesiunea acum? Vei vedea scorul pentru întrebările la care ai răspuns.'))return;endSession()};
 $('newTest').onclick=()=>show(state.topic?'topic':'home');$('navHome').onclick=()=>show('home');
 $('resultStudy').onclick=()=>openStudy(state.topic);$('topicStudy').onclick=()=>openStudy(cur);$('studyBack').onclick=()=>show(studyReturn);
 $('search').oninput=renderStudy;$('studyFilter').onchange=renderStudy;
@@ -291,7 +291,7 @@ setSync()}
 function showLogin(){$('logout').hidden=$('userEmail').hidden=$('syncState').hidden=true;$('loginError').hidden=true;show('login')}
 async function afterLogin(){
 loadProgress();loadOutbox();$('userEmail').textContent=auth.user.email;$('userEmail').hidden=$('syncState').hidden=$('logout').hidden=false;
-$('storeNote').textContent='Progresul și sesiunile tale se salvează în contul tău și se sincronizează între dispozitive. Exportă-l dacă vrei o copie.';
+$('storeNote').textContent='Conectat ca '+auth.user.email+'. Progresul și sesiunile tale se salvează în contul tău și se sincronizează între dispozitive. Exportă-l dacă vrei o copie.';
 $('footNote').textContent='Exemple adaptate pentru test · Date salvate în contul personal.';
 show('home');setSync();sync()}
 if(CLOUD){
@@ -303,6 +303,31 @@ b.disabled=false};
 $('logout').onclick=async()=>{await flush();try{await api('/auth/v1/logout',{method:'POST'})}catch{}dropSession()};
 addEventListener('online',()=>{if(auth){flush().then(sync)}else setSync()});addEventListener('offline',setSync);
 setInterval(()=>{if(auth)flush()},30000)}
+
+// ---------- Istoric: butonul „înapoi” și gestul de pe iPhone ----------
+// Fiecare ecran are propria intrare în istoricul browserului, ca să nu ieși din aplicație la „înapoi”.
+// Atenție: variabila „history” din acest fișier sunt sesiunile, deci folosim window.history.
+let navSilent=false,navStarted=false;
+function pushView(id){
+if(navSilent)return;
+const s={v:id,t:cur?cur.id:null,s:studyTopic?studyTopic.id:null};
+try{if(!navStarted){navStarted=true;window.history.replaceState(s,'');return}
+const h=window.history.state;if(h&&h.v===s.v&&h.t===s.t&&h.s===s.s)return;window.history.pushState(s,'')}catch{}}
+function endSession(){if(state.answers.some(Boolean))finish();else{state.active=false;const dur=stopClock();if(auth&&dur){outbox.d[state.sid]=dur;saveOutbox();flush()}show(state.topic?'topic':'home')}}
+addEventListener('popstate',e=>{
+if(CLOUD&&!auth)return;
+const s=e.state||{v:'home'};
+if(state.active&&s.v!=='quiz'){
+if(!confirm('Închei sesiunea acum? Vei vedea scorul pentru întrebările la care ai răspuns.')){try{window.history.pushState({v:'quiz',t:cur?cur.id:null,s:null},'')}catch{}return}
+if(state.answers.some(Boolean))endSession();else{navSilent=true;try{endSession()}finally{navSilent=false}}return}
+navSilent=true;
+try{
+if(s.v==='topic'&&topicById[s.t])openTopic(s.t);
+else if(s.v==='study'&&topicById[s.s])openStudy(topicById[s.s]);
+else if(s.v==='results'&&state.answers&&state.answers.length&&!state.active)show('results');
+else if(s.v==='quiz'&&state.active)show('quiz');
+else show('home')}
+finally{navSilent=false}});
 
 // ---------- Inițializare ----------
 if(!CLOUD){loadProgress();show('home')}

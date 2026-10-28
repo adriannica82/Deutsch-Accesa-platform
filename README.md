@@ -32,6 +32,10 @@ Butonul **Exportă (.md)** din „Progresul tău” descarcă un raport Markdown
 
 Proiectul este static: preset „Other”, fără build command, directorul rădăcină `./`. `vercel.json` trimite adresa `/` către `deutsch.html`.
 
+## Mobile (iPhone)
+
+Aplicația este optimizată pentru iPhone 17 (402×874) și iPhone 17 Pro Max (440×956): zone sigure (Dynamic Island, bara de acasă), ținte tactile de minimum 44 px, bară de acțiuni lipită jos în test, fișa de recapitulare ca carduri, gestul „înapoi” de pe iPhone care navighează între ecrane și pictogramă pentru „Adaugă pe ecranul principal” (`src/icon.png`, generată în `deutsch.html` de `build.py`).
+
 ## Cont și sincronizare (Supabase)
 
 `config.json` conține adresa proiectului Supabase și **cheia publică** (publishable key; este făcută să fie vizibilă în pagină).
