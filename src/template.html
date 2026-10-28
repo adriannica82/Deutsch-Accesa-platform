@@ -7,8 +7,10 @@
 /*__STYLE__*/
 </style>
 </head><body>
-<header><div class="brand">Deutsch<span> / antrenament</span></div><button id="navHome" class="quiet back" hidden>← Toate temele</button></header>
+<header><div class="brand">Deutsch<span> / antrenament</span></div><div class="userbar"><span id="userEmail" class="small muted" hidden></span><span id="syncState" class="small muted" hidden></span><button id="navHome" class="quiet back" hidden>← Toate temele</button><button id="logout" class="quiet back" hidden>Ieși</button></div></header>
 <main>
+
+<section id="login" hidden><div class="card loginbox"><div class="label">AUTENTIFICARE</div><h1 style="font-size:32px">Intră în cont</h1><p class="muted small">Conturile sunt create de administrator. Progresul și sesiunile tale se salvează în cont.</p><form id="loginForm"><div class="field"><label for="email">Email</label><input type="email" id="email" autocomplete="username" required></div><div class="field" style="margin-top:14px"><label for="password">Parola</label><input type="password" id="password" autocomplete="current-password" required></div><p class="error" id="loginError" role="alert" hidden></p><button class="primary allwidth" id="loginBtn" style="margin-top:18px">Intră</button></form></div></section>
 
 <section id="home">
 <div class="hero"><div><div class="label">GERMANĂ · A1–B1</div><h1>Un program.<br>Mai multe teme.</h1><p class="muted">Exersează articolele, cazurile, verbele și prepozițiile în propoziții scurte. Fiecare întrebare are traducere și explicație în română, iar programul îți readuce la timp ce uiți.</p><span class="pill" id="heroTopics"></span> <span class="pill" id="heroItems"></span> <span class="pill">Explicații în română</span></div><div class="notebook" lang="de"><div class="label">Kleine Wörter. Große Wirkung.</div><p>Ich denke <em>an</em> dich.<br> Ich spreche <em>mit</em> dir.<br> Ich freue mich <em>auf</em> morgen.</p></div></div>
@@ -19,7 +21,7 @@
 <button id="todayStart" class="primary allwidth">Începe repetiția →</button><p class="small muted guide" id="todayInfo"></p></div>
 <aside class="card"><div class="label">PROGRESUL TĂU</div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” pentru a-l păstra.</p><div class="tools"><button type="button" class="quiet back" id="exportP">Exportă</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back" id="resetP">Resetează</button></div><input type="file" id="importFile" accept="application/json,.json" hidden>
 <div class="mini"><div class="label">SESIUNI RECENTE</div><ul class="history" id="history"></ul></div>
-<p class="small muted" style="margin-top:12px">Progresul se salvează doar în acest browser. Exportă-l ca să-l muți pe alt dispozitiv.</p></aside>
+<p class="small muted" style="margin-top:12px" id="storeNote">Progresul se salvează doar în acest browser. Exportă-l ca să-l muți pe alt dispozitiv.</p></aside>
 </div>
 
 <h2 class="sectionhead">Alege o temă</h2>
@@ -45,8 +47,9 @@
 
 <section id="study" hidden><div class="row"><div><div class="label">FIȘĂ DE RECAPITULARE</div><h1 style="font-size:36px" id="studyTitle"></h1></div><button id="studyBack" class="primary">← Înapoi</button></div><p class="muted" id="studyIntro"></p><div id="studyGuide"></div><div class="card"><div class="controls" style="margin-top:0"><div class="field"><label for="search">Caută în listă</label><input type="search" id="search" placeholder="Ex.: mit, a mulțumi, fahren…"></div><div class="field" id="studyFilterField"><label for="studyFilter" id="studyFilterLabel">Filtrează</label><select id="studyFilter"></select></div></div><p class="small muted" id="studyCount"></p><div class="tablewrap"><table class="verbs"><thead><tr><th scope="col">Element</th><th scope="col">Sens</th><th scope="col">Exemplu</th><th scope="col">Progres</th></tr></thead><tbody id="verbTable"></tbody></table></div></div></section>
 
-</main><footer>Exemple adaptate pentru test · Funcționează offline, fără cont · Progresul se salvează doar în acest browser.</footer>
+</main><footer id="footNote">Exemple adaptate pentru test · Funcționează offline, fără cont · Progresul se salvează doar în acest browser.</footer>
 <script type="application/json" id="content">/*__CONTENT__*/</script>
+<script type="application/json" id="config">/*__CONFIG__*/</script>
 <script>
 /*__SCRIPT__*/
 </script>

@@ -4,7 +4,8 @@
   content/*.json      o temă pe fișier (aici adaugi și corectezi întrebările)
   src/template.html   structura paginii
   src/style.css       stilurile
-  src/app.js          motorul (teste, repetare spațiată, progres)
+  src/app.js          motorul (teste, repetare spațiată, progres, cont și sincronizare)
+  config.json         (opțional) url și cheia publică Supabase; fără el aplicația rămâne locală
 
 Rulare:   python3 build.py          validează conținutul și scrie deutsch.html
           python3 build.py --check  doar validează
@@ -128,9 +129,16 @@ def main():
     if "--check" in sys.argv:
         return
     read = lambda p: open(os.path.join(ROOT, p), encoding="utf-8").read()
+    config = "null"
+    if os.path.exists(os.path.join(ROOT, "config.json")):
+        cfg = json.loads(read("config.json"))
+        if not str(cfg.get("url", "")).startswith("https://") or not cfg.get("key"):
+            sys.exit("config.json trebuie să conțină \"url\" (https://…) și \"key\" (cheia publică Supabase)")
+        config = json.dumps({"url": cfg["url"].rstrip("/"), "key": cfg["key"]}, separators=(",", ":")).replace("</", "<\\/")
+    print("Cont și sincronizare:", "Supabase (config.json)" if config != "null" else "dezactivate (fără config.json)")
     content = json.dumps({"topics": topics}, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/").replace("<!--", "<\\u0021--")
     html = read("src/template.html")
-    for marker, value in (("/*__STYLE__*/", read("src/style.css")), ("/*__SCRIPT__*/", read("src/app.js")), ("/*__CONTENT__*/", content)):
+    for marker, value in (("/*__STYLE__*/", read("src/style.css")), ("/*__SCRIPT__*/", read("src/app.js")), ("/*__CONTENT__*/", content), ("/*__CONFIG__*/", config)):
         if html.count(marker) != 1:
             sys.exit(f"Marcajul {marker} trebuie să apară exact o dată în src/template.html")
         html = html.replace(marker, value)

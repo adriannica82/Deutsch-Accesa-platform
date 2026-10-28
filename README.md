@@ -27,3 +27,18 @@ Progresul se salvează în `localStorage`, doar în browserul folosit.
 ## Publicare (Vercel)
 
 Proiectul este static: preset „Other”, fără build command, directorul rădăcină `./`. `vercel.json` trimite adresa `/` către `deutsch.html`.
+
+## Cont și sincronizare (Supabase)
+
+`config.json` conține adresa proiectului Supabase și **cheia publică** (publishable key; este făcută să fie vizibilă în pagină).
+Datele sunt protejate de Row Level Security: fiecare utilizator vede și scrie doar rândurile lui.
+Fără `config.json`, aplicația rămâne locală (fără cont, fără cereri de rețea).
+
+| Tabel | Conținut |
+|---|---|
+| `progress` | Starea repetării spațiate: câte un rând pe utilizator și întrebare |
+| `sessions` | Câte un rând pe sesiune: temă, mod, început, sfârșit, scor |
+| `answers` | Câte un rând pe răspuns dat, legat de sesiune |
+
+Conturile se creează de administrator în Supabase (Authentication → Users); înregistrarea liberă trebuie oprită
+(Authentication → Sign In / Providers → dezactivează „Allow new users to sign up”). Aplicația nu are formular de înregistrare.
