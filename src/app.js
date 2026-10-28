@@ -150,6 +150,25 @@ $('studyIntro').textContent='Toate cele '+t.qs.length+(t.qs.length<20?' ':' de '
 $('studyGuide').innerHTML=guideDetails(t,true);$('studyFilterField').hidden=!t.groups;$('studyFilterLabel').textContent=t.groupLabel||'Filtrează';
 $('studyFilter').innerHTML='<option value="all">Toate</option>'+(t.groups||[]).map(g=>'<option>'+escape(g)+'</option>').join('');$('search').value='';renderStudy();show('study')}
 
+// ---------- Export / import ----------
+const mdCell=s=>String(s).replace(/\|/g,'\\|').replace(/\n/g,' ');
+// Raport Markdown, ușor de citit; la sfârșit conține datele complete, pe care le citește butonul „Importă”.
+function exportMarkdown(){
+const now=new Date(),c=counts(allItems),L=[];
+L.push('# Progres Deutsch','','Exportat: '+now.toLocaleString('ro-RO')+(auth?' · cont: '+auth.user.email:' · salvat local în browser'),'');
+L.push('## Rezumat','','- Întrebări: **'+allItems.length+'** în '+topics.length+' teme','- Noi: '+c.new+' · În învățare: '+c.learn+' · Consolidare: '+c.mid+' · Stăpânit: '+c.done,'- De repetat acum: '+allItems.filter(isDue).length,'');
+L.push('## Pe teme','','| Temă | Nivel | Noi | În învățare | Consolidare | Stăpânit | De repetat |','|---|---|---|---|---|---|---|');
+topics.forEach(t=>{const k=counts(t.qs);L.push('| '+mdCell(t.title)+' | '+t.level+' | '+k.new+' | '+k.learn+' | '+k.mid+' | '+k.done+' | '+t.qs.filter(isDue).length+' |')});
+L.push('','## Sesiuni recente','');
+if(history.length){L.push('| Data | Sesiune | Scor |','|---|---|---|');history.slice().reverse().forEach(h=>L.push('| '+new Date(h.t).toLocaleDateString('ro-RO')+' | '+mdCell(h.topic==='mix'?'Repetiția de azi':topicById[h.topic].title)+' | '+h.pct+'% · '+h.correct+'/'+h.n+' |'))}else L.push('Încă nu ai finalizat o sesiune.');
+const weak=allItems.filter(q=>P(q)&&P(q).wrong>0&&P(q).box<=2).sort((a,b)=>P(b).wrong-P(a).wrong||P(a).box-P(b).box).slice(0,50);
+L.push('','## Puncte slabe','');
+if(weak.length){L.push('| Întrebare | Temă | Corecte / văzute | Revezi |','|---|---|---|---|');weak.forEach(q=>L.push('| '+mdCell(q.label||q.answer)+' | '+mdCell(q.topic.title)+' | '+P(q).right+'/'+P(q).seen+' | '+nextText(P(q))+' |'))}else L.push('Nu ai încă puncte slabe.');
+L.push('','## Date pentru import','','Nu modifica blocul de mai jos: îl citește butonul „Importă” din aplicație.','','```json',JSON.stringify({version:2,progress,history}),'```','');
+return L.join('\n')}
+// Importul acceptă fișierul .md exportat de aplicație și, pentru compatibilitate, vechiul .json.
+function parseImport(txt){const t=txt.trim();if(t.startsWith('{'))return JSON.parse(t);const m=t.match(/```json\s*([\s\S]*?)```/);if(!m)throw new Error('format');return JSON.parse(m[1])}
+
 // ---------- Evenimente ----------
 $('start').onclick=()=>begin(pickFrom(pool(),$('selection').value,countValue(),$('shuffle').checked).qs,{mode:$('mode').value,feedbackMode:$('feedbackMode').value,topic:cur});
 $('todayStart').onclick=()=>begin(pickFrom(allItems,'smart',Number($('todayCount').value)).qs,{mode:'auto',feedbackMode:'practice',topic:null});
@@ -161,9 +180,9 @@ $('newTest').onclick=()=>show(state.topic?'topic':'home');$('navHome').onclick=(
 $('resultStudy').onclick=()=>openStudy(state.topic);$('topicStudy').onclick=()=>openStudy(cur);$('studyBack').onclick=()=>show(studyReturn);
 $('search').oninput=renderStudy;$('studyFilter').onchange=renderStudy;
 $('topicGrid').onclick=e=>{const b=e.target.closest('[data-topic]');if(b)openTopic(b.dataset.topic)};
-$('exportP').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({version:2,progress,history},null,1)],{type:'application/json'}));a.download='progres-deutsch.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$('exportP').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([exportMarkdown()],{type:'text/markdown;charset=utf-8'}));a.download='progres-deutsch-'+new Date().toISOString().slice(0,10)+'.md';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $('importP').onclick=()=>$('importFile').click();
-$('importFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;f.text().then(txt=>{const j=JSON.parse(txt),incoming=clean(j.progress),n=Object.keys(incoming).length;if(!n){alert('Fișierul nu conține progres valid pentru aceste teme.');return}if(!confirm(auth?'Combini progresul din fișier ('+n+' întrebări) cu cel din cont? Se păstrează varianta cea mai recentă pentru fiecare întrebare.':'Înlocuiești progresul actual cu cel din fișier ('+n+' întrebări)?'))return;if(auth){for(const g in incoming){const p=progress[g];if(!p||incoming[g].last>p.last){progress[g]=incoming[g];queueProgress(g)}}}else{progress=incoming;history=cleanHistory(j.history)}save();renderHome()}).catch(()=>alert('Fișierul nu a putut fi citit. Alege un fișier exportat din această pagină.'))};
+$('importFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;f.text().then(txt=>{const j=parseImport(txt),incoming=clean(j.progress),n=Object.keys(incoming).length;if(!n){alert('Fișierul nu conține progres valid pentru aceste teme.');return}if(!confirm(auth?'Combini progresul din fișier ('+n+' întrebări) cu cel din cont? Se păstrează varianta cea mai recentă pentru fiecare întrebare.':'Înlocuiești progresul actual cu cel din fișier ('+n+' întrebări)?'))return;if(auth){for(const g in incoming){const p=progress[g];if(!p||incoming[g].last>p.last){progress[g]=incoming[g];queueProgress(g)}}}else{progress=incoming;history=cleanHistory(j.history)}save();renderHome()}).catch(()=>alert('Fișierul nu a putut fi citit. Alege un fișier exportat din această pagină.'))};
 $('resetP').onclick=()=>{if(!confirm(auth?'Ștergi tot progresul de repetare din cont? Istoricul sesiunilor rămâne înregistrat. Acțiunea nu poate fi anulată.':'Ștergi tot progresul salvat în acest browser? Acțiunea nu poate fi anulată.'))return;progress=Object.create(null);if(auth){outbox.p=[];enqueue({k:'dp'})}else history=[];save();renderHome()};
 document.addEventListener('keydown',e=>{
 if(currentView!=='quiz'||e.repeat)return;

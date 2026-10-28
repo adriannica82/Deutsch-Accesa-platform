@@ -11,6 +11,7 @@
 .topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;margin:16px 0 36px}.topic{display:flex;flex-direction:column;align-items:stretch;gap:8px;text-align:left;padding:20px;border-radius:18px;font-weight:400;background:var(--card)}.topic:hover:not(:disabled){background:#f6faf4;border-color:#b9cdb8}.topic h3{margin:2px 0 0;font-size:20px;letter-spacing:-.4px}.topic p{margin:0}.topic .stack{margin-top:6px}.history{list-style:none;padding:0;margin:12px 0 0}.history li{font-size:13px;padding:7px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}.qtopic{margin-bottom:4px}.hint{margin:-4px 0 14px}.sectionhead{margin:34px 0 4px}
 .options.wide{grid-template-columns:1fr}
 input[type=email],input[type=password]{width:100%;border:1px solid #cbd6d1;border-radius:10px;background:#fff;color:var(--ink);padding:12px}.userbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}.userbar #userEmail{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.loginbox{max-width:440px;margin:40px auto}
+.history li{align-items:baseline}.history li span{min-width:0}.history li b{white-space:nowrap;flex:none}
 
 </style>
 </head><body>
@@ -26,7 +27,7 @@ input[type=email],input[type=password]{width:100%;border:1px solid #cbd6d1;borde
 <div class="card"><div class="label">REPETIȚIA DE AZI</div><h2 style="margin-top:12px">Ce trebuie reîmprospătat acum</h2><p class="muted small">Un amestec din toate temele: mai întâi construcțiile scadente, apoi cele noi. Tipul de exercițiu se alege automat pentru fiecare temă.</p>
 <div class="controls"><div class="field" style="grid-column:1/-1"><label for="todayCount">Număr de întrebări</label><select id="todayCount"><option value="10">10 · sesiune scurtă</option><option value="20" selected>20 · antrenament</option><option value="30">30 · sesiune lungă</option></select></div></div>
 <button id="todayStart" class="primary allwidth">Începe repetiția →</button><p class="small muted guide" id="todayInfo"></p></div>
-<aside class="card"><div class="label">PROGRESUL TĂU</div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” pentru a-l păstra.</p><div class="tools"><button type="button" class="quiet back" id="exportP">Exportă</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back" id="resetP">Resetează</button></div><input type="file" id="importFile" accept="application/json,.json" hidden>
+<aside class="card"><div class="label">PROGRESUL TĂU</div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” pentru a-l păstra.</p><div class="tools"><button type="button" class="quiet back" id="exportP">Exportă (.md)</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back" id="resetP">Resetează</button></div><input type="file" id="importFile" accept=".md,.markdown,text/markdown,.json,application/json" hidden>
 <div class="mini"><div class="label">SESIUNI RECENTE</div><ul class="history" id="history"></ul></div>
 <p class="small muted" style="margin-top:12px" id="storeNote">Progresul se salvează doar în acest browser. Exportă-l ca să-l muți pe alt dispozitiv.</p></aside>
 </div>
@@ -210,6 +211,25 @@ $('studyIntro').textContent='Toate cele '+t.qs.length+(t.qs.length<20?' ':' de '
 $('studyGuide').innerHTML=guideDetails(t,true);$('studyFilterField').hidden=!t.groups;$('studyFilterLabel').textContent=t.groupLabel||'Filtrează';
 $('studyFilter').innerHTML='<option value="all">Toate</option>'+(t.groups||[]).map(g=>'<option>'+escape(g)+'</option>').join('');$('search').value='';renderStudy();show('study')}
 
+// ---------- Export / import ----------
+const mdCell=s=>String(s).replace(/\|/g,'\\|').replace(/\n/g,' ');
+// Raport Markdown, ușor de citit; la sfârșit conține datele complete, pe care le citește butonul „Importă”.
+function exportMarkdown(){
+const now=new Date(),c=counts(allItems),L=[];
+L.push('# Progres Deutsch','','Exportat: '+now.toLocaleString('ro-RO')+(auth?' · cont: '+auth.user.email:' · salvat local în browser'),'');
+L.push('## Rezumat','','- Întrebări: **'+allItems.length+'** în '+topics.length+' teme','- Noi: '+c.new+' · În învățare: '+c.learn+' · Consolidare: '+c.mid+' · Stăpânit: '+c.done,'- De repetat acum: '+allItems.filter(isDue).length,'');
+L.push('## Pe teme','','| Temă | Nivel | Noi | În învățare | Consolidare | Stăpânit | De repetat |','|---|---|---|---|---|---|---|');
+topics.forEach(t=>{const k=counts(t.qs);L.push('| '+mdCell(t.title)+' | '+t.level+' | '+k.new+' | '+k.learn+' | '+k.mid+' | '+k.done+' | '+t.qs.filter(isDue).length+' |')});
+L.push('','## Sesiuni recente','');
+if(history.length){L.push('| Data | Sesiune | Scor |','|---|---|---|');history.slice().reverse().forEach(h=>L.push('| '+new Date(h.t).toLocaleDateString('ro-RO')+' | '+mdCell(h.topic==='mix'?'Repetiția de azi':topicById[h.topic].title)+' | '+h.pct+'% · '+h.correct+'/'+h.n+' |'))}else L.push('Încă nu ai finalizat o sesiune.');
+const weak=allItems.filter(q=>P(q)&&P(q).wrong>0&&P(q).box<=2).sort((a,b)=>P(b).wrong-P(a).wrong||P(a).box-P(b).box).slice(0,50);
+L.push('','## Puncte slabe','');
+if(weak.length){L.push('| Întrebare | Temă | Corecte / văzute | Revezi |','|---|---|---|---|');weak.forEach(q=>L.push('| '+mdCell(q.label||q.answer)+' | '+mdCell(q.topic.title)+' | '+P(q).right+'/'+P(q).seen+' | '+nextText(P(q))+' |'))}else L.push('Nu ai încă puncte slabe.');
+L.push('','## Date pentru import','','Nu modifica blocul de mai jos: îl citește butonul „Importă” din aplicație.','','```json',JSON.stringify({version:2,progress,history}),'```','');
+return L.join('\n')}
+// Importul acceptă fișierul .md exportat de aplicație și, pentru compatibilitate, vechiul .json.
+function parseImport(txt){const t=txt.trim();if(t.startsWith('{'))return JSON.parse(t);const m=t.match(/```json\s*([\s\S]*?)```/);if(!m)throw new Error('format');return JSON.parse(m[1])}
+
 // ---------- Evenimente ----------
 $('start').onclick=()=>begin(pickFrom(pool(),$('selection').value,countValue(),$('shuffle').checked).qs,{mode:$('mode').value,feedbackMode:$('feedbackMode').value,topic:cur});
 $('todayStart').onclick=()=>begin(pickFrom(allItems,'smart',Number($('todayCount').value)).qs,{mode:'auto',feedbackMode:'practice',topic:null});
@@ -221,9 +241,9 @@ $('newTest').onclick=()=>show(state.topic?'topic':'home');$('navHome').onclick=(
 $('resultStudy').onclick=()=>openStudy(state.topic);$('topicStudy').onclick=()=>openStudy(cur);$('studyBack').onclick=()=>show(studyReturn);
 $('search').oninput=renderStudy;$('studyFilter').onchange=renderStudy;
 $('topicGrid').onclick=e=>{const b=e.target.closest('[data-topic]');if(b)openTopic(b.dataset.topic)};
-$('exportP').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({version:2,progress,history},null,1)],{type:'application/json'}));a.download='progres-deutsch.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$('exportP').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([exportMarkdown()],{type:'text/markdown;charset=utf-8'}));a.download='progres-deutsch-'+new Date().toISOString().slice(0,10)+'.md';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $('importP').onclick=()=>$('importFile').click();
-$('importFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;f.text().then(txt=>{const j=JSON.parse(txt),incoming=clean(j.progress),n=Object.keys(incoming).length;if(!n){alert('Fișierul nu conține progres valid pentru aceste teme.');return}if(!confirm(auth?'Combini progresul din fișier ('+n+' întrebări) cu cel din cont? Se păstrează varianta cea mai recentă pentru fiecare întrebare.':'Înlocuiești progresul actual cu cel din fișier ('+n+' întrebări)?'))return;if(auth){for(const g in incoming){const p=progress[g];if(!p||incoming[g].last>p.last){progress[g]=incoming[g];queueProgress(g)}}}else{progress=incoming;history=cleanHistory(j.history)}save();renderHome()}).catch(()=>alert('Fișierul nu a putut fi citit. Alege un fișier exportat din această pagină.'))};
+$('importFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;f.text().then(txt=>{const j=parseImport(txt),incoming=clean(j.progress),n=Object.keys(incoming).length;if(!n){alert('Fișierul nu conține progres valid pentru aceste teme.');return}if(!confirm(auth?'Combini progresul din fișier ('+n+' întrebări) cu cel din cont? Se păstrează varianta cea mai recentă pentru fiecare întrebare.':'Înlocuiești progresul actual cu cel din fișier ('+n+' întrebări)?'))return;if(auth){for(const g in incoming){const p=progress[g];if(!p||incoming[g].last>p.last){progress[g]=incoming[g];queueProgress(g)}}}else{progress=incoming;history=cleanHistory(j.history)}save();renderHome()}).catch(()=>alert('Fișierul nu a putut fi citit. Alege un fișier exportat din această pagină.'))};
 $('resetP').onclick=()=>{if(!confirm(auth?'Ștergi tot progresul de repetare din cont? Istoricul sesiunilor rămâne înregistrat. Acțiunea nu poate fi anulată.':'Ștergi tot progresul salvat în acest browser? Acțiunea nu poate fi anulată.'))return;progress=Object.create(null);if(auth){outbox.p=[];enqueue({k:'dp'})}else history=[];save();renderHome()};
 document.addEventListener('keydown',e=>{
 if(currentView!=='quiz'||e.repeat)return;

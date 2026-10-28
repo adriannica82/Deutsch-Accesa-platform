@@ -24,6 +24,8 @@ Fiecare întrebare trebuie să aibă traducere (`ro`) și explicație (`explain`
 Editează conținutul în `content/` și `src/`, nu în `deutsch.html` (fișier generat).
 Progresul se salvează în `localStorage`, doar în browserul folosit.
 
+Butonul **Exportă (.md)** din „Progresul tău” descarcă un raport Markdown (rezumat, pe teme, sesiuni recente, puncte slabe) care conține la sfârșit și datele complete; **Importă** citește acest fișier (și, pentru compatibilitate, vechiul `.json`).
+
 ## Publicare (Vercel)
 
 Proiectul este static: preset „Other”, fără build command, directorul rădăcină `./`. `vercel.json` trimite adresa `/` către `deutsch.html`.
