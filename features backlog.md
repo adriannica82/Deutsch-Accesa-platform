@@ -28,3 +28,19 @@ feature 3: adauga o categorie noua "Der, die sau das" cu substantive specifie B1
 - **Fișiere modificate:** `content/artikel-genus-b1.json` (nou); regenerat `deutsch.html`.
 - **Verificare:** toate cele 166 de întrebări sunt acceptate în modul „alege” și „scrie”; temele sunt sortate A1–A2, A2, A2–B1, B1.
 - **De știut:** dacă vrei alt volum (mai multe sau mai puține substantive) sau alte domenii (de ex. politică, călătorii), spune-mi și completez lista.
+
+feature 4: (cerută în conversație) ca utilizator vreau să știu timpul petrecut într-un test, timpul petrecut azi și timpul petrecut în săptămâna aceasta. Design și implementare conform bunelor practici UI/UX.
+
+- **Status:** implementat (2026-10-28, commit `55052ca`)
+- **Ce se măsoară:** doar **timpul activ** din teste. Cronometrul se oprește după **90 s fără nicio acțiune** (mouse, tastatură, atingere, derulare) și cât timp fila nu este vizibilă, ca timpul uitat în fundal să nu umfle rezultatele. Nu se numără timpul petrecut în fișa de recapitulare sau pe paginile temelor. O sesiune se numără în ziua în care a început; săptămâna începe **luni**.
+- **Unde se vede:**
+  - **În timpul testului:** un cronometru discret `⏱ 03:07` în antet, cu cifre de lățime fixă; arată `⏸` când e în pauză; un clic îl ascunde (pentru cine nu vrea presiunea timpului), iar alegerea se reține.
+  - **La rezultate:** blocul „Timp de exersare” cu durata sesiunii, media pe întrebare, timpul de azi și al săptămânii.
+  - **În „Progresul tău” (pagina principală):** timpul de azi și din săptămâna aceasta, un grafic simplu pe zile (Lu–Du, azi evidențiat, zilele viitoare estompate), compararea cu săptămâna trecută; sesiunile recente arată și durata.
+  - **În export (.md):** secțiunea „Timp de exersare” (azi, săptămâna aceasta, pe zile) și coloana „Durată” la sesiuni; datele revin la import.
+- **Accesibilitate:** graficul are text alternativ cu valorile pe zile; cronometrul nu este anunțat continuu de cititoarele de ecran; culorile au contrast suficient și nu sunt singurul semn (zilele au etichete și valori în titlu).
+- **În cont (Supabase):** coloana nouă `sessions.duration_s` (migrare `sessions_duration_seconds`). Durata se trimite la fiecare ~15 s de timp activ și la final, deci rămâne salvată și dacă fila se închide; coada de trimitere o păstrează când nu e conexiune. La autentificare, totalurile combină și sesiunile făcute pe alte dispozitive.
+- **Fără cont:** timpul se păstrează local, pe sesiuni, 120 de zile.
+- **Fișiere modificate:** `src/app.js` (modulul „Timp de exersare”, sincronizare, export/import), `src/template.html` (cronometru, blocuri de timp), `src/style.css`, `README.md`; regenerat `deutsch.html`; migrare în baza de date.
+- **Verificare (cu timp simulat):** cronometrul numără activ (125 s), se oprește la inactivitate (limită 90 s) și cât fila e ascunsă (0 s câștigat); totalurile de azi, săptămâna aceasta și săptămâna trecută sunt corecte, inclusiv ziua din săptămână și săptămâni mai vechi excluse; formatele de timp; exportul și importul; trimiterea duratei în cont și coada offline; fără depășire de lățime pe telefon (toate vizualizările).
+- **De știut:** o sesiune care trece de miezul nopții se numără în ziua în care a început. Un test lăsat deschis și neîncheiat nu mai adaugă timp după inactivitate.
