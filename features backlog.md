@@ -8,3 +8,7 @@ feature 1: in zona "progresul tau" exportul se va face in md file.
 - **Observație:** blocul „Date pentru import” nu trebuie modificat; fără el, fișierul rămâne un raport de citit, dar nu mai poate fi importat.
 - **Fișiere modificate:** `src/app.js` (funcțiile `exportMarkdown` și `parseImport`), `src/template.html` (eticheta butonului și tipurile de fișier acceptate), `README.md`; regenerat `deutsch.html`.
 - **Verificare:** exportul conține toate secțiunile; datele revin identice la import (cutii, scadențe, sesiuni) atât prin funcție, cât și prin butonul „Importă” cu un fișier `.md`; fișierul `.json` vechi se importă în continuare; un fișier invalid dă mesajul de eroare.
+
+feature 2: adauga mai multe substantive in lista de "Der, die sau das" specifice pentru nivel A1-A2 pana la 200.
+
+feature 3: adauga o categorie noua "Der, die sau das" cu substantive specifie B1.
