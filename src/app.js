@@ -13,7 +13,9 @@ const countRo=(n,u)=>n===1?'1 '+u[0]:n<20?n+' '+u[1]:n+' de '+u[1];
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 
 // ---------- Date ----------
-const topics=CONTENT.topics.slice().sort((a,b)=>a.order-b.order),topicById=Object.create(null),byId=Object.create(null),allItems=[];
+// Temele se ordonează după nivel (A1 → A2 → B1 → B2); la același nivel contează câmpul "order".
+const LEVELS={A1:1,A2:2,B1:3,B2:4,C1:5,C2:6},levelKey=l=>{const r=(String(l).match(/[ABC][12]/g)||[]).map(x=>LEVELS[x]);return r.length?[Math.min(...r),Math.max(...r)]:[99,99]};
+const topics=CONTENT.topics.slice().sort((a,b)=>{const x=levelKey(a.level),y=levelKey(b.level);return x[0]-y[0]||x[1]-y[1]||a.order-b.order}),topicById=Object.create(null),byId=Object.create(null),allItems=[];
 topics.forEach(t=>{topicById[t.id]=t;t.qs=t.items.map(it=>{const q={...it,alt:it.alt||[],group:it.group||'',gid:t.id+'/'+it.id,topic:t};byId[q.gid]=q;allItems.push(q);return q})});
 const VIEWS=['login','home','topic','quiz','results','study'];
 let state={active:false},currentView='home',studyReturn='home',cur=null,builtFor='',studyTopic=null,progress=Object.create(null),history=[],storageOK=true;

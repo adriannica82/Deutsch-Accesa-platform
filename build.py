@@ -25,6 +25,15 @@ ID_RE = re.compile(r"^[a-z0-9_-]+$")
 BAD_DIACRITICS = "şţŞŢ"  # cu sedilă; în română se folosesc ș ț (virgulă dedesubt)
 
 
+LEVELS = {"A1": 1, "A2": 2, "B1": 3, "B2": 4, "C1": 5, "C2": 6}
+
+
+def level_key(level):
+    """Ordinea temelor: nivelul cel mai mic, apoi cel mai mare (A1–A2 înaintea lui A2), apoi câmpul order."""
+    found = [LEVELS[x] for x in re.findall(r"[ABC][12]", str(level))]
+    return (min(found), max(found)) if found else (99, 99)
+
+
 def canon(s):
     s = s.strip().lower()
     for a, b in (("ä", "ae"), ("ö", "oe"), ("ü", "ue"), ("ß", "ss")):
@@ -48,6 +57,8 @@ def validate(topics):
         if tid in ids:
             err(tid, "id de temă duplicat")
         ids.add(tid)
+        if not re.findall(r"[ABC][12]", str(t.get("level", ""))):
+            err(tid, "„level” trebuie să conțină un nivel (A1, A2, B1, B2…), ex. \"A2–B1\"")
         if not isinstance(t.get("order"), int):
             err(tid, "„order” trebuie să fie număr întreg")
         if not (isinstance(t.get("unit"), list) and len(t["unit"]) == 2):
@@ -122,9 +133,9 @@ def main():
         for e in errors:
             print(" -", e)
         sys.exit(1)
-    topics.sort(key=lambda t: t["order"])
+    topics.sort(key=lambda t: (*level_key(t["level"]), t["order"]))
     for t in topics:
-        print(f"  {t['order']:>2}. {t['title']:<32} {t['level']:<7} {len(t['items']):>3} întrebări  ({', '.join(t['modes'])})")
+        print(f"  {t['title']:<32} {t['level']:<7} {len(t['items']):>3} întrebări  ({', '.join(t['modes'])})")
     print(f"Total: {sum(len(t['items']) for t in topics)} întrebări în {len(topics)} teme")
     if "--check" in sys.argv:
         return
