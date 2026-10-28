@@ -1,0 +1,171 @@
+{
+ "id": "verben-praepositionen",
+ "order": 7,
+ "title": "Verbe cu prepoziții",
+ "titleDe": "Verben mit Präpositionen",
+ "level": "A2–B1",
+ "summary": "Învață prepoziția împreună cu verbul și cazul: denken an + Akk, sich bedanken bei + Dat.",
+ "unit": [
+  "construcție",
+  "construcții"
+ ],
+ "modes": [
+  "choice",
+  "write",
+  "both"
+ ],
+ "answerNoun": "prepoziția",
+ "instruction": "Completează numai prepoziția care corespunde sensului în română.",
+ "extra": {
+  "label": "Cazul",
+  "options": [
+   "Akkusativ",
+   "Dativ"
+  ]
+ },
+ "groupLabel": "Cazul",
+ "groups": [
+  "Akkusativ",
+  "Dativ"
+ ],
+ "pool": [
+  "an",
+  "auf",
+  "bei",
+  "für",
+  "gegen",
+  "mit",
+  "nach",
+  "um",
+  "von",
+  "vor",
+  "zu",
+  "über"
+ ],
+ "confusable": {
+  "über": [
+   "auf",
+   "an",
+   "vor",
+   "von"
+  ],
+  "auf": [
+   "über",
+   "an",
+   "für",
+   "um"
+  ],
+  "an": [
+   "auf",
+   "über",
+   "bei",
+   "von"
+  ],
+  "für": [
+   "um",
+   "gegen",
+   "auf",
+   "zu"
+  ],
+  "um": [
+   "für",
+   "auf",
+   "nach",
+   "über"
+  ],
+  "gegen": [
+   "für",
+   "vor",
+   "um",
+   "mit"
+  ],
+  "mit": [
+   "bei",
+   "von",
+   "zu",
+   "nach"
+  ],
+  "bei": [
+   "mit",
+   "zu",
+   "von",
+   "nach"
+  ],
+  "zu": [
+   "nach",
+   "bei",
+   "mit",
+   "für"
+  ],
+  "von": [
+   "vor",
+   "mit",
+   "nach",
+   "über"
+  ],
+  "nach": [
+   "zu",
+   "von",
+   "um",
+   "bei"
+  ],
+  "vor": [
+   "von",
+   "über",
+   "an",
+   "für"
+  ]
+ },
+ "guideTitle": "Prepoziții după caz · Akkusativ, Dativ sau ambele",
+ "guideHtml": "<p class=\"muted small\" style=\"margin-top:14px\">Fișă cu prepozițiile uzuale, inclusiv unele care nu apar în lista de verbe. Cele trei categorii te ajută să alegi cazul complementului.</p>\n<div class=\"prep-grid\">\n<section class=\"prep-group\" aria-label=\"Prepoziții cu Akkusativ\"><span class=\"pill akk\">AKKUSATIV</span><h3 style=\"margin-top:10px\">De memorat împreună</h3>\n<ul lang=\"de\">\n<li><b>bis</b> <span lang=\"ro\">— până la</span><br><span class=\"muted\">bis morgen</span></li>\n<li><b>durch</b> <span lang=\"ro\">— prin</span><br><span class=\"muted\">durch den Park</span></li>\n<li><b>für</b> <span lang=\"ro\">— pentru</span><br><span class=\"muted\">für meinen Sohn</span></li>\n<li><b>gegen</b> <span lang=\"ro\">— împotriva</span><br><span class=\"muted\">gegen den Plan</span></li>\n<li><b>ohne</b> <span lang=\"ro\">— fără</span><br><span class=\"muted\">ohne meine Hilfe</span></li>\n<li><b>um</b> <span lang=\"ro\">— în jurul / la (oră)</span><br><span class=\"muted\">um den Tisch · um acht Uhr</span></li>\n</ul><p class=\"small mini\"><b>Și entlang</b>, când urmează după substantiv: <span lang=\"de\">den Fluss entlang</span> — de-a lungul râului.</p>\n</section>\n<section class=\"prep-group\" aria-label=\"Prepoziții cu Dativ\"><span class=\"pill dat\">DATIV</span><h3 style=\"margin-top:10px\">De memorat împreună</h3>\n<ul lang=\"de\">\n<li><b>ab</b> <span lang=\"ro\">— începând de la</span><br><span class=\"muted\">ab nächster Woche</span></li>\n<li><b>aus</b> <span lang=\"ro\">— din</span><br><span class=\"muted\">aus dem Haus</span></li>\n<li><b>außer</b> <span lang=\"ro\">— în afară de</span><br><span class=\"muted\">außer meinem Bruder</span></li>\n<li><b>bei</b> <span lang=\"ro\">— la / pe lângă</span><br><span class=\"muted\">bei meiner Freundin</span></li>\n<li><b>mit</b> <span lang=\"ro\">— cu</span><br><span class=\"muted\">mit dem Zug</span></li>\n<li><b>nach</b> <span lang=\"ro\">— după / spre</span><br><span class=\"muted\">nach dem Essen · nach Berlin</span></li>\n<li><b>seit</b> <span lang=\"ro\">— de / de când</span><br><span class=\"muted\">seit einem Jahr</span></li>\n<li><b>von</b> <span lang=\"ro\">— de la / despre</span><br><span class=\"muted\">von meinem Vater</span></li>\n<li><b>zu</b> <span lang=\"ro\">— la / către</span><br><span class=\"muted\">zu meiner Mutter</span></li>\n<li><b>gegenüber</b> <span lang=\"ro\">— vizavi de</span><br><span class=\"muted\">gegenüber dem Bahnhof</span></li>\n</ul></section>\n<section class=\"prep-group\" aria-label=\"Prepoziții cu Akkusativ sau Dativ\"><span class=\"pill\">AKKUSATIV + DATIV</span><h3 style=\"margin-top:10px\" lang=\"de\">Wechselpräpositionen</h3><p class=\"small\">Cele nouă prepoziții care pot cere ambele cazuri:</p>\n<ul lang=\"de\">\n<li><b>an</b> <span lang=\"ro\">— la / pe (în contact)</span></li>\n<li><b>auf</b> <span lang=\"ro\">— pe</span></li>\n<li><b>hinter</b> <span lang=\"ro\">— în spatele</span></li>\n<li><b>in</b> <span lang=\"ro\">— în</span></li>\n<li><b>neben</b> <span lang=\"ro\">— lângă</span></li>\n<li><b>über</b> <span lang=\"ro\">— deasupra / despre</span></li>\n<li><b>unter</b> <span lang=\"ro\">— sub</span></li>\n<li><b>vor</b> <span lang=\"ro\">— în fața / înaintea</span></li>\n<li><b>zwischen</b> <span lang=\"ro\">— între</span></li>\n</ul></section>\n</div>\n<div class=\"prep-rule\"><h3>La sensul spațial: „Wohin?” sau „Wo?”</h3><p><b>Akkusativ → Wohin? (încotro?)</b><br>Indici destinația sau schimbarea poziției față de locul numit.</p><p><b>Dativ → Wo? (unde?)</b><br>Indici locul în care se află cineva / ceva sau în care are loc acțiunea.</p></div>\n<div class=\"tablewrap\"><table class=\"prep-examples\"><thead><tr><th scope=\"col\">Prepoziție</th><th scope=\"col\">Akkusativ · Wohin?</th><th scope=\"col\">Dativ · Wo?</th></tr></thead><tbody>\n<tr><td lang=\"de\"><b>in</b></td><td><span lang=\"de\">Ich gehe <b>in den Park</b>.</span><br><span class=\"small muted\">Merg în parc (destinație).</span></td><td><span lang=\"de\">Ich laufe <b>im Park</b>.</span><br><span class=\"small muted\">Alerg în parc (locul acțiunii; im = in dem).</span></td></tr>\n<tr><td lang=\"de\"><b>auf</b></td><td><span lang=\"de\">Ich lege das Buch <b>auf den Tisch</b>.</span><br><span class=\"small muted\">Pun cartea pe masă.</span></td><td><span lang=\"de\">Das Buch liegt <b>auf dem Tisch</b>.</span><br><span class=\"small muted\">Cartea se află pe masă.</span></td></tr>\n<tr><td lang=\"de\"><b>an</b></td><td><span lang=\"de\">Ich hänge das Bild <b>an die Wand</b>.</span><br><span class=\"small muted\">Agăț tabloul pe perete.</span></td><td><span lang=\"de\">Das Bild hängt <b>an der Wand</b>.</span><br><span class=\"small muted\">Tabloul este agățat pe perete.</span></td></tr>\n</tbody></table></div>\n<p class=\"small\" style=\"margin-top:16px\"><b>Mișcarea singură nu înseamnă Akkusativ:</b> în <span lang=\"de\">„Ich laufe im Park”</span> există mișcare, dar parcul este locul în care alergi, deci folosim Dativ.</p>\n<div class=\"notice\"><b>Pentru verbele din test, învață construcția întreagă.</b> Regula <span lang=\"de\">Wo? / Wohin?</span> nu stabilește cazul complementelor prepoziționale cu sens abstract. De exemplu: <span lang=\"de\"><b>denken an + Akkusativ</b> → Ich denke an dich</span>, dar <span lang=\"de\"><b>zweifeln an + Dativ</b> → Ich zweifle an meiner Entscheidung</span>. La fel, <span lang=\"de\">sich freuen auf / über</span> cere Akkusativ.</div>\n<details><summary>Două precizări utile</summary><p class=\"small\" style=\"margin-top:12px\"><b>bis</b> apare frecvent fără articol: <span lang=\"de\">bis morgen, bis Berlin</span>. În combinații precum <span lang=\"de\">bis zu dem Bahnhof / bis zum Bahnhof</span>, cazul Dativ este cerut de <b>zu</b>.</p><p class=\"small\"><b>entlang</b> este prezentat aici cu Akkusativ după substantiv. Alte poziții și utilizări pot avea alt regim. Lista este una practică pentru A2–B1; există și prepoziții cu Genitiv.</p></details>",
+ "items": [
+  {"id": "antworten_auf", "key": "antworten", "label": "antworten auf", "gloss": "a răspunde la", "prompt": "Leon antwortet nicht gern ___ diese Frage.", "ro": "Lui Leon nu-i place să răspundă la această întrebare.", "answer": "auf", "group": "Akkusativ", "extra": "Akkusativ", "explain": "antworten auf = a răspunde la o întrebare. diese Frage este complementul introdus de auf."},
+  {"id": "sich-argern_uber", "key": "sich ärgern", "label": "sich ärgern über", "gloss": "a se enerva din cauza (cuiva / a ceva)", "prompt": "Er hat sich ___ den Film geärgert.", "ro": "El s-a enervat din cauza filmului.", "answer": "über", "group": "Akkusativ", "extra": "Akkusativ", "explain": "sich ärgern über = a se enerva din cauza a ceva. Masculin: der Film → den Film."},
+  {"id": "sich-bedanken_fur", "key": "sich bedanken", "label": "sich bedanken für", "gloss": "a mulțumi pentru (ceva)", "prompt": "Ich bedanke mich herzlich ___ das Geschenk.", "ro": "Mulțumesc din suflet pentru cadou.", "answer": "für", "group": "Akkusativ", "extra": "Akkusativ", "explain": "für indică motivul mulțumirii; bei + Dativ indică persoana căreia îi mulțumești."},
+  {"id": "sich-beschweren_uber", "key": "sich beschweren", "label": "sich beschweren über", "gloss": "a se plânge de (ceva)", "prompt": "Die Nachbarn beschweren sich ___ die laute Musik.", "ro": "Vecinii se plâng de muzica tare.", "answer": "über", "group": "Akkusativ", "extra": "Akkusativ", "explain": "sich beschweren über = a se plânge de ceva. über introduce motivul plângerii."},
+  {"id": "bitten_um", "key": "bitten", "label": "bitten um", "gloss": "a cere (ceva), a ruga pentru (ceva)", "prompt": "Herr Müller bittet ___ eine schnelle Antwort.", "ro": "Domnul Müller solicită un răspuns rapid.", "answer": "um", "group": "Akkusativ", "extra": "Akkusativ", "explain": "jemanden um etwas bitten = a cere cuiva ceva. um introduce lucrul solicitat."},
+  {"id": "danken_fur", "key": "danken", "label": "danken für", "gloss": "a mulțumi pentru (ceva)", "prompt": "Ich danke dir ___ deine Hilfe.", "ro": "Îți mulțumesc pentru ajutorul tău.", "answer": "für", "group": "Akkusativ", "extra": "Akkusativ", "explain": "danken für indică motivul mulțumirii. dir este Dativ, dar für deine Hilfe este Akkusativ."},
+  {"id": "denken_an", "key": "denken", "label": "denken an", "gloss": "a se gândi la", "prompt": "Er denkt Tag und Nacht ___ sie.", "ro": "El se gândește zi și noapte la ea.", "answer": "an", "group": "Akkusativ", "extra": "Akkusativ", "explain": "denken an = a se gândi la cineva sau la ceva. sie este aici Akkusativ."},
+  {"id": "diskutieren_uber", "key": "diskutieren", "label": "diskutieren über", "gloss": "a discuta despre (un subiect)", "prompt": "Die Kollegen diskutieren ___ den Vorschlag.", "ro": "Colegii discută despre propunere.", "answer": "über", "group": "Akkusativ", "extra": "Akkusativ", "explain": "über introduce tema discuției. mit + Dativ ar introduce interlocutorul."},
+  {"id": "sich-entscheiden_fur", "key": "sich entscheiden", "label": "sich entscheiden für", "gloss": "a opta pentru", "prompt": "Wir entscheiden uns ___ diese Lösung.", "ro": "Alegem această soluție; suntem în favoarea ei.", "answer": "für", "group": "Akkusativ", "extra": "Akkusativ", "explain": "sich entscheiden für = a opta pentru. Traducerea precizează alegerea favorabilă."},
+  {"id": "sich-entscheiden_gegen", "key": "sich entscheiden", "label": "sich entscheiden gegen", "gloss": "a decide împotriva (unei opțiuni)", "prompt": "Ich habe mich ___ den roten Pullover entschieden.", "ro": "Am decis să nu aleg puloverul roșu.", "answer": "gegen", "group": "Akkusativ", "extra": "Akkusativ", "explain": "sich entscheiden gegen = a decide împotriva unei opțiuni. für ar schimba sensul."},
+  {"id": "sich-entschuldigen_fur", "key": "sich entschuldigen", "label": "sich entschuldigen für", "gloss": "a-și cere scuze pentru (ceva)", "prompt": "Sie entschuldigt sich ___ ihren Kommentar.", "ro": "Ea își cere scuze pentru comentariul ei.", "answer": "für", "group": "Akkusativ", "extra": "Akkusativ", "explain": "für introduce motivul scuzelor; bei + Dativ introduce persoana față de care te scuzi."},
+  {"id": "sich-erinnern_an", "key": "sich erinnern", "label": "sich erinnern an", "gloss": "a-și aminti de", "prompt": "Erinnerst du dich noch ___ unseren letzten Urlaub?", "ro": "Îți mai amintești de ultima noastră vacanță?", "answer": "an", "group": "Akkusativ", "extra": "Akkusativ", "explain": "sich erinnern an = a-și aminti de. der Urlaub → unseren letzten Urlaub."},
+  {"id": "sich-freuen_auf", "key": "sich freuen", "label": "sich freuen auf", "gloss": "a aștepta cu bucurie (ceva viitor)", "prompt": "Julian freut sich schon ___ die kommenden Sommerferien.", "ro": "Julian așteaptă cu bucurie vacanța de vară care urmează.", "answer": "auf", "group": "Akkusativ", "extra": "Akkusativ", "explain": "auf indică aici anticiparea bucuroasă a unui eveniment viitor."},
+  {"id": "sich-freuen_uber", "key": "sich freuen", "label": "sich freuen über", "gloss": "a se bucura de (ceva prezent / primit)", "prompt": "Ich freue mich ___ das Geschenk, das ich gerade bekommen habe.", "ro": "Mă bucur de cadoul pe care tocmai l-am primit.", "answer": "über", "group": "Akkusativ", "extra": "Akkusativ", "explain": "über indică aici bucuria provocată de ceva deja primit. auf ar indica anticiparea."},
+  {"id": "glauben_an", "key": "glauben", "label": "glauben an", "gloss": "a crede în", "prompt": "Glaubt dein Sohn noch ___ den Osterhasen?", "ro": "Fiul tău mai crede în iepurașul de Paște?", "answer": "an", "group": "Akkusativ", "extra": "Akkusativ", "explain": "glauben an = a crede în existența cuiva sau a ceva. der Osterhase → den Osterhasen."},
+  {"id": "halten_fur", "key": "halten", "label": "halten für", "gloss": "a considera (că este)", "prompt": "Wir halten den neuen Mitarbeiter ___ sehr kompetent.", "ro": "Îl considerăm pe noul angajat foarte competent.", "answer": "für", "group": "Akkusativ", "extra": "Akkusativ", "explain": "jemanden für … halten = a considera pe cineva … . den Mitarbeiter este persoana evaluată."},
+  {"id": "horen_auf", "key": "hören", "label": "hören auf", "gloss": "a asculta de (cineva)", "prompt": "Du solltest ___ deine Mutter hören und ihren Rat befolgen.", "ro": "Ar trebui să asculți de mama ta și să-i urmezi sfatul.", "answer": "auf", "group": "Akkusativ", "extra": "Akkusativ", "explain": "auf jemanden hören = a asculta de cineva. hören von are alt sens: a primi vești / a auzi despre."},
+  {"id": "sich-informieren_uber", "key": "(sich) informieren", "label": "(sich) informieren über", "gloss": "a (se) informa despre", "prompt": "Der Tourist informiert sich ___ die Sehenswürdigkeiten.", "ro": "Turistul se informează despre obiectivele turistice.", "answer": "über", "group": "Akkusativ", "extra": "Akkusativ", "explain": "sich informieren über = a se informa despre o temă. informieren jemanden über = a informa pe cineva despre."},
+  {"id": "sich-interessieren_fur", "key": "sich interessieren", "label": "sich interessieren für", "gloss": "a fi interesat de", "prompt": "Sie interessiert sich sehr ___ Astrologie.", "ro": "Ea este foarte interesată de astrologie.", "answer": "für", "group": "Akkusativ", "extra": "Akkusativ", "explain": "sich interessieren für = a fi interesat de. für cere Akkusativ chiar dacă substantivul nu are articol."},
+  {"id": "sich-kummern_um", "key": "sich kümmern", "label": "sich kümmern um", "gloss": "a avea grijă de", "prompt": "Ich kümmere mich ___ deinen Hund, wenn du weg bist.", "ro": "Am grijă de câinele tău când ești plecat.", "answer": "um", "group": "Akkusativ", "extra": "Akkusativ", "explain": "sich kümmern um = a avea grijă de. der Hund → deinen Hund."},
+  {"id": "lachen_uber", "key": "lachen", "label": "lachen über", "gloss": "a râde de / la", "prompt": "Ich kann immer ___ diese lustigen Katzenvideos lachen.", "ro": "Râd mereu la aceste videoclipuri amuzante cu pisici.", "answer": "über", "group": "Akkusativ", "extra": "Akkusativ", "explain": "lachen über = a râde de / la ceva. Acesta este motivul râsului."},
+  {"id": "nachdenken_uber", "key": "nachdenken", "label": "nachdenken über", "gloss": "a reflecta la / asupra", "prompt": "Denkst du viel ___ die Arbeit nach?", "ro": "Reflectezi mult la muncă?", "answer": "über", "group": "Akkusativ", "extra": "Akkusativ", "explain": "nachdenken über = a reflecta asupra. Verb separabil: du denkst … nach. denken an înseamnă a se gândi la."},
+  {"id": "anfangen_mit", "key": "anfangen", "label": "anfangen mit", "gloss": "a începe cu", "prompt": "Wollen wir schon ___ dem Meeting anfangen?", "ro": "Vrem să începem deja ședința?", "answer": "mit", "group": "Dativ", "extra": "Dativ", "explain": "anfangen mit = a începe cu ceva. das Meeting → dem Meeting."},
+  {"id": "aufhoren_mit", "key": "aufhören", "label": "aufhören mit", "gloss": "a înceta, a se lăsa de", "prompt": "Er hat ___ dem Rauchen aufgehört.", "ro": "El s-a lăsat de fumat.", "answer": "mit", "group": "Dativ", "extra": "Dativ", "explain": "aufhören mit = a înceta o activitate. das Rauchen → dem Rauchen. Nu confunda aufhören cu hören auf."},
+  {"id": "beginnen_mit", "key": "beginnen", "label": "beginnen mit", "gloss": "a începe cu", "prompt": "Ich beginne heute ___ der Vorbereitung.", "ro": "Încep astăzi pregătirea.", "answer": "mit", "group": "Dativ", "extra": "Dativ", "explain": "beginnen mit = a începe cu ceva. die Vorbereitung → der Vorbereitung. Sens apropiat de anfangen mit."},
+  {"id": "sich-bedanken_bei", "key": "sich bedanken", "label": "sich bedanken bei", "gloss": "a mulțumi (cuiva)", "prompt": "Er hat sich ___ seinen Großeltern bedankt.", "ro": "El le-a mulțumit bunicilor săi.", "answer": "bei", "group": "Dativ", "extra": "Dativ", "explain": "bei introduce persoana căreia îi mulțumești. für + Akkusativ introduce motivul."},
+  {"id": "sich-bewerben_bei", "key": "sich bewerben", "label": "sich bewerben bei", "gloss": "a candida la (o firmă)", "prompt": "Ich habe mich ___ einer internationalen Firma beworben.", "ro": "Am candidat la o firmă internațională.", "answer": "bei", "group": "Dativ", "extra": "Dativ", "explain": "sich bewerben bei = a candida la o organizație. die Firma → einer Firma."},
+  {"id": "bezahlen_mit", "key": "bezahlen", "label": "bezahlen mit", "gloss": "a plăti cu", "prompt": "Heute bezahle ich ___ meiner Kreditkarte.", "ro": "Astăzi plătesc cu cardul meu de credit.", "answer": "mit", "group": "Dativ", "extra": "Dativ", "explain": "bezahlen mit introduce mijlocul de plată. die Kreditkarte → meiner Kreditkarte."},
+  {"id": "diskutieren_mit", "key": "diskutieren", "label": "diskutieren mit", "gloss": "a discuta cu (cineva)", "prompt": "Ich habe lange ___ ihm diskutiert.", "ro": "Am discutat mult timp cu el.", "answer": "mit", "group": "Dativ", "extra": "Dativ", "explain": "mit introduce interlocutorul: er → ihm. über + Akkusativ introduce subiectul discuției."},
+  {"id": "einladen_zu", "key": "einladen", "label": "einladen zu", "gloss": "a invita la", "prompt": "Moritz hat uns ___ seinem Geburtstag eingeladen.", "ro": "Moritz ne-a invitat la ziua lui de naștere.", "answer": "zu", "group": "Dativ", "extra": "Dativ", "explain": "jemanden zu etwas einladen = a invita pe cineva la. der Geburtstag → seinem Geburtstag."},
+  {"id": "sich-entschuldigen_bei", "key": "sich entschuldigen", "label": "sich entschuldigen bei", "gloss": "a-și cere scuze (cuiva)", "prompt": "Er hat sich ___ seinem Nachbarn entschuldigt.", "ro": "El și-a cerut scuze vecinului său.", "answer": "bei", "group": "Dativ", "extra": "Dativ", "explain": "bei introduce persoana față de care te scuzi. für + Akkusativ introduce motivul scuzelor."},
+  {"id": "sich-erkundigen_bei", "key": "sich erkundigen", "label": "sich erkundigen bei", "gloss": "a se informa la (o sursă)", "prompt": "Die Passagiere erkundigen sich ___ der Fluggesellschaft nach der Reisedauer.", "ro": "Pasagerii cer companiei aeriene informații despre durata călătoriei.", "answer": "bei", "group": "Dativ", "extra": "Dativ", "explain": "bei introduce sursa informației (compania); nach introduce informația cerută. Ambele cer Dativ."},
+  {"id": "sich-erkundigen_nach", "key": "sich erkundigen", "label": "sich erkundigen nach", "gloss": "a se interesa de / a cere informații despre", "prompt": "Die Passagiere erkundigen sich bei der Fluggesellschaft ___ der Reisedauer.", "ro": "Pasagerii se interesează la compania aeriană despre durata călătoriei.", "answer": "nach", "group": "Dativ", "extra": "Dativ", "explain": "nach introduce informația cerută. die Reisedauer → der Reisedauer. bei indică sursa."},
+  {"id": "erzahlen_von", "key": "erzählen", "label": "erzählen von", "gloss": "a povesti despre", "prompt": "Erzähl mir ___ eurem Urlaub!", "ro": "Povestește-mi despre vacanța voastră!", "answer": "von", "group": "Dativ", "extra": "Dativ", "explain": "erzählen von = a povesti despre. der Urlaub → eurem Urlaub. mir indică persoana căreia i se povestește."},
+  {"id": "fragen_nach", "key": "fragen", "label": "fragen nach", "gloss": "a întreba de / a cere informații despre", "prompt": "Er musste ___ dem Weg fragen.", "ro": "El a trebuit să întrebe cum să ajungă / să ceară indicații de drum.", "answer": "nach", "group": "Dativ", "extra": "Dativ", "explain": "fragen nach = a cere informații despre. der Weg → dem Weg."},
+  {"id": "gratulieren_zu", "key": "gratulieren", "label": "gratulieren zu", "gloss": "a felicita pentru", "prompt": "Wir gratulieren euch herzlich ___ eurer Hochzeit!", "ro": "Vă felicităm din suflet pentru căsătoria voastră!", "answer": "zu", "group": "Dativ", "extra": "Dativ", "explain": "jemandem zu etwas gratulieren = a felicita pe cineva pentru. die Hochzeit → eurer Hochzeit."},
+  {"id": "helfen_bei", "key": "helfen", "label": "helfen bei", "gloss": "a ajuta la", "prompt": "Kannst du mir bitte ___ den Hausaufgaben helfen?", "ro": "Mă poți ajuta, te rog, la teme?", "answer": "bei", "group": "Dativ", "extra": "Dativ", "explain": "helfen bei introduce activitatea la care ajuți. Plural Dativ: den Hausaufgaben. mir este persoana ajutată.", "alt": ["mit"]},
+  {"id": "horen_von", "key": "hören", "label": "hören von", "gloss": "a primi vești de la", "prompt": "Hast du wieder ___ deiner Schwester gehört? Sie hat lange nicht angerufen.", "ro": "Ai mai primit vești de la sora ta? Nu a sunat de mult.", "answer": "von", "group": "Dativ", "extra": "Dativ", "explain": "von jemandem hören = a primi vești de la cineva / a auzi despre cineva. die Schwester → deiner Schwester."},
+  {"id": "sprechen_mit", "key": "sprechen", "label": "sprechen mit", "gloss": "a vorbi cu", "prompt": "Ich habe gestern lange ___ meiner Freundin gesprochen.", "ro": "Am vorbit ieri mult cu prietena mea.", "answer": "mit", "group": "Dativ", "extra": "Dativ", "explain": "mit introduce interlocutorul. die Freundin → meiner Freundin. von poate introduce persoana despre care vorbești."},
+  {"id": "sprechen_von", "key": "sprechen", "label": "sprechen von", "gloss": "a vorbi despre", "prompt": "Wir haben ___ dir gesprochen.", "ro": "Am vorbit despre tine.", "answer": "von", "group": "Dativ", "extra": "Dativ", "explain": "von introduce aici persoana despre care se vorbește. mit dir ar însemna cu tine; traducerea cere despre tine."},
+  {"id": "sich-streiten_mit", "key": "sich streiten", "label": "sich streiten mit", "gloss": "a se certa cu", "prompt": "Susanne hat sich gestern ___ ihrer Freundin gestritten.", "ro": "Susanne s-a certat ieri cu prietena ei.", "answer": "mit", "group": "Dativ", "extra": "Dativ", "explain": "sich streiten mit introduce persoana cu care te cerți. die Freundin → ihrer Freundin."},
+  {"id": "telefonieren_mit", "key": "telefonieren", "label": "telefonieren mit", "gloss": "a vorbi la telefon cu", "prompt": "Ich telefoniere heute Abend noch ___ meiner Mutter.", "ro": "Mai vorbesc la telefon cu mama mea în această seară.", "answer": "mit", "group": "Dativ", "extra": "Dativ", "explain": "telefonieren mit = a vorbi la telefon cu cineva. die Mutter → meiner Mutter."},
+  {"id": "traumen_von", "key": "träumen", "label": "träumen von", "gloss": "a visa la / despre", "prompt": "Sie träumt ___ weißen Stränden und blauem Meer.", "ro": "Ea visează la plaje albe și la o mare albastră.", "answer": "von", "group": "Dativ", "extra": "Dativ", "explain": "träumen von = a visa la / despre. Dativ: weißen Stränden (plural) și blauem Meer (neutru)."},
+  {"id": "sich-treffen_mit", "key": "sich treffen", "label": "sich treffen mit", "gloss": "a se întâlni cu", "prompt": "Er trifft sich später ___ seinem Bruder.", "ro": "El se întâlnește mai târziu cu fratele său.", "answer": "mit", "group": "Dativ", "extra": "Dativ", "explain": "sich treffen mit = a se întâlni cu cineva. der Bruder → seinem Bruder."},
+  {"id": "sich-verstehen_mit", "key": "sich verstehen", "label": "sich verstehen mit", "gloss": "a se înțelege cu", "prompt": "Lina versteht sich gut ___ ihren Geschwistern.", "ro": "Lina se înțelege bine cu frații și surorile ei.", "answer": "mit", "group": "Dativ", "extra": "Dativ", "explain": "sich verstehen mit = a se înțelege cu cineva. Dativ plural: ihren Geschwistern."},
+  {"id": "warnen_vor", "key": "warnen", "label": "warnen vor", "gloss": "a avertiza asupra", "prompt": "Die Polizei warnt ___ glatten Straßen.", "ro": "Poliția avertizează asupra drumurilor alunecoase.", "answer": "vor", "group": "Dativ", "extra": "Dativ", "explain": "warnen vor introduce pericolul. vor cere aici Dativ; nu este o indicație de direcție."},
+  {"id": "zusammenleben_mit", "key": "zusammenleben", "label": "zusammenleben mit", "gloss": "a locui împreună cu", "prompt": "Ich lebe ___ meinem Freund zusammen.", "ro": "Locuiesc împreună cu prietenul meu.", "answer": "mit", "group": "Dativ", "extra": "Dativ", "explain": "zusammenleben mit = a locui împreună cu. Verb separabil: ich lebe … zusammen."},
+  {"id": "zweifeln_an", "key": "zweifeln", "label": "zweifeln an", "gloss": "a se îndoi de / a avea îndoieli în privința", "prompt": "Ich zweifle langsam ___ meiner Entscheidung.", "ro": "Încep să am îndoieli în privința deciziei mele.", "answer": "an", "group": "Dativ", "extra": "Dativ", "explain": "zweifeln an = a avea îndoieli în privința a ceva. die Entscheidung → meiner Entscheidung; spre deosebire de denken an + Akkusativ."}
+ ]
+}

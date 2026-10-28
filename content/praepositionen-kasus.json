@@ -1,0 +1,72 @@
+{
+ "id": "praepositionen-kasus",
+ "order": 2,
+ "title": "Prepoziții cu caz fix",
+ "titleDe": "Präpositionen mit festem Kasus",
+ "level": "A1–A2",
+ "summary": "für, durch, ohne… cer Akkusativ; mit, nach, bei… cer Dativ. Alege articolul corect.",
+ "unit": [
+  "expresie",
+  "expresii"
+ ],
+ "modes": [
+  "choice",
+  "write",
+  "both"
+ ],
+ "answerNoun": "articolul",
+ "instruction": "Completează articolul hotărât potrivit prepoziției și genului substantivului.",
+ "extra": {
+  "label": "Cazul",
+  "options": [
+   "Akkusativ",
+   "Dativ"
+  ]
+ },
+ "groupLabel": "Cazul",
+ "groups": [
+  "Akkusativ",
+  "Dativ"
+ ],
+ "pool": [
+  "der",
+  "die",
+  "das",
+  "den",
+  "dem"
+ ],
+ "guideTitle": "Prepoziții cu caz fix · articolele",
+ "guideHtml": "<p class=\"muted small\" style=\"margin-top:14px\">Prepozițiile din această temă cer întotdeauna același caz. Alege articolul după genul substantivului.</p><div class=\"prep-grid\" style=\"grid-template-columns:repeat(2,minmax(0,1fr))\"><section class=\"prep-group\"><span class=\"pill akk\">AKKUSATIV</span><h3 style=\"margin-top:10px\">De memorat împreună</h3><p class=\"small\" lang=\"de\"><b>für, durch, ohne, gegen, um</b>, <span class=\"muted\">bis, entlang</span></p></section><section class=\"prep-group\"><span class=\"pill dat\">DATIV</span><h3 style=\"margin-top:10px\">De memorat împreună</h3><p class=\"small\" lang=\"de\"><b>mit, nach, bei, seit, von, zu, aus, außer, gegenüber, ab</b></p></section></div><div class=\"tablewrap\"><table><thead><tr><th scope=\"col\"></th><th scope=\"col\">der (m)</th><th scope=\"col\">das (n)</th><th scope=\"col\">die (f)</th><th scope=\"col\">die (pl)</th></tr></thead><tbody><tr><td><b>Nominativ</b></td><td>der</td><td>das</td><td>die</td><td>die</td></tr><tr><td><b>Akkusativ</b></td><td><b>den</b></td><td>das</td><td>die</td><td>die</td></tr><tr><td><b>Dativ</b></td><td><b>dem</b></td><td><b>dem</b></td><td><b>der</b></td><td><b>den</b> (+ -n)</td></tr></tbody></table></div><div class=\"notice\"><b>Truc:</b> numai masculinul se schimbă în Akkusativ (<span lang=\"de\">der → den</span>). În Dativ se schimbă toate genurile: <span lang=\"de\">dem, dem, der, den</span>. La plural în Dativ, substantivul primește de obicei și <span lang=\"de\">-n</span>: <span lang=\"de\">mit den Kindern</span>.</div>",
+ "items": [
+  {"id": "fur-den-lehrer", "label": "für den Lehrer", "prompt": "Das Geschenk ist für ___ Lehrer.", "ro": "Cadoul este pentru profesor.", "answer": "den", "group": "Akkusativ", "extra": "Akkusativ", "explain": "für cere mereu Akkusativ. Masculin: der Lehrer → den Lehrer."},
+  {"id": "durch-den-park", "label": "durch den Park", "prompt": "Wir gehen durch ___ Park spazieren.", "ro": "Ne plimbăm prin parc.", "answer": "den", "group": "Akkusativ", "extra": "Akkusativ", "explain": "durch + Akkusativ. Masculin: der Park → den Park."},
+  {"id": "ohne-die-kinder", "label": "ohne die Kinder", "prompt": "Sie fährt ohne ___ Kinder in den Urlaub.", "ro": "Ea pleacă în vacanță fără copii.", "answer": "die", "group": "Akkusativ", "extra": "Akkusativ", "explain": "ohne + Akkusativ. La plural, Nominativ și Akkusativ sunt identice: die Kinder."},
+  {"id": "gegen-die-wand", "label": "gegen die Wand", "prompt": "Der Ball fliegt gegen ___ Wand.", "ro": "Mingea zboară în perete.", "answer": "die", "group": "Akkusativ", "extra": "Akkusativ", "explain": "gegen + Akkusativ. Feminin: die Wand rămâne die Wand."},
+  {"id": "um-den-tisch", "label": "um den Tisch", "prompt": "Die ganze Familie sitzt um ___ Tisch.", "ro": "Toată familia stă în jurul mesei.", "answer": "den", "group": "Akkusativ", "extra": "Akkusativ", "explain": "um + Akkusativ. Masculin: der Tisch → den Tisch."},
+  {"id": "fur-die-mutter", "label": "für die Mutter", "prompt": "Ich kaufe Blumen für ___ Mutter.", "ro": "Cumpăr flori pentru mama.", "answer": "die", "group": "Akkusativ", "extra": "Akkusativ", "explain": "für + Akkusativ. Feminin: die Mutter rămâne die Mutter."},
+  {"id": "ohne-das-auto", "label": "ohne das Auto", "prompt": "Ohne ___ Auto kommen wir nicht rechtzeitig an.", "ro": "Fără mașină nu ajungem la timp.", "answer": "das", "group": "Akkusativ", "extra": "Akkusativ", "explain": "ohne + Akkusativ. Neutru: das Auto rămâne das Auto."},
+  {"id": "durch-den-tunnel", "label": "durch den Tunnel", "prompt": "Der Zug fährt durch ___ Tunnel.", "ro": "Trenul trece prin tunel.", "answer": "den", "group": "Akkusativ", "extra": "Akkusativ", "explain": "durch + Akkusativ. Masculin: der Tunnel → den Tunnel."},
+  {"id": "fur-das-kind", "label": "für das Kind", "prompt": "Dieses Geschenk ist für ___ Kind.", "ro": "Acest cadou este pentru copil.", "answer": "das", "group": "Akkusativ", "extra": "Akkusativ", "explain": "für + Akkusativ. Neutru: das Kind rămâne das Kind."},
+  {"id": "um-das-haus", "label": "um das Haus", "prompt": "Die Kinder laufen um ___ Haus.", "ro": "Copiii aleargă în jurul casei.", "answer": "das", "group": "Akkusativ", "extra": "Akkusativ", "explain": "um + Akkusativ. Neutru: das Haus rămâne das Haus."},
+  {"id": "gegen-den-vorschlag", "label": "gegen den Vorschlag", "prompt": "Er stimmt gegen ___ Vorschlag.", "ro": "El votează împotriva propunerii.", "answer": "den", "group": "Akkusativ", "extra": "Akkusativ", "explain": "gegen + Akkusativ. Masculin: der Vorschlag → den Vorschlag."},
+  {"id": "fur-die-kollegen", "label": "für die Kollegen", "prompt": "Wir haben ein Geschenk für ___ Kollegen gekauft.", "ro": "Am cumpărat un cadou pentru colegi.", "answer": "die", "group": "Akkusativ", "extra": "Akkusativ", "explain": "für + Akkusativ. Plural: die Kollegen rămâne die Kollegen."},
+  {"id": "ohne-den-schlussel", "label": "ohne den Schlüssel", "prompt": "Ohne ___ Schlüssel kommst du nicht ins Haus.", "ro": "Fără cheie nu intri în casă.", "answer": "den", "group": "Akkusativ", "extra": "Akkusativ", "explain": "ohne + Akkusativ. Masculin: der Schlüssel → den Schlüssel."},
+  {"id": "mit-dem-bus", "label": "mit dem Bus", "prompt": "Ich fahre mit ___ Bus zur Arbeit.", "ro": "Merg la serviciu cu autobuzul.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "mit cere mereu Dativ. Masculin: der Bus → dem Bus."},
+  {"id": "seit-dem-umzug", "label": "seit dem Umzug", "prompt": "Sie wohnt seit ___ Umzug in Berlin.", "ro": "Locuiește în Berlin de la mutare.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "seit + Dativ. Masculin: der Umzug → dem Umzug."},
+  {"id": "nach-dem-essen", "label": "nach dem Essen", "prompt": "Nach ___ Essen gehen wir spazieren.", "ro": "După masă ne plimbăm.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "nach + Dativ. Neutru: das Essen → dem Essen."},
+  {"id": "aus-dem-kino", "label": "aus dem Kino", "prompt": "Er kommt gerade aus ___ Kino.", "ro": "El tocmai vine de la cinema.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "aus + Dativ. Neutru: das Kino → dem Kino."},
+  {"id": "ausser-dem-chef", "label": "außer dem Chef", "prompt": "Alle sind da, außer ___ Chef.", "ro": "Toți sunt aici, în afară de șef.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "außer + Dativ. Masculin: der Chef → dem Chef."},
+  {"id": "gegenuber-dem-bahnhof", "label": "gegenüber dem Bahnhof", "prompt": "Das Hotel liegt gegenüber ___ Bahnhof.", "ro": "Hotelul se află vizavi de gară.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "gegenüber + Dativ. Masculin: der Bahnhof → dem Bahnhof."},
+  {"id": "mit-der-nachbarin", "label": "mit der Nachbarin", "prompt": "Ich spreche oft mit ___ Nachbarin.", "ro": "Vorbesc des cu vecina.", "answer": "der", "group": "Dativ", "extra": "Dativ", "explain": "mit + Dativ. Feminin: die Nachbarin → der Nachbarin."},
+  {"id": "von-der-chefin", "label": "von der Chefin", "prompt": "Das ist ein Brief von ___ Chefin.", "ro": "Aceasta este o scrisoare de la șefă.", "answer": "der", "group": "Dativ", "extra": "Dativ", "explain": "von + Dativ. Feminin: die Chefin → der Chefin."},
+  {"id": "zu-den-eltern", "label": "zu den Eltern", "prompt": "Am Wochenende fahren wir zu ___ Eltern.", "ro": "În weekend mergem la părinți.", "answer": "den", "group": "Dativ", "extra": "Dativ", "explain": "zu + Dativ. La plural, articolul în Dativ este den (substantivul primește -n, dacă nu îl are deja: Eltern)."},
+  {"id": "bei-den-grosseltern", "label": "bei den Großeltern", "prompt": "Im Sommer wohne ich bei ___ Großeltern.", "ro": "Vara locuiesc la bunici.", "answer": "den", "group": "Dativ", "extra": "Dativ", "explain": "bei + Dativ. Plural Dativ: den Großeltern."},
+  {"id": "aus-der-schweiz", "label": "aus der Schweiz", "prompt": "Sie kommt aus ___ Schweiz.", "ro": "Ea vine din Elveția.", "answer": "der", "group": "Dativ", "extra": "Dativ", "explain": "aus + Dativ. Feminin: die Schweiz → der Schweiz."},
+  {"id": "ab-dem-ersten-mai", "label": "ab dem ersten Mai", "prompt": "Ab ___ ersten Mai gilt die neue Regel.", "ro": "De la 1 mai se aplică noua regulă.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "ab + Dativ. Masculin: der erste Mai → dem ersten Mai (adjectivul primește -en)."},
+  {"id": "mit-den-kollegen", "label": "mit den Kollegen", "prompt": "Ich trinke Kaffee mit ___ Kollegen.", "ro": "Beau cafea cu colegii.", "answer": "den", "group": "Dativ", "extra": "Dativ", "explain": "mit + Dativ. Plural Dativ: den Kollegen."},
+  {"id": "seit-den-sommerferien", "label": "seit den Sommerferien", "prompt": "Seit ___ Sommerferien lerne ich Deutsch.", "ro": "Învăț germana din vacanța de vară.", "answer": "den", "group": "Dativ", "extra": "Dativ", "explain": "seit + Dativ. Plural: die Sommerferien → den Sommerferien."},
+  {"id": "nach-dem-konzert", "label": "nach dem Konzert", "prompt": "Nach ___ Konzert gehen wir noch etwas trinken.", "ro": "După concert mergem să bem ceva.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "nach + Dativ. Neutru: das Konzert → dem Konzert."},
+  {"id": "von-den-kollegen", "label": "von den Kollegen", "prompt": "Das Geschenk ist von ___ Kollegen.", "ro": "Cadoul este de la colegi.", "answer": "den", "group": "Dativ", "extra": "Dativ", "explain": "von + Dativ. Plural Dativ: den Kollegen."},
+  {"id": "bei-der-bank", "label": "bei der Bank", "prompt": "Mein Konto ist bei ___ Bank in Köln.", "ro": "Contul meu este la banca din Köln.", "answer": "der", "group": "Dativ", "extra": "Dativ", "explain": "bei + Dativ. Feminin: die Bank → der Bank."}
+ ]
+}

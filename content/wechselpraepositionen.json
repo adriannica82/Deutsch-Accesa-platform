@@ -1,0 +1,72 @@
+{
+ "id": "wechselpraepositionen",
+ "order": 3,
+ "title": "Wo? sau Wohin?",
+ "titleDe": "Wechselpräpositionen",
+ "level": "A2",
+ "summary": "auf, in, an, über, unter… cu Akkusativ (Wohin?) sau Dativ (Wo?). Alege articolul după sens.",
+ "unit": [
+  "expresie",
+  "expresii"
+ ],
+ "modes": [
+  "choice",
+  "write",
+  "both"
+ ],
+ "answerNoun": "articolul",
+ "instruction": "Alege articolul potrivit: întreabă-te „Wohin?” (Akkusativ) sau „Wo?” (Dativ).",
+ "extra": {
+  "label": "Cazul",
+  "options": [
+   "Akkusativ",
+   "Dativ"
+  ]
+ },
+ "groupLabel": "Cazul",
+ "groups": [
+  "Akkusativ",
+  "Dativ"
+ ],
+ "pool": [
+  "der",
+  "die",
+  "das",
+  "den",
+  "dem"
+ ],
+ "guideTitle": "Wechselpräpositionen · Wo? sau Wohin?",
+ "guideHtml": "<p class=\"muted small\" style=\"margin-top:14px\">Cele nouă prepoziții <span lang=\"de\"><b>an, auf, hinter, in, neben, über, unter, vor, zwischen</b></span> cer Akkusativ sau Dativ, după sensul propoziției.</p><div class=\"prep-rule\"><h3>„Wohin?” sau „Wo?”</h3><p><b>Akkusativ → Wohin? (încotro?)</b><br>Acțiunea duce pe cineva / ceva într-un loc nou: <span lang=\"de\">legen, stellen, setzen, hängen, gehen, fahren</span>.</p><p><b>Dativ → Wo? (unde?)</b><br>Locul în care se află cineva / ceva sau în care are loc acțiunea: <span lang=\"de\">liegen, stehen, sitzen, hängen, sein, wohnen, arbeiten</span>.</p></div><div class=\"tablewrap\"><table><thead><tr><th scope=\"col\"></th><th scope=\"col\">der (m)</th><th scope=\"col\">das (n)</th><th scope=\"col\">die (f)</th><th scope=\"col\">die (pl)</th></tr></thead><tbody><tr><td><b>Nominativ</b></td><td>der</td><td>das</td><td>die</td><td>die</td></tr><tr><td><b>Akkusativ</b></td><td><b>den</b></td><td>das</td><td>die</td><td>die</td></tr><tr><td><b>Dativ</b></td><td><b>dem</b></td><td><b>dem</b></td><td><b>der</b></td><td><b>den</b> (+ -n)</td></tr></tbody></table></div><div class=\"notice\"><b>Mișcarea singură nu înseamnă Akkusativ.</b> În <span lang=\"de\">„Die Kinder rennen hinter der Schule”</span> ei aleargă, dar în locul acela; deci Dativ. Verbele perechi: <span lang=\"de\">legen / liegen, stellen / stehen, setzen / sitzen, hängen (a agăța) / hängen (a fi agățat)</span>.</div>",
+ "items": [
+  {"id": "auf-den-tisch", "label": "auf den Tisch", "prompt": "Ich lege das Buch auf ___ Tisch.", "ro": "Pun cartea pe masă.", "answer": "den", "group": "Akkusativ", "extra": "Akkusativ", "explain": "legen = a pune → cartea ajunge într-un loc nou: Wohin? → Akkusativ. der Tisch → den Tisch."},
+  {"id": "an-die-wand", "label": "an die Wand", "prompt": "Er hängt das Bild an ___ Wand.", "ro": "El agață tabloul pe perete.", "answer": "die", "group": "Akkusativ", "extra": "Akkusativ", "explain": "hängen (transitiv) = a agăța → Wohin? → Akkusativ. Feminin: die Wand."},
+  {"id": "in-die-kuche", "label": "in die Küche", "prompt": "Wir gehen in ___ Küche.", "ro": "Mergem în bucătărie.", "answer": "die", "group": "Akkusativ", "extra": "Akkusativ", "explain": "gehen indică destinația → Wohin? → Akkusativ. Feminin: die Küche."},
+  {"id": "unter-das-bett", "label": "unter das Bett", "prompt": "Sie schiebt den Koffer unter ___ Bett.", "ro": "Ea împinge valiza sub pat.", "answer": "das", "group": "Akkusativ", "extra": "Akkusativ", "explain": "schieben = a împinge (într-un loc nou) → Wohin? → Akkusativ. Neutru: das Bett rămâne das Bett."},
+  {"id": "neben-die-lampe", "label": "neben die Lampe", "prompt": "Sie stellt die Vase neben ___ Lampe.", "ro": "Ea pune vaza lângă lampă.", "answer": "die", "group": "Akkusativ", "extra": "Akkusativ", "explain": "stellen = a pune (în picioare) → Wohin? → Akkusativ. Feminin: die Lampe."},
+  {"id": "neben-den-fahrer", "label": "neben den Fahrer", "prompt": "Ich setze mich neben ___ Fahrer.", "ro": "Mă așez lângă șofer.", "answer": "den", "group": "Akkusativ", "extra": "Akkusativ", "explain": "sich setzen = a se așeza (acțiune) → Wohin? → Akkusativ. der Fahrer → den Fahrer."},
+  {"id": "hinter-das-sofa", "label": "hinter das Sofa", "prompt": "Er wirft den Ball hinter ___ Sofa.", "ro": "El aruncă mingea în spatele canapelei.", "answer": "das", "group": "Akkusativ", "extra": "Akkusativ", "explain": "werfen = a arunca → mingea ajunge în alt loc: Wohin? → Akkusativ. Neutru: das Sofa."},
+  {"id": "vor-das-haus", "label": "vor das Haus", "prompt": "Er fährt das Auto vor ___ Haus.", "ro": "El duce mașina în fața casei.", "answer": "das", "group": "Akkusativ", "extra": "Akkusativ", "explain": "Mașina este adusă într-un loc nou: Wohin? → Akkusativ. Neutru: das Haus."},
+  {"id": "uber-die-alpen", "label": "über die Alpen", "prompt": "Wir fliegen im Sommer über ___ Alpen nach Italien.", "ro": "Vara zburăm peste Alpi spre Italia.", "answer": "die", "group": "Akkusativ", "extra": "Akkusativ", "explain": "Traversare spre o destinație: Wohin? → Akkusativ. Plural: die Alpen."},
+  {"id": "zwischen-die-freunde", "label": "zwischen die Freunde", "prompt": "Sie setzt sich zwischen ___ Freunde.", "ro": "Ea se așază între prieteni.", "answer": "die", "group": "Akkusativ", "extra": "Akkusativ", "explain": "sich setzen → Wohin? → Akkusativ. Plural Akkusativ: die Freunde."},
+  {"id": "vor-die-tur", "label": "vor die Tür", "prompt": "Ich stelle das Fahrrad vor ___ Tür.", "ro": "Pun bicicleta în fața ușii.", "answer": "die", "group": "Akkusativ", "extra": "Akkusativ", "explain": "stellen → Wohin? → Akkusativ. Feminin: die Tür."},
+  {"id": "in-den-garten", "label": "in den Garten", "prompt": "Die Kinder gehen in ___ Garten.", "ro": "Copiii ies în grădină.", "answer": "den", "group": "Akkusativ", "extra": "Akkusativ", "explain": "gehen → destinație → Wohin? → Akkusativ. der Garten → den Garten."},
+  {"id": "uber-den-tisch", "label": "über den Tisch", "prompt": "Er hängt die Lampe über ___ Tisch.", "ro": "El atârnă lampa deasupra mesei.", "answer": "den", "group": "Akkusativ", "extra": "Akkusativ", "explain": "hängen (transitiv) → Wohin? → Akkusativ. der Tisch → den Tisch."},
+  {"id": "auf-den-markt", "label": "auf den Markt", "prompt": "Am Samstag gehen wir auf ___ Markt.", "ro": "Sâmbătă mergem în piață.", "answer": "den", "group": "Akkusativ", "extra": "Akkusativ", "explain": "gehen → destinație → Wohin? → Akkusativ. der Markt → den Markt."},
+  {"id": "unter-die-matte", "label": "unter die Matte", "prompt": "Sie legt den Schlüssel unter ___ Matte.", "ro": "Ea pune cheia sub preș.", "answer": "die", "group": "Akkusativ", "extra": "Akkusativ", "explain": "legen → Wohin? → Akkusativ. Feminin: die Matte."},
+  {"id": "auf-dem-tisch", "label": "auf dem Tisch", "prompt": "Das Buch liegt auf ___ Tisch.", "ro": "Cartea se află pe masă.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "liegen = a se afla (culcat) → locul în care se află: Wo? → Dativ. der Tisch → dem Tisch."},
+  {"id": "an-der-wand", "label": "an der Wand", "prompt": "Das Bild hängt an ___ Wand.", "ro": "Tabloul este agățat pe perete.", "answer": "der", "group": "Dativ", "extra": "Dativ", "explain": "hängen (intranzitiv) = a fi agățat → Wo? → Dativ. Feminin: die Wand → der Wand."},
+  {"id": "in-der-kuche", "label": "in der Küche", "prompt": "Mama ist in ___ Küche.", "ro": "Mama este în bucătărie.", "answer": "der", "group": "Dativ", "extra": "Dativ", "explain": "sein indică locul → Wo? → Dativ. Feminin: die Küche → der Küche."},
+  {"id": "unter-dem-tisch", "label": "unter dem Tisch", "prompt": "Der Hund schläft unter ___ Tisch.", "ro": "Câinele doarme sub masă.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "schlafen → locul în care se află → Wo? → Dativ. der Tisch → dem Tisch."},
+  {"id": "neben-der-lampe", "label": "neben der Lampe", "prompt": "Die Vase steht neben ___ Lampe.", "ro": "Vaza stă lângă lampă.", "answer": "der", "group": "Dativ", "extra": "Dativ", "explain": "stehen = a sta (în picioare) → Wo? → Dativ. Feminin: die Lampe → der Lampe."},
+  {"id": "neben-dem-fahrer", "label": "neben dem Fahrer", "prompt": "Ich sitze neben ___ Fahrer.", "ro": "Stau lângă șofer.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "sitzen = a sta (așezat) → Wo? → Dativ. der Fahrer → dem Fahrer."},
+  {"id": "hinter-dem-sofa", "label": "hinter dem Sofa", "prompt": "Die Katze schläft hinter ___ Sofa.", "ro": "Pisica doarme în spatele canapelei.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "schlafen → locul → Wo? → Dativ. Neutru: das Sofa → dem Sofa."},
+  {"id": "vor-dem-haus", "label": "vor dem Haus", "prompt": "Das Auto steht vor ___ Haus.", "ro": "Mașina stă în fața casei.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "stehen → Wo? → Dativ. Neutru: das Haus → dem Haus."},
+  {"id": "uber-den-alpen", "label": "über den Alpen", "prompt": "Das Flugzeug befindet sich über ___ Alpen.", "ro": "Avionul se află deasupra Alpilor.", "answer": "den", "group": "Dativ", "extra": "Dativ", "explain": "sich befinden = a se afla → Wo? → Dativ. Plural Dativ: den Alpen."},
+  {"id": "zwischen-den-freunden", "label": "zwischen den Freunden", "prompt": "Sie steht zwischen ___ Freunden.", "ro": "Ea stă între prieteni.", "answer": "den", "group": "Dativ", "extra": "Dativ", "explain": "stehen → Wo? → Dativ. Plural Dativ: den Freunden (+ -n)."},
+  {"id": "vor-der-tur", "label": "vor der Tür", "prompt": "Das Fahrrad steht vor ___ Tür.", "ro": "Bicicleta stă în fața ușii.", "answer": "der", "group": "Dativ", "extra": "Dativ", "explain": "stehen → Wo? → Dativ. Feminin: die Tür → der Tür."},
+  {"id": "hinter-der-schule", "label": "hinter der Schule", "prompt": "Die Kinder spielen und rennen hinter ___ Schule.", "ro": "Copiii se joacă și aleargă în spatele școlii.", "answer": "der", "group": "Dativ", "extra": "Dativ", "explain": "Chiar dacă există mișcare (rennen), locul acțiunii este în spatele școlii → Wo? → Dativ. die Schule → der Schule."},
+  {"id": "uber-dem-tisch", "label": "über dem Tisch", "prompt": "Die Lampe hängt über ___ Tisch.", "ro": "Lampa atârnă deasupra mesei.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "hängen (intranzitiv) → Wo? → Dativ. der Tisch → dem Tisch."},
+  {"id": "auf-dem-markt", "label": "auf dem Markt", "prompt": "Meine Tante arbeitet auf ___ Markt.", "ro": "Mătușa mea lucrează în piață.", "answer": "dem", "group": "Dativ", "extra": "Dativ", "explain": "arbeiten → locul acțiunii → Wo? → Dativ. der Markt → dem Markt."},
+  {"id": "unter-der-matte", "label": "unter der Matte", "prompt": "Der Schlüssel liegt unter ___ Matte.", "ro": "Cheia se află sub preș.", "answer": "der", "group": "Dativ", "extra": "Dativ", "explain": "liegen → Wo? → Dativ. Feminin: die Matte → der Matte."}
+ ]
+}

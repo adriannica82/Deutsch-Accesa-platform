@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deutsch · antrenament</title>
+<style>
+/*__STYLE__*/
+</style>
+</head><body>
+<header><div class="brand">Deutsch<span> / antrenament</span></div><button id="navHome" class="quiet back" hidden>← Toate temele</button></header>
+<main>
+
+<section id="home">
+<div class="hero"><div><div class="label">GERMANĂ · A1–B1</div><h1>Un program.<br>Mai multe teme.</h1><p class="muted">Exersează articolele, cazurile, verbele și prepozițiile în propoziții scurte. Fiecare întrebare are traducere și explicație în română, iar programul îți readuce la timp ce uiți.</p><span class="pill" id="heroTopics"></span> <span class="pill" id="heroItems"></span> <span class="pill">Explicații în română</span></div><div class="notebook" lang="de"><div class="label">Kleine Wörter. Große Wirkung.</div><p>Ich denke <em>an</em> dich.<br> Ich spreche <em>mit</em> dir.<br> Ich freue mich <em>auf</em> morgen.</p></div></div>
+
+<div class="layout">
+<div class="card"><div class="label">REPETIȚIA DE AZI</div><h2 style="margin-top:12px">Ce trebuie reîmprospătat acum</h2><p class="muted small">Un amestec din toate temele: mai întâi construcțiile scadente, apoi cele noi. Tipul de exercițiu se alege automat pentru fiecare temă.</p>
+<div class="controls"><div class="field" style="grid-column:1/-1"><label for="todayCount">Număr de întrebări</label><select id="todayCount"><option value="10">10 · sesiune scurtă</option><option value="20" selected>20 · antrenament</option><option value="30">30 · sesiune lungă</option></select></div></div>
+<button id="todayStart" class="primary allwidth">Începe repetiția →</button><p class="small muted guide" id="todayInfo"></p></div>
+<aside class="card"><div class="label">PROGRESUL TĂU</div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” pentru a-l păstra.</p><div class="tools"><button type="button" class="quiet back" id="exportP">Exportă</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back" id="resetP">Resetează</button></div><input type="file" id="importFile" accept="application/json,.json" hidden>
+<div class="mini"><div class="label">SESIUNI RECENTE</div><ul class="history" id="history"></ul></div>
+<p class="small muted" style="margin-top:12px">Progresul se salvează doar în acest browser. Exportă-l ca să-l muți pe alt dispozitiv.</p></aside>
+</div>
+
+<h2 class="sectionhead">Alege o temă</h2>
+<div class="topics" id="topicGrid"></div>
+</section>
+
+<section id="topic" hidden>
+<div class="label" id="tLevel"></div><h1 id="tTitle" style="margin-bottom:10px"></h1><p class="muted" id="tSummary"></p>
+<div class="layout"><div class="card"><h2>Alege antrenamentul</h2><p class="muted small">Fiecare întrebare are un context în germană și traducerea în română.</p><div class="controls">
+<div class="field" style="grid-column:1/-1"><label for="selection">Ce întrebări primești?</label><select id="selection"><option value="smart">Repetare inteligentă · scadente + noi</option><option value="all">Toate întrebările · ordine liberă</option><option value="weak">Doar punctele slabe · greșite recent</option></select></div>
+<div class="field" id="modeField"><label for="mode">Tip de exercițiu</label><select id="mode"></select></div>
+<div class="field" id="filterField"><label for="filter" id="filterLabel">Filtru</label><select id="filter"></select></div>
+<div class="field"><label for="count">Număr de întrebări</label><select id="count"><option value="10">10 · sesiune scurtă</option><option value="20" selected>20 · antrenament</option><option value="all">Toate întrebările selectate</option></select></div>
+<div class="field"><label for="feedbackMode">Când vezi corectarea?</label><select id="feedbackMode"><option value="practice">Imediat · antrenament</option><option value="exam">La final · test</option></select></div></div>
+<label class="checkbox"><input type="checkbox" id="shuffle" checked> Amestecă întrebările (doar pentru „Toate întrebările”)</label><button id="start" class="primary allwidth">Începe testul →</button><p class="small muted guide" id="poolInfo"></p></div>
+<aside class="card"><div class="label">PROGRESUL TEMEI</div><div id="topicStats"></div><div class="mini"><div class="label">ULTIMA SESIUNE</div><p class="small muted" id="lastResult" style="margin-top:8px"></p></div><div class="tools"><button type="button" class="quiet back" id="topicStudy">Fișa de recapitulare →</button></div></aside></div>
+<div id="tGuide"></div>
+</section>
+
+<section id="quiz" hidden aria-label="Test în desfășurare"><div class="row"><button class="quiet back" id="quit">← Încheie sesiunea</button><span class="small muted" id="sessionLabel"></span></div><div class="progress" role="progressbar" aria-label="Întrebări parcurse" aria-valuemin="0" aria-valuemax="100" id="progress"><div id="bar"></div></div><div class="card"><div class="row"><span class="label" id="qCounter"></span><span class="small muted" id="runningScore"></span></div><div id="qContent"></div><div id="answerArea"></div><p id="validation" class="error" role="alert" hidden></p><div id="feedback" aria-live="polite"></div><div class="actions"><div class="group"><button id="prev" class="quiet" hidden>← Anterioara</button><button id="skip" class="quiet">Nu știu</button></div><button id="check" class="primary">Verifică răspunsul</button><button id="next" class="primary" hidden>Următoarea →</button></div></div><p class="small muted guide">Tastatură: 1–4 pentru variante · Enter pentru verificare / continuare.</p></section>
+
+<section id="results" hidden><div class="card"><div class="label">SESIUNE ÎNCHEIATĂ</div><h1 style="font-size:36px">Ce ai reținut?</h1><div class="score" id="score"></div><p id="resultMessage"></p><div class="stats" id="breakdown"></div><div class="actions"><button id="retry" class="primary">Repetă greșelile</button><button id="newTest">Configurează alt test</button><button id="resultStudy" class="quiet">Recapitulează lista</button></div><p class="small muted guide" id="resultNote"></p></div><details class="card" open><summary id="reviewTitle">Corectarea răspunsurilor</summary><div id="reviewList"></div></details></section>
+
+<section id="study" hidden><div class="row"><div><div class="label">FIȘĂ DE RECAPITULARE</div><h1 style="font-size:36px" id="studyTitle"></h1></div><button id="studyBack" class="primary">← Înapoi</button></div><p class="muted" id="studyIntro"></p><div id="studyGuide"></div><div class="card"><div class="controls" style="margin-top:0"><div class="field"><label for="search">Caută în listă</label><input type="search" id="search" placeholder="Ex.: mit, a mulțumi, fahren…"></div><div class="field" id="studyFilterField"><label for="studyFilter" id="studyFilterLabel">Filtrează</label><select id="studyFilter"></select></div></div><p class="small muted" id="studyCount"></p><div class="tablewrap"><table class="verbs"><thead><tr><th scope="col">Element</th><th scope="col">Sens</th><th scope="col">Exemplu</th><th scope="col">Progres</th></tr></thead><tbody id="verbTable"></tbody></table></div></div></section>
+
+</main><footer>Exemple adaptate pentru test · Funcționează offline, fără cont · Progresul se salvează doar în acest browser.</footer>
+<script type="application/json" id="content">/*__CONTENT__*/</script>
+<script>
+/*__SCRIPT__*/
+</script>
+</body></html>

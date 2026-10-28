@@ -1,0 +1,61 @@
+{
+ "id": "praesens-unregelmaessig",
+ "order": 4,
+ "title": "Prezentul verbelor neregulate",
+ "titleDe": "Präsens: unregelmäßige Verben",
+ "level": "A1–A2",
+ "summary": "fahren → fährt, sprechen → spricht, lesen → liest, sein, haben, werden, verbele modale.",
+ "unit": [
+  "formă verbală",
+  "forme verbale"
+ ],
+ "modes": [
+  "write"
+ ],
+ "answerNoun": "forma verbală",
+ "instruction": "Scrie forma corectă a verbului din paranteză, la persoana cerută de propoziție.",
+ "groupLabel": "Tipul",
+ "groups": [
+  "a → ä",
+  "e → i",
+  "e → ie",
+  "sein · haben · werden",
+  "Verbe modale",
+  "wissen"
+ ],
+ "guideTitle": "Prezent neregulat · tipare",
+ "guideHtml": "<p class=\"muted small\" style=\"margin-top:14px\">La <span lang=\"de\">du</span> și <span lang=\"de\">er/sie/es</span>, multe verbe își schimbă vocala din rădăcină. Pentru <span lang=\"de\">ich, wir, ihr, sie/Sie</span> formele rămân regulate.</p><div class=\"tablewrap\"><table><thead><tr><th scope=\"col\">Schimbare</th><th scope=\"col\">Infinitiv</th><th scope=\"col\">ich</th><th scope=\"col\">du</th><th scope=\"col\">er / sie / es</th></tr></thead><tbody><tr><td><b>a → ä</b></td><td>fahren · a merge</td><td>fahre</td><td>fährst</td><td>fährt</td></tr><tr><td><b>e → i</b></td><td>sprechen · a vorbi</td><td>spreche</td><td>sprichst</td><td>spricht</td></tr><tr><td><b>e → ie</b></td><td>lesen · a citi</td><td>lese</td><td>liest</td><td>liest</td></tr></tbody></table></div><div class=\"tablewrap\"><table><thead><tr><th scope=\"col\">Infinitiv</th><th scope=\"col\">ich</th><th scope=\"col\">du</th><th scope=\"col\">er / sie / es</th><th scope=\"col\">wir</th><th scope=\"col\">ihr</th><th scope=\"col\">sie / Sie</th></tr></thead><tbody><tr><td><b>sein</b> · a fi</td><td>bin</td><td>bist</td><td>ist</td><td>sind</td><td>seid</td><td>sind</td></tr><tr><td><b>haben</b> · a avea</td><td>habe</td><td>hast</td><td>hat</td><td>haben</td><td>habt</td><td>haben</td></tr><tr><td><b>werden</b> · a deveni</td><td>werde</td><td>wirst</td><td>wird</td><td>werden</td><td>werdet</td><td>werden</td></tr><tr><td><b>können</b> · a putea</td><td>kann</td><td>kannst</td><td>kann</td><td>können</td><td>könnt</td><td>können</td></tr><tr><td><b>müssen</b> · a trebui</td><td>muss</td><td>musst</td><td>muss</td><td>müssen</td><td>müsst</td><td>müssen</td></tr><tr><td><b>wissen</b> · a ști</td><td>weiß</td><td>weißt</td><td>weiß</td><td>wissen</td><td>wisst</td><td>wissen</td></tr></tbody></table></div><div class=\"notice\"><b>Verbele modale</b> (<span lang=\"de\">können, müssen, wollen, dürfen, sollen, mögen</span>) nu au terminație la <span lang=\"de\">ich</span> și <span lang=\"de\">er/sie/es</span>: <span lang=\"de\">ich kann, er kann</span>.</div>",
+ "items": [
+  {"id": "fahren-er-fahrt", "label": "fahren → er fährt", "prompt": "Mein Bruder ___ jeden Morgen mit dem Fahrrad zur Arbeit.", "hint": "fahren · a merge (cu un vehicul)", "ro": "Fratele meu merge în fiecare dimineață la serviciu cu bicicleta.", "answer": "fährt", "group": "a → ä", "explain": "fahren este neregulat la du și er/sie/es: a → ä (ich fahre, du fährst, er fährt)."},
+  {"id": "schlafen-das-baby-schlaft", "label": "schlafen → das Baby schläft", "prompt": "Das Baby ___ schon seit zwei Stunden.", "hint": "schlafen · a dormi", "ro": "Bebelușul doarme deja de două ore.", "answer": "schläft", "group": "a → ä", "explain": "schlafen: a → ä la du și er/sie/es (du schläfst, er schläft)."},
+  {"id": "laufen-er-lauft", "label": "laufen → er läuft", "prompt": "Er ___ jeden Tag fünf Kilometer.", "hint": "laufen · a alerga, a merge pe jos", "ro": "El aleargă în fiecare zi cinci kilometri.", "answer": "läuft", "group": "a → ä", "explain": "laufen: au → äu la du și er/sie/es (du läufst, er läuft)."},
+  {"id": "tragen-sie-tragt", "label": "tragen → sie trägt", "prompt": "Anna ___ heute ein blaues Kleid.", "hint": "tragen · a purta, a căra", "ro": "Anna poartă astăzi o rochie albastră.", "answer": "trägt", "group": "a → ä", "explain": "tragen: a → ä la du și er/sie/es (du trägst, sie trägt)."},
+  {"id": "waschen-du-waschst", "label": "waschen → du wäschst", "prompt": "Du ___ dir vor dem Essen die Hände.", "hint": "waschen · a spăla", "ro": "Îți speli mâinile înainte de masă.", "answer": "wäschst", "group": "a → ä", "explain": "waschen: a → ä la du și er/sie/es (du wäschst, er wäscht)."},
+  {"id": "halten-der-bus-halt", "label": "halten → der Bus hält", "prompt": "Der Bus ___ direkt vor dem Rathaus.", "hint": "halten · a opri, a ține", "ro": "Autobuzul oprește chiar în fața primăriei.", "answer": "hält", "group": "a → ä", "explain": "halten: a → ä (er hält). La er/sie/es nu se mai adaugă un al doilea -t: hält."},
+  {"id": "einladen-er-ladt-ein", "label": "einladen → er lädt … ein", "prompt": "Er ___ uns zu seiner Party ein.", "hint": "einladen · a invita (verb separabil)", "ro": "El ne invită la petrecerea lui.", "answer": "lädt", "group": "a → ä", "explain": "einladen este separabil: er lädt … ein. a → ä; după rădăcina laden nu se mai adaugă încă un -t: lädt."},
+  {"id": "sprechen-sie-spricht", "label": "sprechen → sie spricht", "prompt": "Anna ___ sehr gut Deutsch.", "hint": "sprechen · a vorbi", "ro": "Anna vorbește foarte bine germana.", "answer": "spricht", "group": "e → i", "explain": "sprechen: e → i la du și er/sie/es (du sprichst, sie spricht)."},
+  {"id": "essen-du-isst", "label": "essen → du isst", "prompt": "Du ___ immer so schnell!", "hint": "essen · a mânca", "ro": "Tu mănânci mereu atât de repede!", "answer": "isst", "group": "e → i", "explain": "essen: e → i. Rădăcina iss + -t → du isst, er isst."},
+  {"id": "geben-es-gibt", "label": "geben → es gibt", "prompt": "Was ___ es heute zum Mittagessen?", "hint": "geben · a da", "ro": "Ce avem azi la prânz?", "answer": "gibt", "group": "e → i", "explain": "geben: e → i (er gibt). es gibt = există / se servește."},
+  {"id": "helfen-er-hilft", "label": "helfen → er hilft", "prompt": "Mein Mann ___ mir oft im Haushalt.", "hint": "helfen · a ajuta", "ro": "Soțul meu mă ajută des la treburile casei.", "answer": "hilft", "group": "e → i", "explain": "helfen: e → i la du și er/sie/es (du hilfst, er hilft)."},
+  {"id": "nehmen-du-nimmst", "label": "nehmen → du nimmst", "prompt": "Du ___ immer den Bus, oder?", "hint": "nehmen · a lua", "ro": "Tu iei mereu autobuzul, nu-i așa?", "answer": "nimmst", "group": "e → i", "explain": "nehmen: e → i și se schimbă consoana: -hm- → -mm- (du nimmst, er nimmt)."},
+  {"id": "treffen-er-trifft", "label": "treffen → er trifft", "prompt": "Er ___ heute Abend seine Freunde.", "hint": "treffen · a întâlni", "ro": "El își întâlnește prietenii în seara asta.", "answer": "trifft", "group": "e → i", "explain": "treffen: e → i la du și er/sie/es (du triffst, er trifft)."},
+  {"id": "werfen-sie-wirft", "label": "werfen → sie wirft", "prompt": "Lena ___ den Ball sehr weit.", "hint": "werfen · a arunca", "ro": "Lena aruncă mingea foarte departe.", "answer": "wirft", "group": "e → i", "explain": "werfen: e → i la du și er/sie/es (du wirfst, sie wirft)."},
+  {"id": "lesen-er-liest", "label": "lesen → er liest", "prompt": "Er ___ jeden Abend ein Buch.", "hint": "lesen · a citi", "ro": "El citește o carte în fiecare seară.", "answer": "liest", "group": "e → ie", "explain": "lesen: e → ie la du și er/sie/es (du liest, er liest). La du apare un singur -t."},
+  {"id": "sehen-sie-sieht", "label": "sehen → sie sieht", "prompt": "Meine Schwester ___ den Film zum ersten Mal.", "hint": "sehen · a vedea", "ro": "Sora mea vede filmul pentru prima oară.", "answer": "sieht", "group": "e → ie", "explain": "sehen: e → ie la du și er/sie/es (du siehst, sie sieht)."},
+  {"id": "empfehlen-er-empfiehlt", "label": "empfehlen → er empfiehlt", "prompt": "Der Kellner ___ uns den Fisch.", "hint": "empfehlen · a recomanda", "ro": "Chelnerul ne recomandă peștele.", "answer": "empfiehlt", "group": "e → ie", "explain": "empfehlen: e → ie la du și er/sie/es (du empfiehlst, er empfiehlt)."},
+  {"id": "sein-du-bist", "label": "sein → du bist", "prompt": "Du ___ heute sehr nett.", "hint": "sein · a fi", "ro": "Ești foarte drăguț astăzi.", "answer": "bist", "group": "sein · haben · werden", "explain": "sein este complet neregulat: ich bin, du bist, er ist, wir sind, ihr seid, sie sind."},
+  {"id": "sein-ihr-seid", "label": "sein → ihr seid", "prompt": "Ihr ___ schon da!", "hint": "sein · a fi", "ro": "Voi sunteți deja aici!", "answer": "seid", "group": "sein · haben · werden", "explain": "sein: ihr seid. Nu confunda cu seit (prepoziție = de când)."},
+  {"id": "haben-er-hat", "label": "haben → er hat", "prompt": "Er ___ zwei Geschwister.", "hint": "haben · a avea", "ro": "El are doi frați / surori.", "answer": "hat", "group": "sein · haben · werden", "explain": "haben: ich habe, du hast, er hat, wir haben, ihr habt, sie haben."},
+  {"id": "haben-du-hast", "label": "haben → du hast", "prompt": "Du ___ ganz recht.", "hint": "haben · a avea", "ro": "Ai perfectă dreptate.", "answer": "hast", "group": "sein · haben · werden", "explain": "haben: du hast (fără b)."},
+  {"id": "werden-es-wird", "label": "werden → es wird", "prompt": "Es ___ langsam dunkel.", "hint": "werden · a deveni", "ro": "Se întunecă încet.", "answer": "wird", "group": "sein · haben · werden", "explain": "werden: ich werde, du wirst, er wird, wir werden, ihr werdet, sie werden."},
+  {"id": "werden-du-wirst", "label": "werden → du wirst", "prompt": "Du ___ bestimmt ein guter Arzt.", "hint": "werden · a deveni", "ro": "Vei deveni sigur un medic bun.", "answer": "wirst", "group": "sein · haben · werden", "explain": "werden: du wirst. e → i la du și er/sie/es."},
+  {"id": "konnen-ich-kann", "label": "können → ich kann", "prompt": "Ich ___ leider nicht kommen.", "hint": "können · a putea", "ro": "Din păcate nu pot să vin.", "answer": "kann", "group": "Verbe modale", "explain": "Verbele modale sunt neregulate la singular: ich kann, du kannst, er kann (fără terminație la ich și er/sie/es)."},
+  {"id": "mussen-er-muss", "label": "müssen → er muss", "prompt": "Er ___ heute länger arbeiten.", "hint": "müssen · a trebui", "ro": "El trebuie să lucreze astăzi mai mult.", "answer": "muss", "group": "Verbe modale", "explain": "müssen: ich muss, du musst, er muss. Fără terminație la ich și er/sie/es."},
+  {"id": "wollen-sie-will", "label": "wollen → sie will", "prompt": "Julia ___ nächstes Jahr nach Spanien fahren.", "hint": "wollen · a vrea", "ro": "Julia vrea să meargă anul viitor în Spania.", "answer": "will", "group": "Verbe modale", "explain": "wollen: ich will, du willst, er will. Fără terminație la ich și er/sie/es."},
+  {"id": "durfen-man-darf", "label": "dürfen → man darf", "prompt": "Hier ___ man nicht rauchen.", "hint": "dürfen · a avea voie", "ro": "Aici nu se are voie să se fumeze.", "answer": "darf", "group": "Verbe modale", "explain": "dürfen: ich darf, du darfst, er darf. ü → a la singular."},
+  {"id": "sollen-du-sollst", "label": "sollen → du sollst", "prompt": "Du ___ mehr Wasser trinken.", "hint": "sollen · a trebui (recomandare)", "ro": "Ar trebui să bei mai multă apă.", "answer": "sollst", "group": "Verbe modale", "explain": "sollen: ich soll, du sollst, er soll."},
+  {"id": "mogen-ich-mag", "label": "mögen → ich mag", "prompt": "Ich ___ keinen Fisch.", "hint": "mögen · a-i plăcea", "ro": "Nu-mi place peștele.", "answer": "mag", "group": "Verbe modale", "explain": "mögen: ich mag, du magst, er mag. ö → a la singular."},
+  {"id": "wissen-ich-weiss", "label": "wissen → ich weiß", "prompt": "Ich ___ nicht, wo er wohnt.", "hint": "wissen · a ști", "ro": "Nu știu unde locuiește.", "answer": "weiß", "group": "wissen", "explain": "wissen: ich weiß, du weißt, er weiß. Se poate scrie și „weiss”."},
+  {"id": "wissen-du-weisst", "label": "wissen → du weißt", "prompt": "___ du, wie spät es ist?", "hint": "wissen · a ști", "ro": "Știi cât e ceasul?", "answer": "weißt", "group": "wissen", "explain": "wissen: du weißt. Se poate scrie și „weisst”."}
+ ]
+}
