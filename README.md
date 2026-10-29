@@ -66,8 +66,3 @@ Fără `config.json`, aplicația rămâne locală (fără cont, fără cereri de
 
 Conturile se creează de administrator în Supabase (Authentication → Users); înregistrarea liberă trebuie oprită
 (Authentication → Sign In / Providers → dezactivează „Allow new users to sign up”). Aplicația nu are formular de înregistrare.
-
-## Culorile genurilor
-
-La temele „Der, die sau das?” (A1–A2 și B1, câmpul `"genderColors": true` din fișierul temei) genurile au culori: **verde = masculin (der), roșu = feminin (die), galben = neutru (das)**. Variantele de răspuns au un marcaj lateral în culoarea genului, iar la dezvăluirea soluției articolul și **terminația regulii** (de exemplu -ung, -chen, prefixul Ge-) sunt evidențiate în culoarea genului, în corectare, în rezultate și în tabelul de studiu. Culoarea nu este singurul semnal: articolul apare mereu scris.
-
