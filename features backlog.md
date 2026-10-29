@@ -63,8 +63,16 @@ feature 5: (cerută în conversație) aplicația trebuie optimizată pentru mobi
 
 feature 6: (cerută în conversație) gamification între utilizatori, începând cu liga / provocarea săptămânală. La prima autentificare, utilizatorul primește un pop-up în care este întrebat dacă vrea să se înscrie la provocarea săptămânală; pop-up-ul are o casetă „skip reminders” care, bifată, face ca pop-up-ul să nu mai apară în viitor.
 
-- **Status:** doar documentat, **neimplementat** (2026-10-29). Se așteaptă confirmarea punctelor deschise înainte de implementare.
-- **Document de cerințe:** `weekly league requirements.md` (poveste de utilizator, cerințe numerotate WL-1…WL-7, reguli de afișare, conținutul pop-up-ului, accesibilitate și iPhone, date propuse, criterii de acceptare, întrebări deschise).
-- **Cerința confirmată:** pop-up la prima autentificare, cu înscrierea la provocarea săptămânală și caseta „skip reminders” (nu se mai afișează pop-up-ul).
-- **Presupuneri de confirmat (cu recomandare în document):** pop-up-ul reapare la următoarea autentificare dacă utilizatorul spune „Nu acum” fără să bifeze caseta; „nu mai aminti” se păstrează pe cont; cine a ales „nu mai aminti” se poate înscrie ulterior din cardul „Liga ta”; numele afișat și avatarul se cer în pasul 2 al pop-up-ului; conturile existente primesc pop-up-ul la următoarea autentificare.
-- **Pași următori (după confirmare):** (1) tabelul `profiles` și politicile de securitate; (2) pop-up-ul de înscriere; (3) calculul XP pe server; (4) clasamentul și cardul „Liga ta”; (5) trepte, promovări și rezumatul de luni.
+- **Status:** cerințele pop-up-ului sunt **confirmate** (2026-10-29), **neimplementat**. Se poate trece la implementare.
+- **Document de cerințe:** `weekly league requirements.md` (poveste de utilizator, cerințe numerotate WL-1…WL-10, reguli de afișare, conținutul pop-up-ului, accesibilitate și iPhone, date propuse, 11 criterii de acceptare, decizii confirmate).
+- **Cerința inițială:** pop-up la prima autentificare, cu înscrierea la provocarea săptămânală și caseta „skip reminders” (nu se mai afișează pop-up-ul).
+- **Decizii confirmate (2026-10-29):**
+  - pop-up-ul reapare la o autentificare ulterioară dacă utilizatorul spune „Nu acum” fără să bifeze caseta, dar **cel mult o dată pe zi**;
+  - „nu mai aminti” se păstrează **pe cont**, deci valabil pe toate dispozitivele;
+  - eticheta casetei în interfață este **„Nu-mi mai aminti”**;
+  - cine a ales „nu mai aminti” se poate înscrie ulterior din cardul „Liga ta”;
+  - numele afișat și avatarul se cer în **pasul 2** al pop-up-ului;
+  - conturile existente primesc pop-up-ul la prima autentificare după lansare;
+  - liga **pornește de la zero**: contează doar răspunsurile date după lansare.
+- **Încă deschis (privește liga, nu pop-up-ul):** denumirile treptelor, mărimea grupului, dacă se afișează și acuratețea, XP mai mare la „scrie”, o eventuală recompensă reală.
+- **Pași următori:** (1) tabelul `profiles` și politicile de securitate; (2) pop-up-ul de înscriere; (3) calculul XP pe server; (4) clasamentul și cardul „Liga ta”; (5) trepte, promovări și rezumatul de luni.

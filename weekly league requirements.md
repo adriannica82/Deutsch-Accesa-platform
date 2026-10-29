@@ -1,6 +1,6 @@
 # Provocarea săptămânală (liga) · cerințe
 
-- **Stare:** doar documentat, **neimplementat** (început la 2026-10-29)
+- **Stare:** cerințele pop-up-ului sunt **confirmate** (2026-10-29), **neimplementat**
 - **Legat de:** `features backlog.md`, feature 6
 - **Despre ce este vorba:** o competiție săptămânală între utilizatori (liga), la care fiecare utilizator se poate **înscrie**. Acest document descrie deocamdată fereastra de înscriere (pop-up) și deciziile deschise. Regulile ligii (XP, trepte, promovări) sunt rezumate la final și vor fi detaliate separat.
 
@@ -18,11 +18,14 @@ Ca utilizator autentificat, vreau să fiu întrebat o dată, politicos, dacă vr
 |---|---|---|
 | WL-1 | La **prima autentificare** a unui cont, după ce pagina principală s-a încărcat, se afișează un pop-up cu întrebarea dacă utilizatorul vrea să se înscrie la provocarea săptămânală. | confirmată |
 | WL-2 | Pop-up-ul conține o casetă **„skip reminders”** (în interfață: „Nu-mi mai aminti”). Dacă este bifată când utilizatorul închide pop-up-ul, acesta **nu mai este afișat niciodată** pentru acel cont. | confirmată |
-| WL-3 | Dacă utilizatorul **nu** bifează caseta și închide pop-up-ul („Nu acum”), pop-up-ul se afișează din nou la următoarea autentificare. | presupusă |
-| WL-4 | Dacă utilizatorul alege „Da, mă înscriu”, se înscrie la provocare și pop-up-ul nu se mai afișează. | presupusă |
-| WL-5 | Un utilizator care a ales „nu mai aminti” se poate înscrie oricând mai târziu din pagina principală (cardul „Liga ta” și setările profilului). | presupusă |
-| WL-6 | Un utilizator înscris se poate retrage oricând; retragerea nu reactivează pop-up-ul. | presupusă |
-| WL-7 | Înscrierea cere un **nume afișat** și un **avatar emoji**, completate în pasul 2 al aceluiași pop-up, cu nume preîncărcat din adresa de email. Ceilalți utilizatori văd doar numele, avatarul, XP-ul și treapta; niciodată răspunsurile. | presupusă |
+| WL-3 | Dacă utilizatorul **nu** bifează caseta și închide pop-up-ul („Nu acum”), pop-up-ul se afișează din nou la o autentificare ulterioară, dar **cel mult o dată pe zi** (în ziua locală a utilizatorului). | confirmată (2026-10-29) |
+| WL-4 | Dacă utilizatorul alege „Da, mă înscriu”, se înscrie la provocare și pop-up-ul nu se mai afișează. | confirmată (2026-10-29) |
+| WL-5 | Un utilizator care a ales „nu mai aminti” se poate înscrie oricând mai târziu din pagina principală (cardul „Liga ta” și setările profilului). | confirmată (2026-10-29) |
+| WL-6 | Un utilizator înscris se poate retrage oricând; retragerea nu reactivează pop-up-ul. | confirmată (2026-10-29) |
+| WL-7 | Înscrierea cere un **nume afișat** și un **avatar emoji**, completate în pasul 2 al aceluiași pop-up, cu nume preîncărcat din adresa de email. Ceilalți utilizatori văd doar numele, avatarul, XP-ul și treapta; niciodată răspunsurile. | confirmată (2026-10-29) |
+| WL-8 | Starea „nu mai aminti” se păstrează **pe cont** (pe server), deci este valabilă pe toate dispozitivele. | confirmată (2026-10-29) |
+| WL-9 | Conturile existente (inclusiv cele create înainte de lansarea ligii) primesc pop-up-ul la prima autentificare după lansare. | confirmată (2026-10-29) |
+| WL-10 | **Liga pornește de la zero:** XP-ul se calculează doar din răspunsurile date **după lansare**; răspunsurile anterioare nu se numără. | confirmată (2026-10-29) |
 
 ## 4. Reguli de afișare
 
@@ -30,6 +33,8 @@ Ca utilizator autentificat, vreau să fiu întrebat o dată, politicos, dacă vr
 - Se afișează pe pagina principală, **după** încărcarea datelor contului, ca să nu apară unui utilizator deja înscris sau care a ales „nu mai aminti”. Fără conexiune la server, nu se afișează.
 - Nu se afișează în timpul unui test, pe ecranul de autentificare sau peste alt dialog.
 - „Autentificare” înseamnă o conectare nouă (parolă introdusă), nu simpla redeschidere a paginii cu sesiunea păstrată.
+- **Cel mult o dată pe zi:** dacă pop-up-ul s-a afișat deja în ziua locală curentă (după `league_prompted_at`), nu se mai afișează până a doua zi, chiar dacă utilizatorul se reconectează.
+- Eticheta casetei în interfață este în română: **„Nu-mi mai aminti”**.
 - Starea (înscris / nu mai aminti) se citește de pe server, deci decizia este valabilă pe toate dispozitivele.
 
 ## 5. Conținut propus pentru pop-up
@@ -64,23 +69,28 @@ Politici de securitate pe rânduri: fiecare utilizator citește și modifică do
 
 1. **Dat** un cont nou, **când** se autentifică prima dată, **atunci** apare pop-up-ul.
 2. **Dat** pop-up-ul deschis, **când** utilizatorul bifează „Nu-mi mai aminti” și apasă „Nu acum”, **atunci** pop-up-ul nu mai apare la nicio autentificare viitoare, pe niciun dispozitiv.
-3. **Dat** pop-up-ul deschis, **când** utilizatorul apasă „Nu acum” fără bifă, **atunci** pop-up-ul apare din nou la următoarea autentificare.
+3. **Dat** pop-up-ul deschis, **când** utilizatorul apasă „Nu acum” fără bifă, **atunci** pop-up-ul apare din nou la o autentificare din **ziua următoare** (nu în aceeași zi).
 4. **Dat** pop-up-ul deschis, **când** utilizatorul alege „Da” și completează pasul 2, **atunci** este înscris și nu mai vede pop-up-ul.
 5. **Dat** un utilizator care a ales „nu mai aminti”, **când** deschide pagina principală, **atunci** poate totuși să se înscrie din cardul „Liga ta”.
 6. **Dat** un utilizator deja înscris, **când** se autentifică, **atunci** pop-up-ul nu apare.
 7. **Dat** fără conexiune sau fără cont, **când** se deschide aplicația, **atunci** pop-up-ul nu apare.
 8. Pop-up-ul se poate folosi complet de la tastatură și pe iPhone, fără depășiri de ecran.
+9. **Dat** pop-up-ul afișat deja azi și închis cu „Nu acum” fără bifă, **când** utilizatorul se reconectează în aceeași zi, **atunci** pop-up-ul nu apare.
+10. **Dat** un cont existent creat înainte de lansare, **când** se autentifică după lansare, **atunci** primește pop-up-ul (dacă nu este înscris și nu a bifat „nu mai aminti”).
+11. **Dat** lansarea ligii la momentul L, **când** se calculează XP-ul, **atunci** se numără doar răspunsurile date după L.
 
-## 9. Întrebări deschise (cu varianta recomandată)
+## 9. Decizii confirmate (2026-10-29)
 
-| # | Întrebare | Recomandare |
+Toate cele șase întrebări deschise au primit răspunsul recomandat.
+
+| # | Întrebare | Decizie |
 |---|---|---|
-| 1 | La fiecare autentificare sau cel mult o dată pe zi (când nu e bifat „nu mai aminti”)? | cel mult o dată pe zi |
-| 2 | „Nu mai aminti” se păstrează pe cont (peste dispozitive) sau pe dispozitiv? | pe cont |
-| 3 | Eticheta în interfață: „Nu-mi mai aminti” sau „skip reminders” ca în cerere? | română: „Nu-mi mai aminti” |
-| 4 | Conturile existente (3 acum) primesc pop-up-ul la următoarea autentificare? | da |
-| 5 | Numele afișat și avatarul se cer în pop-up sau pe o pagină de profil? | în pop-up, pasul 2 |
-| 6 | Răspunsurile de până acum se numără în XP (backfill) sau liga pornește de la zero? | de la zero, ca startul să fie corect |
+| 1 | La fiecare autentificare sau cel mult o dată pe zi (când nu e bifat „nu mai aminti”)? | **cel mult o dată pe zi** (WL-3) |
+| 2 | „Nu mai aminti” se păstrează pe cont (peste dispozitive) sau pe dispozitiv? | **pe cont** (WL-8) |
+| 3 | Eticheta în interfață: „Nu-mi mai aminti” sau „skip reminders” ca în cerere? | **română: „Nu-mi mai aminti”** (WL-2) |
+| 4 | Conturile existente (3 acum) primesc pop-up-ul la următoarea autentificare? | **da** (WL-9) |
+| 5 | Numele afișat și avatarul se cer în pop-up sau pe o pagină de profil? | **în pop-up, pasul 2** (WL-7) |
+| 6 | Răspunsurile de până acum se numără în XP (backfill) sau liga pornește de la zero? | **de la zero**, doar răspunsurile de după lansare (WL-10) |
 
 ## 10. Rezumatul ligii (context, de detaliat)
 
