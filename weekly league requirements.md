@@ -1,6 +1,6 @@
 # Provocarea săptămânală (liga) · cerințe
 
-- **Stare:** cerințele pop-up-ului sunt **confirmate** (2026-10-29). **Faza 1 (înscrierea) și faza 2 (motorul de XP cu multiplicatorul de nivel) implementate** (2026-10-29), vezi secțiunea 13; clasamentul, treptele și rezumatul de luni urmează. Elementul de **complexitate** (nivelurile mai înalte aduc mai multe puncte) a fost adăugat și **confirmat** la 2026-10-29, inclusiv valorile multiplicatorilor (secțiunea 10).
+- **Stare:** cerințele pop-up-ului sunt **confirmate** (2026-10-29). **Fazele 1 (înscrierea), 2 (motorul de XP cu multiplicatorul de nivel) și 3 (clasamentul) implementate** (2026-10-29), vezi secțiunile 13 și 14; treptele, promovările și rezumatul de luni urmează. Elementul de **complexitate** (nivelurile mai înalte aduc mai multe puncte) a fost adăugat și **confirmat** la 2026-10-29, inclusiv valorile multiplicatorilor (secțiunea 10).
 - **Legat de:** `features backlog.md`, feature 6
 - **Despre ce este vorba:** o competiție săptămânală între utilizatori (liga), la care fiecare utilizator se poate **înscrie**. Acest document descrie deocamdată fereastra de înscriere (pop-up) și deciziile deschise. Regulile ligii (XP, trepte, promovări) sunt rezumate la final și vor fi detaliate separat.
 
@@ -240,3 +240,34 @@ Calculul XP, clasamentul, promovările, ecranele ligii și mesajele săptămâna
 
 **Verificare:** regulile de XP au fost testate direct pe baza de date, cu conturi de test anulate după aceea: răspuns nou 10, reluare înainte de scadență 5, revenire 20, reluare scadentă 15, B1 ×2 = 20, „scrie” A2 = 19, „scrie + caz” A2–B1 = 30, răspuns greșit / înainte de lansare / mai vechi de 48 h / din viitor = fără XP, livrare dublă = un singur punctaj, plafon (după 400 de puncte: 3 și 5 XP), bonusurile de sesiune (+20 și +10, o singură dată), un utilizator nu vede și nu poate scrie punctajele altuia; interfața a fost testată cu backend simulat (insigne, chip în antet, rezultate, card, sesiune amestecată, 0 XP, fără conexiune), pe desktop și la 402×874.
 **Neverificat:** un test cu cont real din Supabase și Safari pe iPhone.
+
+## 14. Clasamentul (faza 3)
+
+### Cerințe
+
+| ID | Cerință | Stare |
+|---|---|---|
+| WL-19 | Clasament **săptămânal** al celor înscriși, după XP, de luni până duminică (Europe/Bucharest). | făcut |
+| WL-20 | Clasamentul îl văd și în el apar **doar cei înscriși**. Se arată doar numele, avatarul, XP-ul, locul și schimbarea față de săptămâna trecută; niciodată e-mailul, identificatorul sau răspunsurile. | făcut |
+| WL-21 | La egalitate de XP decide **acuratețea** săptămânii, apoi cine a ajuns **primul** la scor, apoi numele. | făcut |
+| WL-22 | Cardul „Liga ta” arată locul („Locul 2 din 5”), XP-ul săptămânii, diferența până la locul următor (sau avansul, dacă ești primul), timpul rămas din săptămână, vecinii din clasament (±2) și butonul „Clasament complet”. | făcut |
+| WL-23 | Ecranul „Clasament săptămânal”: lista completă cu medalii pentru primele 3 locuri, rândul tău evidențiat, săgeți ▲ ▼ – față de săptămâna trecută (cu text pentru cititoare de ecran), perioada săptămânii, buton „Actualizează” și explicația „Cum se calculează XP-ul”. Are intrare în istoric (gestul „înapoi”). | făcut |
+| WL-24 | **Mod solo:** dacă ești singurul înscris, te compari cu propria săptămână anterioară (XP și procent; „prima ta săptămână” dacă nu ai avut XP). | făcut |
+| WL-25 | Clasamentul se actualizează la conectare, după fiecare sesiune terminată și după înscriere; fără conexiune sau la eroare apare un mesaj, fără să se strice restul paginii. | făcut |
+| WL-26 | Cei înscriși fără XP în săptămână apar la sfârșitul listei. | făcut |
+
+### Cum funcționează
+- O funcție pe server (`league_standings`) calculează clasamentul și întoarce doar datele permise. O pot apela doar utilizatorii autentificați, iar cine nu este înscris primește un răspuns gol („nu ești înscris”).
+- Locul din săptămâna trecută se calculează între cei care au avut XP atunci; cine nu a avut nu are săgeată.
+- Ziua și săptămâna sunt cele din Europe/Bucharest; „timpul rămas” vine de la server (luni 00:00, ora României).
+
+### Decizii luate la implementare (de confirmat)
+1. Deocamdată există **o singură grupă** pentru toți cei înscriși; grupele pe trepte vin cu promovările (faza 4).
+2. Clasamentul **nu se actualizează în timp real**: se reîncarcă la evenimentele din WL-25 sau cu „Actualizează”.
+3. Cei înscriși cu 0 XP **se văd** în listă, la sfârșit.
+4. Vizibilitate reciprocă: clasamentul îl vede **doar cine este înscris**.
+
+### Verificare
+- **Pe baza de date**, cu cinci conturi de test anulate după aceea: cine nu e înscris primește „nu ești înscris”; cine e înscris vede doar membrii înscriși (un cont neînscris cu 999 XP nu apare); ordinea 300 XP cu acuratețe 90% înaintea 300 XP cu acuratețe 70%, apoi 50 XP, apoi 0 XP; locurile din săptămâna trecută; nicio informație de identificare în răspuns; „sfârșitul săptămânii” cade în următoarele 7 zile; un apel fără cont este refuzat.
+- **În aplicație**, cu backend simulat: locul 2 din 5 cu vecinii și diferența, primul loc, egalitate, mod solo și prima săptămână, eroare de server, utilizator neînscris, înscrierea și retragerea (clasamentul se încarcă / dispare), gestul „înapoi” de pe ecranul clasamentului; desktop și 402×874 (fără depășiri, ținte tactile ≥ 44 px, nume lung tăiat cu „…”); toate cele 2083 de răspunsuri din teme acceptate ca înainte.
+- **Neverificat:** un clasament cu mai mulți conturi reale și Safari pe un iPhone.

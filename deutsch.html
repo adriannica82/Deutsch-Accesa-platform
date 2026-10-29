@@ -70,6 +70,13 @@ dialog#leagueDialog::backdrop{background:rgba(23,49,57,.55)}
 .xpdet{margin-top:10px}.xplist{padding-left:18px;margin:10px 0 0;font-size:14px}.xplist li{margin:6px 0}
 @media(max-width:480px){.brand span{display:none}.userbar #syncState.ok{display:none}}
 
+.rank{list-style:none;padding:0;margin:12px 0 0}.rank li{display:grid;grid-template-columns:34px 34px minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:10px 8px;border-radius:12px;min-height:48px}
+.rank li+li{border-top:1px solid var(--line)}.rank li.me{background:#edf7e9;border:1px solid #cfe5c3}
+.rank .pos{font-weight:800;text-align:center}.rank .av{font-size:22px;text-align:center}.rank .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650}.rank .nm i{font-style:normal;font-weight:400;color:var(--muted);font-size:12px}
+.rank .tr{font-size:12px;font-weight:800}.tr.up{color:var(--green)}.tr.down{color:var(--red)}.tr.same{color:var(--muted)}.rank .xp{font-variant-numeric:tabular-nums;white-space:nowrap}
+.rank.mini{margin-top:8px}.rank.mini li{padding:6px 8px;min-height:40px}.rankline{margin:12px 0 4px;font-size:16px}
+.rank li{border-radius:0}.rank li.me{border-radius:12px;border-top-color:#cfe5c3}.rank li.me+li{border-top-color:transparent}
+
 </style>
 </head><body>
 <header><div class="brand">Deutsch<span> / antrenament</span></div><div class="userbar"><span id="userEmail" class="small muted" hidden></span><span id="syncState" class="small muted" hidden></span><button id="navHome" class="quiet back" hidden>← Toate temele</button><button id="logout" class="quiet back" hidden>Ieși</button></div></header>
@@ -107,6 +114,8 @@ dialog#leagueDialog::backdrop{background:rgba(23,49,57,.55)}
 <aside class="card"><div class="label">PROGRESUL TEMEI</div><div id="topicStats"></div><div class="mini"><div class="label">ULTIMA SESIUNE</div><p class="small muted" id="lastResult" style="margin-top:8px"></p></div><div class="tools"><button type="button" class="quiet back" id="topicStudy">Fișa de recapitulare →</button></div></aside></div>
 <div id="tGuide"></div>
 </section>
+
+<section id="league" hidden><div class="row"><div><div class="label">LIGA TA</div><h1 style="font-size:36px">Clasament săptămânal</h1></div><button id="leagueBack" class="primary">← Înapoi</button></div><p class="muted" id="leagueMeta"></p><div class="card"><div id="leagueBody"></div><div class="tools"><button type="button" class="quiet back" id="leagueRefresh">Actualizează</button></div></div><details class="card prep-guide"><summary>Cum se calculează XP-ul</summary><div id="leagueHowBody"></div></details></section>
 
 <section id="quiz" hidden aria-label="Test în desfășurare"><div class="row"><button class="quiet back" id="quit">← Încheie sesiunea</button><span class="small muted sessionbar"><button type="button" class="timer" id="timer" aria-pressed="false" title="Ascunde cronometrul">⏱ 00:00</button><span class="xpchip" id="xpChip" hidden></span><span id="sessionLabel"></span></span></div><div class="progress" role="progressbar" aria-label="Întrebări parcurse" aria-valuemin="0" aria-valuemax="100" id="progress"><div id="bar"></div></div><div class="card"><div class="row"><span class="label" id="qCounter"></span><span class="small muted" id="runningScore"></span></div><div id="qContent"></div><div id="answerArea"></div><p id="validation" class="error" role="alert" hidden></p><div id="feedback" aria-live="polite"></div><div class="actions"><div class="group"><button id="prev" class="quiet" hidden>← Anterioara</button><button id="skip" class="quiet">Nu știu</button></div><button id="check" class="primary">Verifică răspunsul</button><button id="next" class="primary" hidden>Următoarea →</button></div></div><p class="small muted guide kbd-hint">Tastatură: 1–4 pentru variante · Enter pentru verificare / continuare.</p></section>
 
@@ -149,7 +158,7 @@ const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const LEVELS={A1:1,A2:2,B1:3,B2:4,C1:5,C2:6},levelKey=l=>{const r=(String(l).match(/[ABC][12]/g)||[]).map(x=>LEVELS[x]);return r.length?[Math.min(...r),Math.max(...r)]:[99,99]};
 const topics=CONTENT.topics.slice().sort((a,b)=>{const x=levelKey(a.level),y=levelKey(b.level);return x[0]-y[0]||x[1]-y[1]||a.order-b.order}),topicById=Object.create(null),byId=Object.create(null),allItems=[];
 topics.forEach(t=>{topicById[t.id]=t;t.qs=t.items.map(it=>{const q={...it,alt:it.alt||[],group:it.group||'',gid:t.id+'/'+it.id,topic:t};byId[q.gid]=q;allItems.push(q);return q})});
-const VIEWS=['login','home','topic','quiz','results','study'];
+const VIEWS=['login','home','topic','quiz','results','study','league'];
 let state={active:false},currentView='home',studyReturn='home',cur=null,builtFor='',studyTopic=null,progress=Object.create(null),history=[],storageOK=true;
 
 // ---------- Progres salvat local ----------
@@ -170,7 +179,7 @@ const modeLabel=(t,m)=>m==='choice'?'Alege '+t.answerNoun:m==='write'?'Scrie '+t
 const guideDetails=(t,open)=>t.guideHtml?'<details class="card prep-guide"'+(open?' open':'')+'><summary>'+escape(t.guideTitle)+'</summary>'+t.guideHtml+'</details>':'';
 
 // ---------- Navigare ----------
-function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;$('navHome').hidden=id==='home'||id==='quiz'||id==='login';if(id==='home')renderHome();if(id==='topic')renderTopic();if(id!=='login')pushView(id);window.scrollTo(0,0)}
+function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;$('navHome').hidden=id==='home'||id==='quiz'||id==='login';if(id==='home')renderHome();if(id==='topic')renderTopic();if(id==='league')renderLeague();if(id!=='login')pushView(id);window.scrollTo(0,0)}
 function renderHome(){
 $('heroTopics').textContent=countRo(topics.length,['temă','teme']);$('heroItems').textContent=countRo(allItems.length,['întrebare','întrebări']);
 $('progressStats').innerHTML=statsHtml(allItems);$('timeStats').innerHTML=timeHtml();$('storeWarn').hidden=storageOK;
@@ -377,7 +386,7 @@ const j=await r.json().catch(()=>({}));
 if(r.ok&&j.access_token&&j.user){setAuth(j);return}
 throw new Error(r.status>=500||r.status===429?'net':'bad')}
 const refreshSession=()=>authCall('refresh_token',{refresh_token:auth.refresh_token}).then(()=>true,e=>{if(e.message==='bad')dropSession();return false});
-function dropSession(){xpSummary=null;profile=null;profileFresh=false;pendingPrompt=false;auth=null;progress=Object.create(null);history=[];timeLog=Object.create(null);clock=null;outbox={q:[],p:[],d:{}};state={active:false};try{localStorage.removeItem(AKEY)}catch{}showLogin()}
+function dropSession(){standings=null;xpSummary=null;profile=null;profileFresh=false;pendingPrompt=false;auth=null;progress=Object.create(null);history=[];timeLog=Object.create(null);clock=null;outbox={q:[],p:[],d:{}};state={active:false};try{localStorage.removeItem(AKEY)}catch{}showLogin()}
 async function api(path,opt={}){
 if(auth.expires_at<Date.now()&&!await refreshSession())throw new Error('auth');
 const go=()=>fetch(CFG.url+path,{method:opt.method||'GET',headers:{apikey:CFG.key,Authorization:'Bearer '+auth.access_token,'Content-Type':'application/json',...(opt.headers||{})},body:opt.body===undefined?undefined:JSON.stringify(opt.body)});
@@ -411,7 +420,7 @@ async function sync(){
 try{
 await flush();
 if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();maybePrompt()}}
-refreshXpSummary();
+refreshLeague();
 const r=await api('/rest/v1/progress?select=item_id,box,due,seen,right_count,wrong_count,last&limit=1000');
 if(r.ok){const remote=Object.create(null),rows=await r.json();
 for(const x of rows)remote[x.item_id]={box:x.box,due:Number(x.due),seen:x.seen,right:x.right_count,wrong:x.wrong_count,last:Number(x.last)};
@@ -440,6 +449,47 @@ $('logout').onclick=async()=>{await flush();try{await api('/auth/v1/logout',{met
 addEventListener('online',()=>{if(auth){flush().then(sync)}else setSync()});addEventListener('offline',setSync);
 setInterval(()=>{if(auth)flush()},30000)}
 
+// ---------- Liga: clasament ----------
+// Clasamentul vine de la server (funcția league_standings): doar numele, avatarul și XP-ul celor înscriși, niciodată răspunsurile.
+let standings=null,standingsErr=false;
+const dayWord=n=>n===1?'1 zi':n<20?n+' zile':n+' de zile';
+const medals=['🥇','🥈','🥉'];
+function rankRows(list){return '<ol class="rank">'+list.map(m=>{
+const d=m.last_rank==null?null:m.last_rank-m.rank,
+tr=d==null?'':d>0?'<span class="tr up" title="Față de săptămâna trecută" aria-label="a urcat '+d+(d===1?' loc':' locuri')+'">▲'+d+'</span>':d<0?'<span class="tr down" title="Față de săptămâna trecută" aria-label="a coborât '+(-d)+(d===-1?' loc':' locuri')+'">▼'+(-d)+'</span>':'<span class="tr same" aria-label="același loc ca săptămâna trecută">–</span>';
+return '<li class="'+(m.me?'me':'')+'"><span class="pos" aria-label="Locul '+m.rank+'">'+(medals[m.rank-1]||m.rank)+'</span><span class="av" aria-hidden="true">'+escape(m.avatar)+'</span><span class="nm">'+escape(m.name)+(m.me?' <i>(tu)</i>':'')+'</span>'+(tr||'<span></span>')+'<b class="xp">'+m.xp+' XP</b></li>'}).join('')+'</ol>'}
+function weekLeft(){if(!standings||!standings.week_end)return '';const ms=new Date(standings.week_end)-Date.now();return ms<=0?'Săptămâna s-a încheiat.':ms<DAY?'Săptămâna se încheie în mai puțin de 24 de ore.':'Mai sunt '+dayWord(Math.ceil(ms/DAY))+' până la sfârșitul săptămânii (duminică).'}
+function soloHtml(me){const pct=me.last_xp>0?Math.round((me.xp-me.last_xp)/me.last_xp*100):null;
+return '<p class="rankline"><b>'+me.xp+' XP</b> săptămâna aceasta · '+me.last_xp+' XP săptămâna trecută'+(pct==null?' (prima ta săptămână)':' ('+(pct>=0?'+':'')+pct+'%)')+'</p><p class="small muted">Ești singurul înscris deocamdată, deci te compari cu propria săptămână anterioară. Clasamentul apare când se înscriu și alți colegi.</p>'}
+function standingHtml(){
+if(standingsErr&&!standings)return '<p class="small muted">Clasamentul nu a putut fi încărcat acum.</p>';
+if(!standings)return '<p class="small muted">Se încarcă clasamentul…</p>';
+const ms=standings.members||[],me=ms.find(m=>m.me);if(!standings.registered||!me)return '';
+if(ms.length===1)return soloHtml(me)+'<p class="small muted">'+weekLeft()+'</p>';
+let gap;
+if(me.rank===1){const lead=me.xp-ms[1].xp;gap=lead>0?'Ești pe primul loc, cu '+lead+' XP avans.':'Ești pe primul loc la egalitate de XP; contează acuratețea.'}
+else{const up=ms[me.rank-2],g=up.xp-me.xp;gap=g>0?'Încă '+g+' XP până la locul '+up.rank+'.':'Ești la egalitate de XP cu locul '+up.rank+'; contează acuratețea.'}
+return '<p class="rankline"><b>Locul '+me.rank+'</b> din '+ms.length+' · '+me.xp+' XP săptămâna aceasta</p><p class="small">'+gap+' '+weekLeft()+'</p>'+rankRows(ms.filter(m=>Math.abs(m.rank-me.rank)<=2)).replace('class="rank"','class="rank mini"')}
+async function refreshStandings(){
+if(!auth||!profile||!profile.league_registered){standings=null;standingsErr=false;renderLeagueCard();if(currentView==='league')renderLeague();return}
+try{const r=await api('/rest/v1/rpc/league_standings',{method:'POST',body:{}});if(r.ok){standings=await r.json();standingsErr=false}else standingsErr=true}catch{standingsErr=true}
+renderLeagueCard();if(currentView==='league')renderLeague()}
+const refreshLeague=()=>{refreshXpSummary();refreshStandings()};
+function renderLeague(){
+const body=$('leagueBody'),reg=profile&&profile.league_registered;
+$('leagueRefresh').hidden=!reg;
+if(!reg){$('leagueMeta').textContent='';body.innerHTML='<p class="muted">Înscrie-te la provocarea săptămânală ca să vezi clasamentul și să apari în el.</p><button type="button" class="primary" data-league="join">Înscrie-te</button>'}
+else if(standingsErr&&!standings){$('leagueMeta').textContent='';body.innerHTML='<p class="muted">Clasamentul nu a putut fi încărcat acum. Încearcă din nou.</p>'}
+else if(!standings||!standings.registered){$('leagueMeta').textContent='';body.innerHTML='<p class="muted">Se încarcă clasamentul…</p>'}
+else{
+const ms=standings.members||[],me=ms.find(m=>m.me),a=new Date(standings.week_start+'T00:00:00'),b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+6),f=d=>d.toLocaleDateString('ro-RO',{day:'numeric',month:'short'});
+$('leagueMeta').textContent='Săptămâna '+f(a)+' – '+f(b)+' · '+weekLeft();
+body.innerHTML=(ms.length===1&&me?soloHtml(me):'')+rankRows(ms)+(ms.length===1?'':'<p class="small muted" style="margin-top:12px">Săgețile arată schimbarea locului față de săptămâna trecută. La egalitate de XP contează acuratețea, apoi cine a ajuns primul la scor.</p>')}
+$('leagueHowBody').innerHTML='<ul class="xplist"><li>Răspuns corect: <b>10</b> puncte de bază la o întrebare nouă, <b>15</b> la una scadentă, <b>5</b> la o reluare înainte de scadență, <b>+5</b> dacă ai greșit-o data trecută.</li><li>La „scrie” punctele se înmulțesc cu <b>1,5</b>, la „scrie + caz” cu <b>2</b>.</li><li>Primele 400 de puncte pe zi contează întregi, restul doar 25%.</li><li>Apoi se înmulțesc cu <b>multiplicatorul temei</b>: '+[...new Set(topics.map(t=>t.level+' ×'+fmtMult(t.xp)))].join(' · ')+'.</li><li>Bonusuri: <b>+20 XP</b> pentru o sesiune cu minimum 10 întrebări și minimum 60% corecte, <b>+10 XP</b> pentru prima sesiune a zilei.</li><li>Săptămâna începe luni și se încheie duminică (ora României). Clasamentul se actualizează după fiecare sesiune terminată.</li></ul>'}
+function openLeague(){show('league');refreshStandings()}
+$('leagueBack').onclick=()=>show('home');$('leagueRefresh').onclick=refreshStandings;
+$('leagueBody').onclick=e=>{if(e.target.closest('[data-league=join]'))openLeagueDialog('register')};
+
 // ---------- Liga: puncte XP ----------
 // XP-ul se calculează pe server (triggere în baza de date), din răspunsurile și sesiunile trimise; aici doar îl afișăm.
 let xpSummary=null;
@@ -467,7 +517,7 @@ if(!await settleQueue()){el.innerHTML='<p class="small muted">Punctele XP apar d
 const r=await api('/rest/v1/xp_events?select=kind,xp,base_points,counted_points,level_mult,is_comeback&session_id=eq.'+encodeURIComponent(sid));
 if(!r.ok)throw 0;const rows=await r.json();
 if(currentView==='results'&&state.sid===sid)el.innerHTML=xpHtml(rows);
-refreshXpSummary()}
+refreshLeague()}
 catch{el.innerHTML='<p class="small muted">Punctele XP nu au putut fi încărcate acum.</p>'}}
 $('xpResult').onclick=e=>{if(e.target.closest('[data-league=join]'))openLeagueDialog('register')};
 
@@ -485,7 +535,7 @@ const c=$('leagueCard');if(!c)return;
 if(!CLOUD||!auth||(!profile&&!profileFresh)){c.hidden=true;return}
 const reg=profile&&profile.league_registered;c.hidden=false;
 c.innerHTML=reg
-?'<div class="label">LIGA TA</div><h2 style="margin-top:12px"><span aria-hidden="true">'+escape(profile.avatar)+'</span> '+escape(profile.display_name)+'</h2><p class="muted small">Ești înscris la provocarea săptămânală. Punctele XP se adună deja din fiecare răspuns corect; clasamentul apare în curând.</p>'+xpLine()+'<div class="tools" style="margin-top:0"><button type="button" class="quiet back" data-league="edit">Editează profilul</button><button type="button" class="quiet back" data-league="leave">Retrage-te</button></div>'
+?'<div class="label">LIGA TA</div><h2 style="margin-top:12px"><span aria-hidden="true">'+escape(profile.avatar)+'</span> '+escape(profile.display_name)+'</h2><p class="muted small">Ești înscris la provocarea săptămânală.</p>'+standingHtml()+xpLine()+'<div class="tools" style="margin-top:0"><button type="button" class="primary back" data-league="open">Clasament complet</button><button type="button" class="quiet back" data-league="edit">Editează profilul</button><button type="button" class="quiet back" data-league="leave">Retrage-te</button></div>'
 :'<div class="label">LIGA TA</div><h2 style="margin-top:12px">Provocarea săptămânală</h2><p class="muted small">Aduni XP din teste și te compari cu colegii într-un clasament de luni până duminică. Temele mai grele aduc mai multe puncte.</p>'+xpLine()+'<button type="button" class="primary allwidth" data-league="join">Înscrie-te</button>'}
 function openLeagueDialog(mode){
 ldMode=mode;ldHandled=false;
@@ -512,7 +562,7 @@ if(name.length<2||name.length>24){err.textContent=name.length<2?'Numele trebuie 
 if(!av){err.textContent='Alege un avatar.';err.hidden=false;return}
 const patch={display_name:name,avatar:av,league_registered:true,registered_at:(profile&&profile.registered_at)||new Date().toISOString()};
 if(ldMode==='prompt'&&$('ldSkip').checked)patch.league_prompt_skip=true;
-patchProfile(patch);ldHandled=true;$('leagueDialog').close()}
+patchProfile(patch);ldHandled=true;$('leagueDialog').close();settleQueue().then(refreshStandings)}
 if(CLOUD){
 $('ldAvatars').innerHTML=AVATARS.map(a=>'<label><input type="radio" name="avatar" value="'+a+'"><span aria-hidden="true">'+a+'</span><span class="sr">'+a+'</span></label>').join('');
 $('ldYes').onclick=()=>{$('ldStep1').hidden=true;$('ldStep2').hidden=false;$('ldBack').hidden=false;$('ldName').focus()};
@@ -523,8 +573,8 @@ $('ldName').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault(
 $('leagueDialog').addEventListener('close',()=>{if(!ldHandled)ldDismiss();ldHandled=false});
 $('leagueDialog').addEventListener('click',e=>{if(e.target===$('leagueDialog'))$('leagueDialog').close()});
 $('leagueCard').onclick=e=>{const b=e.target.closest('[data-league]');if(!b)return;const a=b.dataset.league;
-if(a==='join')openLeagueDialog('register');else if(a==='edit')openLeagueDialog('edit');
-else if(a==='leave'&&confirm('Te retragi din provocarea săptămânală? Poți reveni oricând din cardul „Liga ta”.'))patchProfile({league_registered:false,league_prompt_skip:true})}}
+if(a==='join')openLeagueDialog('register');else if(a==='open')openLeague();else if(a==='edit')openLeagueDialog('edit');
+else if(a==='leave'&&confirm('Te retragi din provocarea săptămânală? Poți reveni oricând din cardul „Liga ta”.')){patchProfile({league_registered:false,league_prompt_skip:true});standings=null;renderLeagueCard()}}}
 
 // ---------- Istoric: butonul „înapoi” și gestul de pe iPhone ----------
 // Fiecare ecran are propria intrare în istoricul browserului, ca să nu ieși din aplicație la „înapoi”.
@@ -548,6 +598,7 @@ if(s.v==='topic'&&topicById[s.t])openTopic(s.t);
 else if(s.v==='study'&&topicById[s.s])openStudy(topicById[s.s]);
 else if(s.v==='results'&&state.answers&&state.answers.length&&!state.active)show('results');
 else if(s.v==='quiz'&&state.active)show('quiz');
+else if(s.v==='league'&&CLOUD&&auth)openLeague();
 else show('home')}
 finally{navSilent=false}});
 

@@ -60,3 +60,10 @@ dialog#leagueDialog::backdrop{background:rgba(23,49,57,.55)}
 .xptotal{font-size:44px;line-height:1.1;font-weight:800;letter-spacing:-1.5px;color:var(--green)}.xptotal small{font-size:18px;letter-spacing:0}
 .xpdet{margin-top:10px}.xplist{padding-left:18px;margin:10px 0 0;font-size:14px}.xplist li{margin:6px 0}
 @media(max-width:480px){.brand span{display:none}.userbar #syncState.ok{display:none}}
+
+.rank{list-style:none;padding:0;margin:12px 0 0}.rank li{display:grid;grid-template-columns:34px 34px minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:10px 8px;border-radius:12px;min-height:48px}
+.rank li+li{border-top:1px solid var(--line)}.rank li.me{background:#edf7e9;border:1px solid #cfe5c3}
+.rank .pos{font-weight:800;text-align:center}.rank .av{font-size:22px;text-align:center}.rank .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650}.rank .nm i{font-style:normal;font-weight:400;color:var(--muted);font-size:12px}
+.rank .tr{font-size:12px;font-weight:800}.tr.up{color:var(--green)}.tr.down{color:var(--red)}.tr.same{color:var(--muted)}.rank .xp{font-variant-numeric:tabular-nums;white-space:nowrap}
+.rank.mini{margin-top:8px}.rank.mini li{padding:6px 8px;min-height:40px}.rankline{margin:12px 0 4px;font-size:16px}
+.rank li{border-radius:0}.rank li.me{border-radius:12px;border-top-color:#cfe5c3}.rank li.me+li{border-top-color:transparent}

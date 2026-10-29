@@ -294,3 +294,63 @@ language sql stable security invoker set search_path = public, pg_temp as $$
 $$;
 revoke execute on function public.my_xp_summary() from public, anon;
 grant execute on function public.my_xp_summary() to authenticated;
+
+-- ======================================================================
+-- 5. Clasamentul săptămânal (migrarea league_standings)
+-- ======================================================================
+
+-- Clasament săptămânal (luni–duminică, Europe/Bucharest). Îl văd doar cei înscriși și arată doar numele afișat,
+-- avatarul, XP-ul, locul și o comparație cu săptămâna trecută; niciodată identificatori, e-mailuri sau răspunsuri.
+-- Departajare: XP, apoi acuratețea săptămânii, apoi cine a ajuns primul la scor, apoi numele.
+create or replace function public.league_standings() returns json
+language plpgsql stable security definer set search_path = public, pg_temp as $$
+declare
+  v_me uuid := auth.uid();
+  v_tz constant text := 'Europe/Bucharest';
+  v_ws date := date_trunc('week', now() at time zone 'Europe/Bucharest')::date;
+  v_result json;
+begin
+  if v_me is null or not exists (select 1 from public.profiles where user_id = v_me and league_registered) then
+    return json_build_object('registered', false);
+  end if;
+
+  with members as (
+    select user_id, display_name, avatar from public.profiles where league_registered
+  ),
+  cur as (
+    select e.user_id, sum(e.xp)::int as xp, max(e.occurred_at) as last_at
+    from public.xp_events e join members m using (user_id) where e.day >= v_ws group by e.user_id
+  ),
+  prev as (
+    select e.user_id, sum(e.xp)::int as xp
+    from public.xp_events e join members m using (user_id) where e.day >= v_ws - 7 and e.day < v_ws group by e.user_id
+  ),
+  acc as (
+    select a.user_id, count(*) filter (where a.correct)::numeric / nullif(count(*), 0) as acc
+    from public.answers a join members m using (user_id)
+    where (a.answered_at at time zone 'Europe/Bucharest')::date >= v_ws group by a.user_id
+  ),
+  scored as (
+    select m.user_id, m.display_name, m.avatar, coalesce(c.xp, 0) as xp, coalesce(p.xp, 0) as last_xp, c.last_at, coalesce(ac.acc, 0) as acc
+    from members m left join cur c using (user_id) left join prev p using (user_id) left join acc ac using (user_id)
+  ),
+  ranked as (
+    select s.*, row_number() over (order by xp desc, acc desc, last_at asc nulls last, display_name) as rk from scored s
+  ),
+  prev_ranked as (
+    select user_id, row_number() over (order by last_xp desc, display_name) as prk from scored where last_xp > 0
+  )
+  select json_build_object(
+    'registered', true,
+    'week_start', v_ws,
+    'week_end', ((v_ws + 7)::timestamp at time zone 'Europe/Bucharest'),
+    'members', coalesce(json_agg(json_build_object(
+        'rank', r.rk, 'name', r.display_name, 'avatar', r.avatar, 'xp', r.xp,
+        'last_xp', r.last_xp, 'last_rank', pr.prk, 'me', r.user_id = v_me) order by r.rk), '[]'::json))
+  into v_result
+  from ranked r left join prev_ranked pr using (user_id);
+  return v_result;
+end $$;
+
+revoke execute on function public.league_standings() from public, anon;
+grant execute on function public.league_standings() to authenticated;
