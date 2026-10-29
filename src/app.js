@@ -97,7 +97,7 @@ window.scrollTo(0,0);$('qCounter').textContent='Întrebarea '+(state.index+1)+' 
 $('sessionLabel').textContent=(state.topic?state.topic.title.toUpperCase()+' · ':'REPETIȚIA DE AZI · ')+(exam?'corectare la final':'feedback imediat');
 const xc=$('xpChip');xc.hidden=!(auth&&t.xp>1);xc.textContent='×'+fmtMult(t.xp)+' XP';xc.title='Această temă aduce de '+fmtMult(t.xp)+' ori mai multe puncte XP';
 $('runningScore').textContent=exam?done.length+' / '+n+' răspunsuri înregistrate':done.filter(a=>a.ok).length+' corecte / '+done.length+' răspunsuri';
-$('qContent').innerHTML=(state.topic?'':'<span class="pill qtopic">'+escape(t.title)+'</span>')+'<p class="sentence" lang="de">'+escape(q.prompt).replace('___','<span class="blank">…</span>')+'</p>'+(q.hint?'<p class="small hint">'+escape(q.hint)+'</p>':'')+'<p class="muted">'+escape(q.ro)+'</p><p class="small muted">'+(m==='both'?'Completează răspunsul și alege '+escape(t.extra.label.toLowerCase())+'.':escape(t.instruction))+'</p>'+(t.genderColors?genderLegend():'');
+$('qContent').innerHTML=(state.topic?'':'<span class="pill qtopic">'+escape(t.title)+'</span>')+'<p class="sentence" lang="de">'+escape(q.prompt).replace('___','<span class="blank">…</span>')+'</p>'+(q.hint?'<p class="small hint">'+escape(q.hint)+'</p>':'')+'<p class="muted">'+escape(q.ro)+'</p><p class="small muted">'+(m==='both'?'Completează răspunsul și alege '+escape(t.extra.label.toLowerCase())+'.':escape(t.instruction))+'</p>';
 $('feedback').innerHTML='';$('validation').hidden=true;$('check').hidden=false;
 $('check').textContent=exam?(state.index===n-1?'Înregistrează și finalizează':prev?'Actualizează răspunsul':'Înregistrează răspunsul'):'Verifică răspunsul';
 $('next').hidden=true;$('skip').hidden=false;$('prev').hidden=!(exam&&state.index>0);
@@ -120,7 +120,6 @@ if(!m)return escape(q.prompt).replace('___','<b>'+escape(q.answer)+'</b>');
 const noun=m[1],r=endingSpan(noun,q.group||''),art='<span class="ga g-'+g+'">'+escape(q.answer)+'</span> ';
 if(!r)return art+escape(noun);
 return art+escape(noun.slice(0,r[0]))+'<span class="ge g-'+g+'" title="'+(r[0]===0?'Prefixul ':'Terminația ')+escape(noun.slice(r[0],r[1]))+' → '+GWORD[g]+' ('+escape(q.answer)+')">'+escape(noun.slice(r[0],r[1]))+'</span>'+escape(noun.slice(r[1]))}
-const genderLegend=()=>'<p class="small gleg" aria-label="Culorile genurilor"><span class="glk g-m">der · masculin</span><span class="glk g-f">die · feminin</span><span class="glk g-n">das · neutru</span></p>';
 function check(skip=false){
 if(state.locked||!state.active)return;const q=state.qs[state.index],m=modeFor(q),exam=state.feedbackMode==='exam',raw=m==='choice'?state.selected:$('answerInput').value,prep=canon(raw);
 if(!skip&&(!prep||(m==='both'&&!state.selectedCase))){$('validation').textContent=m==='both'?'Scrie răspunsul și alege '+q.topic.extra.label.toLowerCase()+'.':m==='choice'?'Alege o variantă înainte de verificare.':'Scrie răspunsul înainte de verificare.';$('validation').hidden=false;return}

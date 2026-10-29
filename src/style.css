@@ -76,4 +76,4 @@ dialog#leagueDialog::backdrop{background:rgba(23,49,57,.55)}
 
 .g-m{--gc:#1f8a4c;--gbg:#cdeed7;--gt:#14693a}.g-f{--gc:#d23a3a;--gbg:#f8d2d2;--gt:#a82525}.g-n{--gc:#e0a800;--gbg:#fbeaa2;--gt:#7a5a00}
 .ga{font-weight:800;color:var(--gt)}.ge{font-weight:800;color:var(--ink);background:var(--gbg);border-radius:4px;padding:0 3px;box-shadow:inset 0 -3px 0 var(--gc)}
-.option.gc{box-shadow:inset 6px 0 0 var(--gc)}.gleg{display:flex;flex-wrap:wrap;gap:6px 8px;margin:10px 0 0}.glk{padding:2px 10px;border-radius:999px;background:var(--gbg);border:1px solid var(--gc);color:var(--ink);font-weight:700;font-size:12px}
+.option.gc{box-shadow:inset 6px 0 0 var(--gc)}
