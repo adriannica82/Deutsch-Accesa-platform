@@ -71,3 +71,5 @@ dialog#leagueDialog::backdrop{background:rgba(23,49,57,.55)}
 .pill.tier{background:var(--lime);color:var(--green)}.recap{background:#f6fbf1;border-color:#cfe5c3}
 .hist{list-style:none;padding:0;margin:10px 0 0}.hist li{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
 .hist .hw{font-weight:700}.hist .hx{text-align:right}.hist .hp{color:var(--muted)}.hist .ho{text-align:right;font-weight:700;font-size:13px}.ho.up{color:var(--green)}.ho.down{color:var(--red)}.ho.same{color:var(--muted)}
+
+.levelhead{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:14px 0 0;padding:0 0 8px;border-bottom:2px solid var(--line);font-size:15px;letter-spacing:0;font-weight:700;color:var(--ink)}.levelhead:first-child{margin-top:0}.levelhead .lv{background:var(--ink);color:var(--lime);border-radius:999px;padding:3px 12px;font-size:14px;letter-spacing:.3px}.levelhead .ld{font-weight:700}.levelhead .ln{margin-left:auto;font-weight:500;font-size:13px;color:var(--muted)}

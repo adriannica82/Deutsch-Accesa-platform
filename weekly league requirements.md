@@ -124,8 +124,8 @@ Toate cele șase întrebări deschise au primit răspunsul recomandat.
 
 | Nivelul temei | Multiplicator | Teme actuale |
 |---|---|---|
-| A1, A1–A2 | **×1,0** | Der, die sau das? (200), Prepoziții cu caz fix, Prezentul verbelor neregulate |
-| A2 | **×1,25** | Wo? sau Wohin?, Perfekt: participiul, Indikativ Perfekt |
+| A1, A1–A2 | **×1,0** | Der, die sau das? (200), Prepoziții cu caz fix (100), Prezentul verbelor neregulate, Verbe modale |
+| A2 | **×1,25** | Wo? sau Wohin?, Perfekt: participiul, Indikativ Perfekt, Präteritum: sein, haben, modale, Propoziții subordonate, Verbe reflexive |
 | A2–B1 | **×1,5** | Verbe neregulate · Perfekt, Verbe cu prepoziții |
 | B1 | **×2,0** | Der, die sau das? (B1) |
 | B1–B2 | ×2,5 | (viitor) |
