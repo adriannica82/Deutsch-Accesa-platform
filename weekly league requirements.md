@@ -1,6 +1,6 @@
 # Provocarea săptămânală (liga) · cerințe
 
-- **Stare:** cerințele pop-up-ului sunt **confirmate** (2026-10-29). **Fazele 1 (înscrierea), 2 (motorul de XP cu multiplicatorul de nivel) și 3 (clasamentul) implementate** (2026-10-29), vezi secțiunile 13 și 14; treptele, promovările și rezumatul de luni urmează. Elementul de **complexitate** (nivelurile mai înalte aduc mai multe puncte) a fost adăugat și **confirmat** la 2026-10-29, inclusiv valorile multiplicatorilor (secțiunea 10).
+- **Stare:** cerințele pop-up-ului sunt **confirmate** (2026-10-29). **Fazele 1 (înscrierea), 2 (motorul de XP cu multiplicatorul de nivel) și 3 (clasamentul) implementate** (2026-10-29), vezi secțiunile 13 și 14; treptele, grupele, promovările și rezumatul de luni (faza 4) sunt **documentate cu valori propuse** în secțiunea 15 și nu sunt implementate. Elementul de **complexitate** (nivelurile mai înalte aduc mai multe puncte) a fost adăugat și **confirmat** la 2026-10-29, inclusiv valorile multiplicatorilor (secțiunea 10).
 - **Legat de:** `features backlog.md`, feature 6
 - **Despre ce este vorba:** o competiție săptămânală între utilizatori (liga), la care fiecare utilizator se poate **înscrie**. Acest document descrie deocamdată fereastra de înscriere (pop-up) și deciziile deschise. Regulile ligii (XP, trepte, promovări) sunt rezumate la final și vor fi detaliate separat.
 
@@ -271,3 +271,82 @@ Calculul XP, clasamentul, promovările, ecranele ligii și mesajele săptămâna
 - **Pe baza de date**, cu cinci conturi de test anulate după aceea: cine nu e înscris primește „nu ești înscris”; cine e înscris vede doar membrii înscriși (un cont neînscris cu 999 XP nu apare); ordinea 300 XP cu acuratețe 90% înaintea 300 XP cu acuratețe 70%, apoi 50 XP, apoi 0 XP; locurile din săptămâna trecută; nicio informație de identificare în răspuns; „sfârșitul săptămânii” cade în următoarele 7 zile; un apel fără cont este refuzat.
 - **În aplicație**, cu backend simulat: locul 2 din 5 cu vecinii și diferența, primul loc, egalitate, mod solo și prima săptămână, eroare de server, utilizator neînscris, înscrierea și retragerea (clasamentul se încarcă / dispare), gestul „înapoi” de pe ecranul clasamentului; desktop și 402×874 (fără depășiri, ținte tactile ≥ 44 px, nume lung tăiat cu „…”); toate cele 2083 de răspunsuri din teme acceptate ca înainte.
 - **Neverificat:** un clasament cu mai mulți conturi reale și Safari pe un iPhone.
+
+## 15. Trepte, grupe, promovări și rezumatul de luni (faza 4) · documentat, neimplementat
+
+- **Stare:** cerințe scrise la 2026-10-29, cu valori **propuse** (marcate „propusă”). Nimic din această secțiune nu este implementat. Pornește de la designul discutat (secțiunea 11) și de la clasamentul din faza 3 (secțiunea 14).
+- **Scop:** să existe o progresie pe termen lung (treptele) și competiție între utilizatori de ritm asemănător (grupele), cu un moment clar la sfârșitul săptămânii (rezumatul de luni).
+
+### 15.1 Cerințe
+
+| ID | Cerință | Origine |
+|---|---|---|
+| WL-27 | Există **4 trepte**, cu nume și emoji: 🌱 **A1 Anfänger** → 🧭 **A2 Entdecker** → 🏅 **B1 Profi** → 👑 **B2 Meister**. Treapta ta se vede în cardul „Liga ta” și pe ecranul clasamentului. | propusă |
+| WL-28 | Fiecare utilizator înscris are o treaptă. Cine se înscrie începe în **treapta 1** (A1 Anfänger). | propusă |
+| WL-29 | Concurezi **doar cu cei din grupa ta** (aceeași treaptă, aceeași grupă). O grupă are cel mult **15** membri, ținta fiind 12. Dacă într-o treaptă sunt mai mult de 15 membri, aceștia se împart în grupe de ~12, echilibrate după XP-ul săptămânii trecute. Sub 15 membri într-o treaptă, există o singură grupă. | propusă |
+| WL-30 | Clasamentul din faza 3 (WL-19…WL-26) arată **grupa ta**, nu toți înscrișii; regulile de confidențialitate (WL-20) rămân neschimbate. | propusă |
+| WL-31 | La **închiderea săptămânii** se aplică, pe fiecare grupă cu *n* membri: **n ≥ 8**: primii 3 sunt **promovați**, ultimii 3 sunt **retrogradați**; **4 ≤ n ≤ 7**: primul este promovat și nimeni nu este retrogradat; **n < 4**: nimeni nu se mișcă. | propusă (din secțiunea 11) |
+| WL-32 | **Prag de activitate:** cine are mai puțin de **50 XP** în săptămână este „inactiv”: nu este promovat și nu este retrogradat. Locul lui în clasament rămâne, dar nu ocupă un loc de promovare sau de retrogradare (locurile trec la următorii activi). | propusă |
+| WL-33 | Nu se retrogradează din treapta 1 și nu se promovează din treapta 4 (cine ajunge în top rămâne în treapta 4). | propusă |
+| WL-34 | **Închiderea săptămânii** are loc luni la **06:00** (ora României), o singură dată pe săptămână, fără job programat: se face la prima cerere a clasamentului după acea oră și este **idempotentă**. Cele 6 ore sunt o toleranță pentru răspunsurile date fără conexiune și trimise târziu. | propusă |
+| WL-35 | Rezultatul fiecărui utilizator pe săptămână (treaptă, grupă, loc, XP, rezultat: promovat / rămas / retrogradat / inactiv) se **păstrează**. Pe ecranul clasamentului apare istoricul ultimelor 12 săptămâni. | propusă |
+| WL-36 | **Rezumatul de luni:** după închiderea săptămânii, utilizatorul vede **o singură dată** un card pe pagina principală (nu un pop-up) cu: săptămâna, treapta și locul, XP-ul și comparația cu săptămâna anterioară, rezultatul (promovat / rămas / coborât) și butonul „Vezi clasamentul”; se închide cu „Închide” și nu mai apare pentru acea săptămână. | propusă |
+| WL-37 | Textul rezumatului este **încurajator** și diferă după caz (promovat, rămas, coborât, prima săptămână, inactiv, singur în grupă). Nu se afișează formulări de rușinare sau „ultimul loc”. | propusă |
+| WL-38 | Dacă în grupă sunt mai puțin de 4 membri sau nu a existat activitate, nu se mișcă nimeni, iar rezumatul compară utilizatorul cu propria săptămână anterioară (ca în modul solo). | propusă |
+| WL-39 | Cine se **retrage** iese din grupă la următoarea închidere și își păstrează treapta; la reînscriere revine în treapta pe care o avea. | propusă |
+| WL-40 | Cine se înscrie în timpul săptămânii intră imediat într-o grupă a treptei 1 (cu loc liber) și nu poate fi retrogradat în prima săptămână. | propusă |
+
+### 15.2 Rezultatele la închiderea săptămânii (exemple)
+
+| Grupă | Membri activi | Rezultat |
+|---|---|---|
+| 10 membri, 9 activi | 9 | primii 3 activi sus, ultimii 3 activi jos, ceilalți rămân; cel inactiv rămâne |
+| 6 membri | 6 | primul sus; nimeni jos |
+| 3 membri (situația actuală: 3 conturi) | 3 | nimeni nu se mișcă; fiecare vede comparația cu săptămâna anterioară |
+
+**Atenție:** cu cele **3 conturi actuale** treptele nu se vor mișca. Competiția cu promovări devine reală de la aproximativ **8 conturi înscrise**; până atunci rămâne clasamentul din faza 3 și modul de comparare cu propria săptămână.
+
+### 15.3 Date și implementare (propuse)
+
+- `league_members(user_id, tier, division, joined_week, protected_until)`: treapta și grupa curentă; păstrează treapta la retragere.
+- `league_results(week_start, user_id, tier, division, rank, xp, outcome)`: istoricul rezultatelor.
+- `league_recaps` sau câmpul `profiles.league_recap_seen_week`: ce rezumat a fost închis.
+- Funcția de clasament își restrânge rezultatele la grupa apelantului; o funcție `league_close_week()` (apelată din funcția de clasament, idempotentă) face împărțirea în grupe, promovările și retrogradările.
+- Răspunsurile date după închidere pentru săptămâna încheiată rămân în XP-ul total, dar **nu** mai schimbă rezultatul deja stabilit.
+
+### 15.4 Criterii de acceptare
+
+1. **Dat** un utilizator nou înscris, **atunci** este în treapta „A1 Anfänger”.
+2. **Dat** o grupă de 10 membri (9 activi), **când** se închide săptămâna, **atunci** primii 3 activi sunt promovați și ultimii 3 activi sunt retrogradați.
+3. **Dat** o grupă de 6 membri, **când** se închide săptămâna, **atunci** doar primul este promovat.
+4. **Dat** o grupă de 3 membri, **când** se închide săptămâna, **atunci** nimeni nu se mișcă.
+5. **Dat** un membru cu mai puțin de 50 XP, **când** se închide săptămâna, **atunci** nu este nici promovat, nici retrogradat.
+6. **Dat** un utilizator în treapta 1 pe ultimele locuri, **atunci** rămâne în treapta 1; un utilizator din treapta 4 în top rămâne în treapta 4.
+7. **Dat** că săptămâna s-a încheiat, **când** clasamentul este cerut de mai multe ori după luni 06:00, **atunci** închiderea se face o singură dată.
+8. **Dat** o treaptă cu 20 de membri, **atunci** sunt create 2 grupe de câte 10 (echilibrate după XP-ul săptămânii trecute) și fiecare vede doar grupa lui.
+9. **Dat** o săptămână încheiată, **când** utilizatorul deschide pagina principală, **atunci** vede rezumatul o singură dată și îl poate închide.
+10. **Dat** un utilizator inactiv, **atunci** rezumatul lui este neutru și încurajator.
+11. **Dat** un utilizator care se retrage și se reînscrie, **atunci** revine în treapta pe care o avea.
+12. Rezumatul și ecranele noi se folosesc de la tastatură și pe iPhone (402×874 și 440×956), fără depășiri.
+
+### 15.5 Întrebări deschise (cu varianta recomandată)
+
+| # | Întrebare | Recomandare |
+|---|---|---|
+| 1 | Denumirile și numărul treptelor | 4 trepte: A1 Anfänger, A2 Entdecker, B1 Profi, B2 Meister (cu emoji 🌱 🧭 🏅 👑) |
+| 2 | Mărimea grupei | maximum 15, țintă 12; o singură grupă sub 15 membri într-o treaptă |
+| 3 | Câți promovează / retrogradează | 3 / 3 la ≥ 8 membri; 1 / 0 la 4–7; 0 / 0 sub 4 |
+| 4 | Pragul de activitate | 50 XP pe săptămână |
+| 5 | Ora închiderii săptămânii | luni 06:00 (ora României), la prima cerere, fără job programat |
+| 6 | Forma rezumatului de luni | card pe pagina principală, o dată pe săptămână; fără pop-up și fără e-mail deocamdată |
+| 7 | Se afișează și acuratețea în clasament? | nu (rămâne doar pentru departajare) |
+| 8 | O recompensă reală (de exemplu masa de echipă pentru locul 1)? | nu, doar insigne și trepte |
+| 9 | Retragere și reînscriere | treapta se păstrează |
+| 10 | Cu puțini utilizatori, ce facem până la ~8 conturi? | rămâne clasamentul unic din faza 3 și compararea cu propria săptămână |
+
+### 15.6 Riscuri
+
+- **Prea puțini utilizatori:** treptele nu se mișcă; se atenuează cu modul de comparare cu săptămâna anterioară și cu mesaje clare în rezumat.
+- **Retrogradarea demotivează:** se aplică doar la grupe de cel puțin 8 și doar celor activi; textele rămân încurajatoare.
+- **Răspunsuri trimise târziu fără conexiune:** toleranța de 6 ore (WL-34); după aceea nu mai schimbă rezultatul.
+- **Cei avansați au multiplicatori mai mari:** grupele pe trepte îi separă de începători; multiplicatorul maxim rămâne moderat (×2 la B1).
