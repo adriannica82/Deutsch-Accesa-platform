@@ -261,11 +261,11 @@ Calculul XP, clasamentul, promovările, ecranele ligii și mesajele săptămâna
 - Locul din săptămâna trecută se calculează între cei care au avut XP atunci; cine nu a avut nu are săgeată.
 - Ziua și săptămâna sunt cele din Europe/Bucharest; „timpul rămas” vine de la server (luni 00:00, ora României).
 
-### Decizii luate la implementare (de confirmat)
-1. Deocamdată există **o singură grupă** pentru toți cei înscriși; grupele pe trepte vin cu promovările (faza 4).
-2. Clasamentul **nu se actualizează în timp real**: se reîncarcă la evenimentele din WL-25 sau cu „Actualizează”.
-3. Cei înscriși cu 0 XP **se văd** în listă, la sfârșit.
-4. Vizibilitate reciprocă: clasamentul îl vede **doar cine este înscris**.
+### Decizii luate la implementare, confirmate la 2026-10-29
+1. Deocamdată există **o singură grupă** pentru toți cei înscriși; grupele pe trepte vin cu promovările (faza 4). **Confirmat.**
+2. Clasamentul **nu se actualizează în timp real**: se reîncarcă la evenimentele din WL-25 sau cu „Actualizează”. **Confirmat.**
+3. Cei înscriși cu 0 XP **se văd** în listă, la sfârșit. **Confirmat.**
+4. Vizibilitate reciprocă: clasamentul îl vede **doar cine este înscris**. **Confirmat.**
 
 ### Verificare
 - **Pe baza de date**, cu cinci conturi de test anulate după aceea: cine nu e înscris primește „nu ești înscris”; cine e înscris vede doar membrii înscriși (un cont neînscris cu 999 XP nu apare); ordinea 300 XP cu acuratețe 90% înaintea 300 XP cu acuratețe 70%, apoi 50 XP, apoi 0 XP; locurile din săptămâna trecută; nicio informație de identificare în răspuns; „sfârșitul săptămânii” cade în următoarele 7 zile; un apel fără cont este refuzat.
