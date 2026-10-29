@@ -64,7 +64,7 @@ feature 5: (cerută în conversație) aplicația trebuie optimizată pentru mobi
 feature 6: (cerută în conversație) gamification între utilizatori, începând cu liga / provocarea săptămânală. La prima autentificare, utilizatorul primește un pop-up în care este întrebat dacă vrea să se înscrie la provocarea săptămânală; pop-up-ul are o casetă „skip reminders” care, bifată, face ca pop-up-ul să nu mai apară în viitor.
 
 - **Status:** cerințele pop-up-ului sunt **confirmate** (2026-10-29), **neimplementat**. Se poate trece la implementare.
-- **Document de cerințe:** `weekly league requirements.md` (poveste de utilizator, cerințe numerotate WL-1…WL-10, reguli de afișare, conținutul pop-up-ului, accesibilitate și iPhone, date propuse, 11 criterii de acceptare, decizii confirmate).
+- **Document de cerințe:** `weekly league requirements.md` (poveste de utilizator, cerințe numerotate WL-1…WL-18, reguli de afișare, conținutul pop-up-ului, accesibilitate și iPhone, date propuse, 17 criterii de acceptare, decizii confirmate, secțiunea 10 despre complexitate).
 - **Cerința inițială:** pop-up la prima autentificare, cu înscrierea la provocarea săptămânală și caseta „skip reminders” (nu se mai afișează pop-up-ul).
 - **Decizii confirmate (2026-10-29):**
   - pop-up-ul reapare la o autentificare ulterioară dacă utilizatorul spune „Nu acum” fără să bifeze caseta, dar **cel mult o dată pe zi**;
@@ -74,5 +74,7 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
   - numele afișat și avatarul se cer în **pasul 2** al pop-up-ului;
   - conturile existente primesc pop-up-ul la prima autentificare după lansare;
   - liga **pornește de la zero**: contează doar răspunsurile date după lansare.
-- **Încă deschis (privește liga, nu pop-up-ul):** denumirile treptelor, mărimea grupului, dacă se afișează și acuratețea, XP mai mare la „scrie”, o eventuală recompensă reală.
+- **Complexitate (cerută la 2026-10-29):** temele de nivel B1 primesc mai multe puncte decât cele de A1–A2. **Principiul este confirmat; valorile sunt propuse.** XP-ul unui răspuns se înmulțește cu un multiplicator de nivel al temei: A1–A2 ×1,0 · A2 ×1,25 · A2–B1 ×1,5 · B1 ×2,0 (B1–B2 ×2,5 și B2 ×3,0 pentru viitor). Se aplică pe fiecare răspuns (și în „Repetiția de azi”, după tema fiecărei întrebări), nu înmulțește bonusurile fixe, plafonul zilnic se măsoară în puncte de bază, multiplicatorul se salvează pe fiecare eveniment XP și se stabilește pe server; o temă poate avea opțional `xpMultiplier`; interfața arată insigna „×N XP” și descompunerea XP-ului. Exemplu: aceeași sesiune de 190 XP de bază dă 220 XP la A1–A2 și 410 XP la B1. Detalii în secțiunea 10 din documentul de cerințe.
+- **De confirmat pentru complexitate:** valorile multiplicatorilor, plafonul în puncte de bază, bonusurile fixe neînmulțite, insigna „×N XP” în interfață, suprascrierea `xpMultiplier` pe temă (propuneri în document, secțiunea 10.6).
+- **Încă deschis (privește liga, nu pop-up-ul):** denumirile treptelor, mărimea grupului, dacă se afișează și acuratețea, XP mai mare la „scrie” (în formula propusă, „scrie” are deja ×1,5), o eventuală recompensă reală.
 - **Pași următori:** (1) tabelul `profiles` și politicile de securitate; (2) pop-up-ul de înscriere; (3) calculul XP pe server; (4) clasamentul și cardul „Liga ta”; (5) trepte, promovări și rezumatul de luni.

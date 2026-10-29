@@ -1,6 +1,6 @@
 # Provocarea săptămânală (liga) · cerințe
 
-- **Stare:** cerințele pop-up-ului sunt **confirmate** (2026-10-29), **neimplementat**
+- **Stare:** cerințele pop-up-ului sunt **confirmate** (2026-10-29), **neimplementat**. Elementul de **complexitate** (nivelurile mai înalte aduc mai mulți puncte) a fost adăugat la 2026-10-29: principiul este confirmat, valorile sunt propuse (secțiunea 10).
 - **Legat de:** `features backlog.md`, feature 6
 - **Despre ce este vorba:** o competiție săptămânală între utilizatori (liga), la care fiecare utilizator se poate **înscrie**. Acest document descrie deocamdată fereastra de înscriere (pop-up) și deciziile deschise. Regulile ligii (XP, trepte, promovări) sunt rezumate la final și vor fi detaliate separat.
 
@@ -26,6 +26,14 @@ Ca utilizator autentificat, vreau să fiu întrebat o dată, politicos, dacă vr
 | WL-8 | Starea „nu mai aminti” se păstrează **pe cont** (pe server), deci este valabilă pe toate dispozitivele. | confirmată (2026-10-29) |
 | WL-9 | Conturile existente (inclusiv cele create înainte de lansarea ligii) primesc pop-up-ul la prima autentificare după lansare. | confirmată (2026-10-29) |
 | WL-10 | **Liga pornește de la zero:** XP-ul se calculează doar din răspunsurile date **după lansare**; răspunsurile anterioare nu se numără. | confirmată (2026-10-29) |
+| WL-11 | **Complexitate:** temele de nivel B1 primesc **mai multe puncte** decât cele de A1–A2. XP-ul unui răspuns se înmulțește cu un **multiplicator de nivel** al temei (secțiunea 10). | principiu confirmat (2026-10-29), valori propuse |
+| WL-12 | Multiplicatorul se aplică **pe fiecare răspuns**, după multiplicatorul modului de exercițiu; în „Repetiția de azi” fiecare întrebare folosește multiplicatorul propriei teme. | propusă |
+| WL-13 | Bonusurile fixe (sesiune terminată, prima sesiune a zilei) **nu** se înmulțesc. | propusă |
+| WL-14 | Plafonul zilnic moale se măsoară în **puncte de bază**, înainte de multiplicator. | propusă |
+| WL-15 | Multiplicatorul aplicat se **salvează pe fiecare eveniment XP**; schimbarea ulterioară a nivelului unei teme nu recalculează XP-ul deja acordat. | propusă |
+| WL-16 | Multiplicatorul se stabilește **pe server** (nu în browser); `build.py` verifică că fiecare temă din `content/` are un nivel cunoscut. | propusă |
+| WL-17 | O temă poate avea opțional câmpul `xpMultiplier` în fișierul ei JSON, care suprascrie valoarea derivată din nivel. | propusă |
+| WL-18 | **Transparență:** multiplicatorul se vede în interfață (insignă „×2 XP” pe cardul temei și în antetul testului; la rezultate, descompunerea XP-ului). | propusă |
 
 ## 4. Reguli de afișare
 
@@ -78,6 +86,12 @@ Politici de securitate pe rânduri: fiecare utilizator citește și modifică do
 9. **Dat** pop-up-ul afișat deja azi și închis cu „Nu acum” fără bifă, **când** utilizatorul se reconectează în aceeași zi, **atunci** pop-up-ul nu apare.
 10. **Dat** un cont existent creat înainte de lansare, **când** se autentifică după lansare, **atunci** primește pop-up-ul (dacă nu este înscris și nu a bifat „nu mai aminti”).
 11. **Dat** lansarea ligii la momentul L, **când** se calculează XP-ul, **atunci** se numără doar răspunsurile date după L.
+12. **Dat** același număr de răspunsuri corecte, de același tip, **când** sunt date la o temă B1 și la una A1–A2, **atunci** XP-ul din răspunsuri la B1 este mai mare (de 2 ori, cu valorile propuse).
+13. **Dat** o sesiune „Repetiția de azi” cu teme de niveluri diferite, **când** se calculează XP-ul, **atunci** fiecare răspuns folosește multiplicatorul propriei teme.
+14. **Dat** un eveniment XP deja acordat, **când** nivelul temei se schimbă ulterior, **atunci** evenimentul își păstrează multiplicatorul.
+15. **Dat** o sesiune terminată, **când** se afișează rezultatele, **atunci** XP-ul este descompus (puncte de bază, multiplicator de nivel, bonusuri fixe).
+16. **Dat** un test la o temă cu multiplicator mai mare de 1, **când** se afișează cardul temei și antetul testului, **atunci** apare insigna cu multiplicatorul (de ex. „×2 XP”).
+17. **Dat** o temă fără nivel recunoscut, **când** se rulează `build.py`, **atunci** construirea se oprește cu un mesaj clar.
 
 ## 9. Decizii confirmate (2026-10-29)
 
@@ -92,12 +106,78 @@ Toate cele șase întrebări deschise au primit răspunsul recomandat.
 | 5 | Numele afișat și avatarul se cer în pop-up sau pe o pagină de profil? | **în pop-up, pasul 2** (WL-7) |
 | 6 | Răspunsurile de până acum se numără în XP (backfill) sau liga pornește de la zero? | **de la zero**, doar răspunsurile de după lansare (WL-10) |
 
-## 10. Rezumatul ligii (context, de detaliat)
+## 10. Complexitate: nivelurile mai înalte aduc mai multe puncte
 
-- **XP** pentru răspunsuri corecte: 10 la întrebări noi, 15 la cele scadente, ×1,5 la „scrie”, ×2 la „scrie + caz”, +5 comeback, +20 la terminarea unei sesiuni de cel puțin 10 întrebări cu minimum 60%, +10 la prima sesiune a zilei; plafon zilnic moale de 400 XP.
+**Cerința (2026-10-29):** temele de nivel B1 trebuie să primească mai multe puncte decât cele de A1–A2. Acest principiu este confirmat; valorile de mai jos sunt **propuse** și așteaptă confirmarea.
+
+### 10.1 Formula
+
+`XP răspuns = rotunjire( XP de bază × multiplicator mod × multiplicator nivel )`
+
+- **XP de bază:** 10 la o întrebare nouă, 15 la una scadentă, +5 comeback (rămân ca în secțiunea 11).
+- **Multiplicator mod:** ×1 „alege”, ×1,5 „scrie”, ×2 „scrie + caz”.
+- **Multiplicator nivel:** din tabelul de mai jos, după nivelul temei din care vine întrebarea. Rotunjirea se face pe fiecare răspuns (jumătățile în sus), iar rezultatul se salvează ca număr întreg.
+- Bonusurile fixe (+20 sesiune terminată, +10 prima sesiune a zilei) **nu** se înmulțesc (WL-13).
+- Plafonul zilnic moale de 400 se măsoară în **puncte de bază**, înainte de multiplicatorul de nivel (WL-14). Astfel, cine lucrează la teme grele rămâne răsplătit și după plafon (până la 800 XP pe zi la B1).
+
+### 10.2 Valori propuse
+
+| Nivelul temei | Multiplicator | Teme actuale |
+|---|---|---|
+| A1, A1–A2 | **×1,0** | Der, die sau das? (200), Prepoziții cu caz fix, Prezentul verbelor neregulate |
+| A2 | **×1,25** | Wo? sau Wohin?, Perfekt: participiul, Indikativ Perfekt |
+| A2–B1 | **×1,5** | Verbe neregulate · Perfekt, Verbe cu prepoziții |
+| B1 | **×2,0** | Der, die sau das? (B1) |
+| B1–B2 | ×2,5 | (viitor) |
+| B2 | ×3,0 | (viitor) |
+
+Un nivel care lipsește din tabel oprește construirea (criteriul 17), ca să nu primească din greșeală ×1.
+
+### 10.3 Exemplu
+
+O sesiune de 20 de întrebări cu 15 răspunsuri corecte la „alege” (8 scadente × 15 + 7 noi × 10 = **190 XP de bază**), plus +20 pentru sesiune și +10 pentru prima sesiune a zilei:
+
+| Tema | XP răspunsuri | + bonusuri | Total |
+|---|---|---|---|
+| A1–A2 (×1,0) | 190 | 30 | **220** |
+| A2 (×1,25) | 243 | 30 | **273** |
+| A2–B1 (×1,5) | 289 | 30 | **319** |
+| B1 (×2,0) | 380 | 30 | **410** |
+
+Rotunjirea se face pe fiecare răspuns (de exemplu 15 × 1,25 = 18,75 → 19 și 10 × 1,25 = 12,5 → 13), de aceea totalurile nu sunt exact 190 × multiplicatorul.
+
+La „Repetiția de azi”, care amestecă teme, fiecare răspuns folosește multiplicatorul temei lui (WL-12).
+
+### 10.4 Date și implementare (propuse)
+
+- Tabel pe server `topic_levels(topic_id, level, multiplier)`, cu rândurile generate din `content/*.json` (de exemplu printr-o comandă a `build.py` care scrie migrarea), ca să nu apară neconcordanțe între conținut și server.
+- Pe fiecare eveniment XP se salvează `level_multiplier`, pe lângă `xp` (WL-15).
+- Câmpul opțional `xpMultiplier` dintr-un fișier de temă are prioritate față de tabel (WL-17); `build.py` îl validează (număr între 0,5 și 5).
+- Interfața: insigna „×N XP” pe cardul temei, în antetul testului și la rezultate, cu descompunerea „Bază 190 · Nivel B1 ×2 = 380 XP” (WL-18).
+
+### 10.5 Riscuri și atenuări
+
+- **Cei avansați domină clasamentul.** Atenuări: multiplicator moderat (maximum ×2 pentru B1, față de ×1 la A1–A2), trepte și grupe separate în ligă, comparația cu propria săptămână anterioară pentru cine e singur în grupă.
+- **Evitarea temelor ușoare.** Repetarea spațiată cere și temele ușoare; punctele de bază pentru întrebările scadente (15 față de 10) rămân un motiv să le reiei.
+- **Conținut cu nivel greșit.** Nivelul vine din `level` din fișierul temei; o greșeală se corectează la sursă, iar evenimentele vechi rămân neschimbate (WL-15).
+
+### 10.6 De confirmat
+
+| # | Întrebare | Propunere |
+|---|---|---|
+| 1 | Valorile multiplicatorilor (×1 / ×1,25 / ×1,5 / ×2) | cele din tabelul 10.2 |
+| 2 | Plafonul zilnic măsurat în puncte de bază | da |
+| 3 | Bonusurile fixe nu se înmulțesc | da |
+| 4 | Insigna „×N XP” vizibilă în interfață | da |
+| 5 | Suprascriere pe temă cu `xpMultiplier` | da, opțional |
+| 6 | O dificultate pe întrebare (în afara nivelului temei) într-o etapă ulterioară | nu acum |
+
+## 11. Rezumatul ligii (context, de detaliat)
+
+- **XP** pentru răspunsuri corecte: 10 la întrebări noi, 15 la cele scadente, ×1,5 la „scrie”, ×2 la „scrie + caz”, +5 comeback, **apoi ×multiplicatorul de nivel (secțiunea 10)**, plus bonusuri fixe: +20 la terminarea unei sesiuni de cel puțin 10 întrebări cu minimum 60%, +10 la prima sesiune a zilei; plafon zilnic moale de 400 puncte de bază.
 - **Săptămâna:** luni–duminică, Europe/Bucharest. **Trepte:** A1 Anfänger → A2 Entdecker → B1 Profi → B2 Meister; primii 3 promovează, ultimii 3 retrogradează (doar în grupe de cel puțin 8). Cu un singur utilizator se folosește comparația cu propria săptămână anterioară.
 - **Decizii încă deschise:** denumirile treptelor, mărimea grupului, vizibilitatea acurateței, XP mai mare la „scrie”, o eventuală recompensă reală.
 
-## 11. În afara acestui document
+## 12. În afara acestui document
 
 Calculul XP, clasamentul, promovările, ecranele ligii și mesajele săptămânale rămân de documentat și implementat în pașii următori.
