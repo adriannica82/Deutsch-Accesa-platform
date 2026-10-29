@@ -373,3 +373,6 @@ Toate cele zece întrebări au primit răspunsul recomandat.
 **Neverificat:** un ciclu real de luni (prima închidere reală este luni 2 noiembrie 2026, 06:00) și Safari pe un iPhone real.
 
 **De știut:** cu cele 3 conturi actuale nimeni nu se mută între trepte: sunt necesare cel puțin 4 înscriși într-o grupă pentru ca primul să promoveze.
+
+**Adăugat după implementare (2026-10-29):** în cardul „Liga ta” și pe ecranul clasamentului apare o linie 🎯 care spune ce lipsește pentru promovare: cu mai puțin de 4 înscriși în grupă, că treapta nu se mișcă încă (și regula 4–7 / 8+); cu 4 sau mai mulți, câte locuri urcă, dacă ești în zona de promovare și câte XP îți mai trebuie; pe treapta cea mai înaltă, un mesaj dedicat. Motiv: utilizatorul a întrebat „când ajung la nivelul următor?” și cardul nu explica de ce treapta nu se schimbă.
+

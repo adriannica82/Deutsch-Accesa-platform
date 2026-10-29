@@ -98,4 +98,4 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
 - **Multiplicatori XP:** Verbe modale ×1,0 (A1–A2); celelalte trei ×1,25 (A2). Rândurile au fost adăugate în `topic_levels` din Supabase.
 - **A doua tranșă (2026-10-29), implementată:** **Declinarea adjectivului** (A2, 64 de întrebări: după articol hotărât, după ein/kein/mein și fără articol, la Nominativ, Akkusativ și Dativ) și **Verbe separabile** (A2, 69: prezent, Perfekt, infinitiv cu modal și cu zu, subordonată, imperativ). Total platformă: 15 teme, 1472 de întrebări; ×1,25 XP, rândurile sunt adăugate în `topic_levels`.
 - **Rămâne de făcut din lista de lipsuri A2:** comparația (Komparativ, Superlativ), pronume personale și ordinea complementelor, imperativ (ca temă separată), negația (nicht/kein), posesive, Konjunktiv II de politețe.
-
+- **Liga, mesaj despre promovare (2026-10-29):** cardul și ecranul clasamentului arată acum ce lipsește pentru treapta următoare (număr minim de înscriși, locurile care urcă, XP necesar). Implementat.
