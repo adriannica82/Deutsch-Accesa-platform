@@ -32,6 +32,10 @@ Butonul **Exportă (.md)** din „Progresul tău” descarcă un raport Markdown
 
 Proiectul este static: preset „Other”, fără build command, directorul rădăcină `./`. `vercel.json` trimite adresa `/` către `deutsch.html`.
 
+## Liga (provocarea săptămânală)
+
+După o conectare nouă, utilizatorul este întrebat dacă vrea să se înscrie la provocarea săptămânală (cel mult o dată pe zi; caseta „Nu-mi mai aminti” oprește mesajul definitiv). Înscrierea se poate face și din cardul „Liga ta”. Profilul (`profiles`: nume afișat, avatar, înscris, „nu mai aminti”) se salvează în cont. Cerințele complete sunt în `weekly league requirements.md`; XP-ul și clasamentul urmează.
+
 ## Mobile (iPhone)
 
 Aplicația este optimizată pentru iPhone 17 (402×874) și iPhone 17 Pro Max (440×956): zone sigure (Dynamic Island, bara de acasă), ținte tactile de minimum 44 px, bară de acțiuni lipită jos în test, fișa de recapitulare ca carduri, gestul „înapoi” de pe iPhone care navighează între ecrane și pictogramă pentru „Adaugă pe ecranul principal” (`src/icon.png`, generată în `deutsch.html` de `build.py`).

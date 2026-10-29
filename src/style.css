@@ -40,3 +40,17 @@ header{padding-top:max(14px,env(safe-area-inset-top));padding-bottom:8px}footer{
 @media(max-width:480px){#sessionLabel{display:none}}
 @media(pointer:coarse){.kbd-hint{display:none}}
 @media(orientation:landscape) and (max-height:520px){#quiz .card{overflow:clip}#quiz .actions{position:sticky;bottom:0;z-index:5;margin:14px -22px -18px;padding:10px 22px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);-webkit-backdrop-filter:saturate(1.4) blur(10px);backdrop-filter:saturate(1.4) blur(10px);border-top:1px solid var(--line)}#quiz .actions button{min-height:48px}}
+
+.leftcol{display:flex;flex-direction:column;gap:22px;min-width:0}
+dialog#leagueDialog{border:0;padding:0;border-radius:20px;width:calc(100% - 32px);max-width:480px;background:#fff;color:var(--ink);box-shadow:0 20px 60px rgba(23,49,57,.35)}
+dialog#leagueDialog::backdrop{background:rgba(23,49,57,.55)}
+.ldbox{padding:26px}
+.ldactions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}.ldactions button{min-height:48px}
+.avatarset{border:0;padding:0;margin:16px 0 12px}.avatarset legend{font-size:13px;font-weight:750;margin-bottom:7px;padding:0}
+.avatars{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.avatars label{position:relative;display:block}
+.avatars input{position:absolute;inset:0;opacity:0;margin:0;width:100%;height:100%;cursor:pointer}
+.avatars span[aria-hidden]{display:flex;align-items:center;justify-content:center;height:48px;border:2px solid var(--line);border-radius:12px;font-size:26px;background:#fff}
+.avatars input:checked+span{border-color:var(--green);background:#edf7e9}.avatars input:focus-visible+span{outline:3px solid #d08b38;outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(max-width:720px){dialog#leagueDialog{margin:auto 0 0;width:100%;max-width:none;border-radius:20px 20px 0 0}.ldbox{padding:22px 18px calc(18px + env(safe-area-inset-bottom))}.ldactions{flex-direction:column-reverse}.ldactions button{width:100%}.avatars{gap:6px}}
+.ldactions{flex-direction:row-reverse;justify-content:flex-start}

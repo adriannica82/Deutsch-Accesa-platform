@@ -45,7 +45,7 @@ $('progressStats').innerHTML=statsHtml(allItems);$('timeStats').innerHTML=timeHt
 const r=pickFrom(allItems,'smart',Number($('todayCount').value)),due=allItems.filter(isDue).length,fresh=allItems.filter(q=>!P(q)).length;
 $('todayInfo').textContent=r.filled?'Nu mai ai nimic scadent; primești cele mai apropiate repetări.':due+' de repetat acum · '+fresh+' noi, din '+allItems.length+' întrebări în toate temele.';
 $('topicGrid').innerHTML=topics.map(t=>{const c=counts(t.qs),due=t.qs.filter(isDue).length;return '<button type="button" class="topic" data-topic="'+t.id+'"><div class="row"><span class="label">'+escape(t.level)+'</span><span class="pill">'+countRo(t.qs.length,t.unit)+'</span></div><h3>'+escape(t.title)+'</h3><div class="small muted" lang="de">'+escape(t.titleDe||'')+'</div><p class="small">'+escape(t.summary)+'</p>'+bar(c,t.qs.length)+'<div class="small muted">'+(due?due+' de repetat · ':'')+c.new+' noi · '+c.done+' stăpânite</div></button>'}).join('');
-$('history').innerHTML=history.length?history.slice(-6).reverse().map(h=>'<li><span>'+new Date(h.t).toLocaleDateString('ro-RO')+' · '+escape(h.topic==='mix'?'Repetiția de azi':topicById[h.topic].title)+(h.sec?' · '+fmtShort(h.sec):'')+'</span><b>'+h.pct+'% · '+h.correct+'/'+h.n+'</b></li>').join(''):'<li class="muted">Încă nu ai finalizat o sesiune.</li>'}
+$('history').innerHTML=history.length?history.slice(-6).reverse().map(h=>'<li><span>'+new Date(h.t).toLocaleDateString('ro-RO')+' · '+escape(h.topic==='mix'?'Repetiția de azi':topicById[h.topic].title)+(h.sec?' · '+fmtShort(h.sec):'')+'</span><b>'+h.pct+'% · '+h.correct+'/'+h.n+'</b></li>').join(''):'<li class="muted">Încă nu ai finalizat o sesiune.</li>';renderLeagueCard();maybePrompt()}
 function openTopic(id){
 cur=topicById[id];$('tLevel').textContent='TEMĂ · '+cur.level;$('tTitle').textContent=cur.title;$('tSummary').textContent=cur.summary;
 if(builtFor!==id){
@@ -244,7 +244,7 @@ const j=await r.json().catch(()=>({}));
 if(r.ok&&j.access_token&&j.user){setAuth(j);return}
 throw new Error(r.status>=500||r.status===429?'net':'bad')}
 const refreshSession=()=>authCall('refresh_token',{refresh_token:auth.refresh_token}).then(()=>true,e=>{if(e.message==='bad')dropSession();return false});
-function dropSession(){auth=null;progress=Object.create(null);history=[];timeLog=Object.create(null);clock=null;outbox={q:[],p:[],d:{}};state={active:false};try{localStorage.removeItem(AKEY)}catch{}showLogin()}
+function dropSession(){profile=null;profileFresh=false;pendingPrompt=false;auth=null;progress=Object.create(null);history=[];timeLog=Object.create(null);clock=null;outbox={q:[],p:[],d:{}};state={active:false};try{localStorage.removeItem(AKEY)}catch{}showLogin()}
 async function api(path,opt={}){
 if(auth.expires_at<Date.now()&&!await refreshSession())throw new Error('auth');
 const go=()=>fetch(CFG.url+path,{method:opt.method||'GET',headers:{apikey:CFG.key,Authorization:'Bearer '+auth.access_token,'Content-Type':'application/json',...(opt.headers||{})},body:opt.body===undefined?undefined:JSON.stringify(opt.body)});
@@ -263,6 +263,7 @@ if(op.k==='s')return send('/rest/v1/sessions?on_conflict=id','POST',[op.row],'re
 if(op.k==='sf')return send('/rest/v1/sessions?id=eq.'+encodeURIComponent(op.id),'PATCH',op.patch,'');
 if(op.k==='a')return send('/rest/v1/answers?on_conflict=id','POST',op.rows,'resolution=ignore-duplicates');
 if(op.k==='dp')return send('/rest/v1/progress?item_id=not.is.null','DELETE',undefined,'');
+if(op.k==='pf')return send('/rest/v1/profiles?on_conflict=user_id','POST',[op.patch],'resolution=merge-duplicates');
 return 'drop'}
 async function flush(){
 if(!auth||flushing)return;flushing=true;
@@ -276,6 +277,7 @@ flushing=false;setSync()}
 async function sync(){
 try{
 await flush();
+if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();maybePrompt()}}
 const r=await api('/rest/v1/progress?select=item_id,box,due,seen,right_count,wrong_count,last&limit=1000');
 if(r.ok){const remote=Object.create(null),rows=await r.json();
 for(const x of rows)remote[x.item_id]={box:x.box,due:Number(x.due),seen:x.seen,right:x.right_count,wrong:x.wrong_count,last:Number(x.last)};
@@ -290,19 +292,74 @@ save();saveTime();if(currentView==='home')renderHome();if(currentView==='topic')
 setSync()}
 function showLogin(){$('logout').hidden=$('userEmail').hidden=$('syncState').hidden=true;$('loginError').hidden=true;show('login')}
 async function afterLogin(){
-loadProgress();loadOutbox();$('userEmail').textContent=auth.user.email;$('userEmail').hidden=$('syncState').hidden=$('logout').hidden=false;
+loadProgress();loadOutbox();loadProfile();$('userEmail').textContent=auth.user.email;$('userEmail').hidden=$('syncState').hidden=$('logout').hidden=false;
 $('storeNote').textContent='Conectat ca '+auth.user.email+'. Progresul și sesiunile tale se salvează în contul tău și se sincronizează între dispozitive. Exportă-l dacă vrei o copie.';
 $('footNote').textContent='Exemple adaptate pentru test · Date salvate în contul personal.';
 show('home');setSync();sync()}
 if(CLOUD){
 $('footNote').textContent='Exemple adaptate pentru test · Date salvate în contul personal.';
 $('loginForm').onsubmit=async e=>{e.preventDefault();const b=$('loginBtn');b.disabled=true;$('loginError').hidden=true;
-try{await authCall('password',{email:$('email').value.trim(),password:$('password').value});$('password').value='';await afterLogin()}
+try{await authCall('password',{email:$('email').value.trim(),password:$('password').value});$('password').value='';pendingPrompt=true;await afterLogin()}
 catch(err){$('password').value='';$('loginError').textContent=err.message==='bad'?'Email sau parolă incorecte.':'Nu m-am putut conecta la server. Verifică conexiunea și încearcă din nou.';$('loginError').hidden=false}
 b.disabled=false};
 $('logout').onclick=async()=>{await flush();try{await api('/auth/v1/logout',{method:'POST'})}catch{}dropSession()};
 addEventListener('online',()=>{if(auth){flush().then(sync)}else setSync()});addEventListener('offline',setSync);
 setInterval(()=>{if(auth)flush()},30000)}
+
+// ---------- Liga: înscrierea la provocarea săptămânală ----------
+// Pop-up-ul apare după o autentificare nouă (parolă introdusă), cel mult o dată pe zi, doar dacă datele contului s-au încărcat
+// de pe server și utilizatorul nu este înscris și nu a bifat „Nu-mi mai aminti”. Alegerile se salvează în `profiles`.
+const PROFKEY='deutsch-profile-v1',AVATARS=['🦊','🐼','🦉','🐯','🐸','🦄','🐙','🦁','🐧','🦋','🐢','🐳'];
+let profile=null,profileFresh=false,pendingPrompt=false,ldMode='prompt',ldHandled=false;
+const sameDay=(a,b)=>a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+const defaultName=()=>{const w=((auth&&auth.user.email)||'').split('@')[0].split(/[._+-]/)[0];return w?w.charAt(0).toUpperCase()+w.slice(1,24):''};
+function loadProfile(){try{profile=JSON.parse(localStorage.getItem(PROFKEY+sfx()))}catch{profile=null}profileFresh=false}
+function patchProfile(patch){profile=Object.assign({},profile||{},patch);try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}enqueue({k:'pf',patch});renderLeagueCard()}
+function renderLeagueCard(){
+const c=$('leagueCard');if(!c)return;
+if(!CLOUD||!auth||(!profile&&!profileFresh)){c.hidden=true;return}
+const reg=profile&&profile.league_registered;c.hidden=false;
+c.innerHTML=reg
+?'<div class="label">LIGA TA</div><h2 style="margin-top:12px"><span aria-hidden="true">'+escape(profile.avatar)+'</span> '+escape(profile.display_name)+'</h2><p class="muted small">Ești înscris la provocarea săptămânală. Clasamentul și punctele XP apar în curând; până atunci îți poți continua exercițiile.</p><div class="tools" style="margin-top:0"><button type="button" class="quiet back" data-league="edit">Editează profilul</button><button type="button" class="quiet back" data-league="leave">Retrage-te</button></div>'
+:'<div class="label">LIGA TA</div><h2 style="margin-top:12px">Provocarea săptămânală</h2><p class="muted small">Aduni XP din teste și te compari cu colegii într-un clasament de luni până duminică. Temele mai grele aduc mai multe puncte.</p><button type="button" class="primary allwidth" data-league="join">Înscrie-te</button>'}
+function openLeagueDialog(mode){
+ldMode=mode;ldHandled=false;
+const d=$('leagueDialog'),p=profile||{};
+$('ldSkip').checked=false;$('ldErr').hidden=true;
+$('ldStep1').hidden=mode!=='prompt';$('ldStep2').hidden=mode==='prompt';$('ldBack').hidden=mode!=='prompt';
+$('ldTitle2').textContent=mode==='edit'?'Editează profilul':mode==='register'?'Înscrie-te la provocare':'Cum vrei să apari în clasament?';
+$('ldName').value=p.display_name||defaultName();
+const av=p.avatar&&AVATARS.includes(p.avatar)?p.avatar:AVATARS[0];
+d.querySelectorAll('input[name=avatar]').forEach(r=>r.checked=r.value===av);
+if(mode==='prompt')patchProfile({league_prompted_at:new Date().toISOString()});
+d.showModal()}
+// „Nu acum”, Esc sau atingerea fundalului: dacă „Nu-mi mai aminti” este bifat, pop-up-ul nu mai apare niciodată.
+function ldDismiss(){if(ldMode==='prompt'&&$('ldSkip').checked)patchProfile({league_prompt_skip:true})}
+function maybePrompt(){
+if(!pendingPrompt||!auth||!profileFresh||currentView!=='home'||state.active||$('leagueDialog').open)return;
+pendingPrompt=false;const p=profile||{};
+if(p.league_registered||p.league_prompt_skip)return;
+if(p.league_prompted_at&&sameDay(new Date(p.league_prompted_at),new Date()))return;
+openLeagueDialog('prompt')}
+function ldSave(){
+const name=$('ldName').value.trim().replace(/\s+/g,' '),av=($('leagueDialog').querySelector('input[name=avatar]:checked')||{}).value,err=$('ldErr');
+if(name.length<2||name.length>24){err.textContent=name.length<2?'Numele trebuie să aibă cel puțin 2 caractere.':'Numele poate avea cel mult 24 de caractere.';err.hidden=false;$('ldName').focus();return}
+if(!av){err.textContent='Alege un avatar.';err.hidden=false;return}
+const patch={display_name:name,avatar:av,league_registered:true,registered_at:(profile&&profile.registered_at)||new Date().toISOString()};
+if(ldMode==='prompt'&&$('ldSkip').checked)patch.league_prompt_skip=true;
+patchProfile(patch);ldHandled=true;$('leagueDialog').close()}
+if(CLOUD){
+$('ldAvatars').innerHTML=AVATARS.map(a=>'<label><input type="radio" name="avatar" value="'+a+'"><span aria-hidden="true">'+a+'</span><span class="sr">'+a+'</span></label>').join('');
+$('ldYes').onclick=()=>{$('ldStep1').hidden=true;$('ldStep2').hidden=false;$('ldBack').hidden=false;$('ldName').focus()};
+$('ldBack').onclick=()=>{$('ldStep2').hidden=true;$('ldStep1').hidden=false;$('ldYes').focus()};
+$('ldNo').onclick=()=>{ldDismiss();ldHandled=true;$('leagueDialog').close()};
+$('ldSave').onclick=ldSave;
+$('ldName').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ldSave()}});
+$('leagueDialog').addEventListener('close',()=>{if(!ldHandled)ldDismiss();ldHandled=false});
+$('leagueDialog').addEventListener('click',e=>{if(e.target===$('leagueDialog'))$('leagueDialog').close()});
+$('leagueCard').onclick=e=>{const b=e.target.closest('[data-league]');if(!b)return;const a=b.dataset.league;
+if(a==='join')openLeagueDialog('register');else if(a==='edit')openLeagueDialog('edit');
+else if(a==='leave'&&confirm('Te retragi din provocarea săptămânală? Poți reveni oricând din cardul „Liga ta”.'))patchProfile({league_registered:false,league_prompt_skip:true})}}
 
 // ---------- Istoric: butonul „înapoi” și gestul de pe iPhone ----------
 // Fiecare ecran are propria intrare în istoricul browserului, ca să nu ieși din aplicație la „înapoi”.

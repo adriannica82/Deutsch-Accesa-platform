@@ -19,9 +19,10 @@
 <div class="hero"><div><div class="label">GERMANĂ · A1–B1</div><h1>Un program.<br>Mai multe teme.</h1><p class="muted">Exersează articolele, cazurile, verbele și prepozițiile în propoziții scurte. Fiecare întrebare are traducere și explicație în română, iar programul îți readuce la timp ce uiți.</p><span class="pill" id="heroTopics"></span> <span class="pill" id="heroItems"></span> <span class="pill">Explicații în română</span></div><div class="notebook" lang="de"><div class="label">Kleine Wörter. Große Wirkung.</div><p>Ich denke <em>an</em> dich.<br> Ich spreche <em>mit</em> dir.<br> Ich freue mich <em>auf</em> morgen.</p></div></div>
 
 <div class="layout">
-<div class="card"><div class="label">REPETIȚIA DE AZI</div><h2 style="margin-top:12px">Ce trebuie reîmprospătat acum</h2><p class="muted small">Un amestec din toate temele: mai întâi construcțiile scadente, apoi cele noi. Tipul de exercițiu se alege automat pentru fiecare temă.</p>
+<div class="leftcol"><div class="card"><div class="label">REPETIȚIA DE AZI</div><h2 style="margin-top:12px">Ce trebuie reîmprospătat acum</h2><p class="muted small">Un amestec din toate temele: mai întâi construcțiile scadente, apoi cele noi. Tipul de exercițiu se alege automat pentru fiecare temă.</p>
 <div class="controls"><div class="field" style="grid-column:1/-1"><label for="todayCount">Număr de întrebări</label><select id="todayCount"><option value="10">10 · sesiune scurtă</option><option value="20" selected>20 · antrenament</option><option value="30">30 · sesiune lungă</option></select></div></div>
 <button id="todayStart" class="primary allwidth">Începe repetiția →</button><p class="small muted guide" id="todayInfo"></p></div>
+<div class="card" id="leagueCard" hidden></div></div>
 <aside class="card"><div class="label">PROGRESUL TĂU</div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” pentru a-l păstra.</p><div class="tools"><button type="button" class="quiet back" id="exportP">Exportă (.md)</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back" id="resetP">Resetează</button></div><input type="file" id="importFile" accept=".md,.markdown,text/markdown,.json,application/json" hidden>
 <div class="mini"><div class="label">TIMP DE EXERSARE</div><div id="timeStats"></div></div>
 <div class="mini"><div class="label">SESIUNI RECENTE</div><ul class="history" id="history"></ul></div>
@@ -51,7 +52,19 @@
 
 <section id="study" hidden><div class="row"><div><div class="label">FIȘĂ DE RECAPITULARE</div><h1 style="font-size:36px" id="studyTitle"></h1></div><button id="studyBack" class="primary">← Înapoi</button></div><p class="muted" id="studyIntro"></p><div id="studyGuide"></div><div class="card"><div class="controls" style="margin-top:0"><div class="field"><label for="search">Caută în listă</label><input type="search" id="search" placeholder="Ex.: mit, a mulțumi, fahren…"></div><div class="field" id="studyFilterField"><label for="studyFilter" id="studyFilterLabel">Filtrează</label><select id="studyFilter"></select></div></div><p class="small muted" id="studyCount"></p><div class="tablewrap"><table class="verbs"><thead><tr><th scope="col">Element</th><th scope="col">Sens</th><th scope="col">Exemplu</th><th scope="col">Progres</th></tr></thead><tbody id="verbTable"></tbody></table></div></div></section>
 
-</main><footer id="footNote">Exemple adaptate pentru test · Funcționează offline, fără cont · Progresul se salvează doar în acest browser.</footer>
+</main>
+<dialog id="leagueDialog" aria-labelledby="ldTitle1"><div class="ldbox">
+<div id="ldStep1"><div class="label">PROVOCAREA SĂPTĂMÂNALĂ</div><h2 id="ldTitle1" style="margin-top:12px">Vrei să participi la provocarea săptămânală?</h2><p class="muted">Aduni XP din teste și te compari cu colegii într-un clasament de luni până duminică. Ceilalți văd doar numele, avatarul și XP-ul tău. Te poți retrage oricând.</p>
+<label class="checkbox"><input type="checkbox" id="ldSkip"> Nu-mi mai aminti</label>
+<div class="ldactions"><button type="button" class="primary" id="ldYes" autofocus>Da, mă înscriu</button><button type="button" id="ldNo">Nu acum</button></div></div>
+<div id="ldStep2" hidden><div class="label">PROFILUL TĂU</div><h2 id="ldTitle2" style="margin-top:12px">Cum vrei să apari în clasament?</h2>
+<div class="field"><label for="ldName">Nume afișat</label><input type="text" id="ldName" maxlength="24" autocomplete="nickname" autocapitalize="words" enterkeyhint="done"></div>
+<fieldset class="avatarset"><legend>Avatar</legend><div class="avatars" id="ldAvatars"></div></fieldset>
+<p class="small muted">Ceilalți utilizatori văd numele, avatarul, XP-ul și treapta ta; niciodată răspunsurile.</p>
+<p class="error" id="ldErr" role="alert" hidden></p>
+<div class="ldactions"><button type="button" class="primary" id="ldSave">Gata</button><button type="button" id="ldBack">Înapoi</button></div></div>
+</div></dialog>
+<footer id="footNote">Exemple adaptate pentru test · Funcționează offline, fără cont · Progresul se salvează doar în acest browser.</footer>
 <script type="application/json" id="content">/*__CONTENT__*/</script>
 <script type="application/json" id="config">/*__CONFIG__*/</script>
 <script>

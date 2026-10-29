@@ -1,6 +1,6 @@
 # Provocarea săptămânală (liga) · cerințe
 
-- **Stare:** cerințele pop-up-ului sunt **confirmate** (2026-10-29), **neimplementat**. Elementul de **complexitate** (nivelurile mai înalte aduc mai multe puncte) a fost adăugat și **confirmat** la 2026-10-29, inclusiv valorile multiplicatorilor (secțiunea 10).
+- **Stare:** cerințele pop-up-ului sunt **confirmate** (2026-10-29). **Faza 1 implementată** (2026-10-29): înscrierea, pop-up-ul și cardul „Liga ta” (vezi secțiunea 13); XP-ul, clasamentul și treptele urmează. Elementul de **complexitate** (nivelurile mai înalte aduc mai multe puncte) a fost adăugat și **confirmat** la 2026-10-29, inclusiv valorile multiplicatorilor (secțiunea 10).
 - **Legat de:** `features backlog.md`, feature 6
 - **Despre ce este vorba:** o competiție săptămânală între utilizatori (liga), la care fiecare utilizator se poate **înscrie**. Acest document descrie deocamdată fereastra de înscriere (pop-up) și deciziile deschise. Regulile ligii (XP, trepte, promovări) sunt rezumate la final și vor fi detaliate separat.
 
@@ -181,3 +181,30 @@ La „Repetiția de azi”, care amestecă teme, fiecare răspuns folosește mul
 ## 12. În afara acestui document
 
 Calculul XP, clasamentul, promovările, ecranele ligii și mesajele săptămânale rămân de documentat și implementat în pașii următori.
+
+## 13. Stare implementare
+
+### Faza 1 · înscrierea (implementat, 2026-10-29)
+
+| Cerință | Stare |
+|---|---|
+| WL-1 pop-up la prima autentificare | făcut: apare după o conectare nouă, pe pagina principală, după ce profilul s-a încărcat de pe server |
+| WL-2 „Nu-mi mai aminti” | făcut: bifat, la „Nu acum”, Esc sau atingerea fundalului, pop-up-ul nu mai apare niciodată |
+| WL-3 cel mult o dată pe zi | făcut: se compară ziua locală a ultimei afișări (`league_prompted_at`) |
+| WL-4 înscriere prin „Da, mă înscriu” | făcut: pasul 2 (nume și avatar), apoi „Gata” |
+| WL-5 înscriere ulterioară | făcut: cardul „Liga ta” de pe pagina principală (buton „Înscrie-te”) |
+| WL-6 retragere | făcut: „Retrage-te” din card; setează și „nu mai aminti”, deci pop-up-ul nu revine |
+| WL-7 nume și avatar | făcut: nume de 2–24 de caractere (preîncărcat din email), 12 avataruri emoji; „Editează profilul” din card |
+| WL-8 pe cont | făcut: se salvează în tabelul `profiles`, citit la fiecare conectare |
+| WL-9 conturi existente | făcut: orice cont fără rând în `profiles` primește pop-up-ul la prima conectare după lansare |
+| WL-10…WL-18 XP, complexitate | **neimplementat** (faza următoare) |
+
+**Detalii tehnice**
+- Tabelul `profiles` (migrarea `profiles_for_weekly_league`): `display_name`, `avatar`, `league_registered`, `league_prompt_skip`, `league_prompted_at`, `registered_at`; reguli de securitate pe rânduri: fiecare utilizator citește și scrie doar propriul rând; constrângeri în bază (nume 2–24 de caractere, înscrierea cere nume și avatar).
+- Citirea numelor și avatarelor celorlalți utilizatori vine cu clasamentul, printr-o funcție dedicată; până atunci nimeni nu vede profilul altcuiva.
+- Salvările trec prin coada de trimitere a aplicației, deci funcționează și fără conexiune și se retrimit; dacă la conectare serverul nu răspunde, pop-up-ul nu se afișează (criteriul 7).
+- Pop-up-ul este un `<dialog>` nativ (focus blocat, Esc, revenire a focusului); pe telefon apare ca foaie ancorată jos, cu zona sigură respectată și ținte de cel puțin 44 px.
+- Pop-up-ul așteaptă pagina principală: dacă datele sosesc în timpul unui test, apare când utilizatorul revine acasă.
+
+**Verificare (backend simulat, fără rețea reală):** criteriile 1–9 (pop-up nou, „Nu acum” cu și fără bifă, aceeași zi / ziua următoare, înscriere cu validarea numelui, editare, retragere, cont existent înscris, fără conexiune, în timpul unui test); aspectul pe desktop și pe ecran de 402×874 (fără depășiri, ținte ≥ 44 px, câmpuri de 16 px); regulile din baza de date (două conturi de test, anulate după verificare); toate cele 2083 de răspunsuri din teme au fost acceptate ca înainte.
+**Neverificat:** criteriile 10, 15, 16 și 17 țin de XP și de multiplicator (faza următoare); conectarea reală cu un cont din Supabase și Safari pe un iPhone real.
