@@ -54,3 +54,9 @@ dialog#leagueDialog::backdrop{background:rgba(23,49,57,.55)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media(max-width:720px){dialog#leagueDialog{margin:auto 0 0;width:100%;max-width:none;border-radius:20px 20px 0 0}.ldbox{padding:22px 18px calc(18px + env(safe-area-inset-bottom))}.ldactions{flex-direction:column-reverse}.ldactions button{width:100%}.avatars{gap:6px}}
 .ldactions{flex-direction:row-reverse;justify-content:flex-start}
+
+.pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.pill.xp{background:var(--lime);color:var(--green)}
+.xpchip{font-size:12px;font-weight:800;padding:3px 9px;border-radius:20px;background:var(--lime);color:var(--green);white-space:nowrap}
+.xptotal{font-size:44px;line-height:1.1;font-weight:800;letter-spacing:-1.5px;color:var(--green)}.xptotal small{font-size:18px;letter-spacing:0}
+.xpdet{margin-top:10px}.xplist{padding-left:18px;margin:10px 0 0;font-size:14px}.xplist li{margin:6px 0}
+@media(max-width:480px){.brand span{display:none}.userbar #syncState.ok{display:none}}

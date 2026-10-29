@@ -1,6 +1,6 @@
 # Provocarea săptămânală (liga) · cerințe
 
-- **Stare:** cerințele pop-up-ului sunt **confirmate** (2026-10-29). **Faza 1 implementată** (2026-10-29): înscrierea, pop-up-ul și cardul „Liga ta” (vezi secțiunea 13); XP-ul, clasamentul și treptele urmează. Elementul de **complexitate** (nivelurile mai înalte aduc mai multe puncte) a fost adăugat și **confirmat** la 2026-10-29, inclusiv valorile multiplicatorilor (secțiunea 10).
+- **Stare:** cerințele pop-up-ului sunt **confirmate** (2026-10-29). **Faza 1 (înscrierea) și faza 2 (motorul de XP cu multiplicatorul de nivel) implementate** (2026-10-29), vezi secțiunea 13; clasamentul, treptele și rezumatul de luni urmează. Elementul de **complexitate** (nivelurile mai înalte aduc mai multe puncte) a fost adăugat și **confirmat** la 2026-10-29, inclusiv valorile multiplicatorilor (secțiunea 10).
 - **Legat de:** `features backlog.md`, feature 6
 - **Despre ce este vorba:** o competiție săptămânală între utilizatori (liga), la care fiecare utilizator se poate **înscrie**. Acest document descrie deocamdată fereastra de înscriere (pop-up) și deciziile deschise. Regulile ligii (XP, trepte, promovări) sunt rezumate la final și vor fi detaliate separat.
 
@@ -197,7 +197,7 @@ Calculul XP, clasamentul, promovările, ecranele ligii și mesajele săptămâna
 | WL-7 nume și avatar | făcut: nume de 2–24 de caractere (preîncărcat din email), 12 avataruri emoji; „Editează profilul” din card |
 | WL-8 pe cont | făcut: se salvează în tabelul `profiles`, citit la fiecare conectare |
 | WL-9 conturi existente | făcut: orice cont fără rând în `profiles` primește pop-up-ul la prima conectare după lansare |
-| WL-10…WL-18 XP, complexitate | **neimplementat** (faza următoare) |
+| WL-10…WL-18 XP, complexitate | făcut în faza 2, vezi mai jos |
 
 **Detalii tehnice**
 - Tabelul `profiles` (migrarea `profiles_for_weekly_league`): `display_name`, `avatar`, `league_registered`, `league_prompt_skip`, `league_prompted_at`, `registered_at`; reguli de securitate pe rânduri: fiecare utilizator citește și scrie doar propriul rând; constrângeri în bază (nume 2–24 de caractere, înscrierea cere nume și avatar).
@@ -208,3 +208,35 @@ Calculul XP, clasamentul, promovările, ecranele ligii și mesajele săptămâna
 
 **Verificare (backend simulat, fără rețea reală):** criteriile 1–9 (pop-up nou, „Nu acum” cu și fără bifă, aceeași zi / ziua următoare, înscriere cu validarea numelui, editare, retragere, cont existent înscris, fără conexiune, în timpul unui test); aspectul pe desktop și pe ecran de 402×874 (fără depășiri, ținte ≥ 44 px, câmpuri de 16 px); regulile din baza de date (două conturi de test, anulate după verificare); toate cele 2083 de răspunsuri din teme au fost acceptate ca înainte.
 **Neverificat:** criteriile 10, 15, 16 și 17 țin de XP și de multiplicator (faza următoare); conectarea reală cu un cont din Supabase și Safari pe un iPhone real.
+
+### Faza 2 · motorul de XP (implementat, 2026-10-29)
+
+| Cerință | Stare |
+|---|---|
+| WL-10 liga pornește de la zero | făcut: tabelul `league_config.launch_at` (momentul lansării, 2026-10-29 08:34 UTC); se numără doar răspunsurile date după el |
+| WL-11 B1 > A1–A2 | făcut: multiplicatorul de nivel A1–A2 ×1,0 · A2 ×1,25 · A2–B1 ×1,5 · B1 ×2,0 |
+| WL-12 pe fiecare răspuns | făcut: calculul se face pe fiecare răspuns, după tema lui (și în „Repetiția de azi”) |
+| WL-13 bonusuri fixe neînmulțite | făcut: +20 și +10 se acordă la terminarea sesiunii, fără multiplicatori |
+| WL-14 plafon în puncte de bază | făcut: primele 400 de puncte (după multiplicatorul modului, înainte de cel de nivel) pe zi contează întregi, restul 25% |
+| WL-15 multiplicator pe eveniment | făcut: `xp_events.level_mult` (și `mode_mult`, `base_points`, `counted_points`) se salvează pe fiecare punctaj |
+| WL-16 pe server, validat | făcut: tabelul `topic_levels`; `build.py` calculează multiplicatorii, oprește construirea la un nivel necunoscut și generează `supabase/topic_levels.sql` |
+| WL-17 `xpMultiplier` | făcut: câmp opțional în fișierul temei, validat (0,5–5) |
+| WL-18 transparență | făcut: insigna „×N XP” pe cardul temei și în antetul testului; descompunerea la rezultate („Cum s-a calculat”) |
+
+**Cum se calculează (server, în baza de date)**
+- Baza unui răspuns corect: **10** la o întrebare nouă, **15** la una scadentă, **5** la o reluare înainte de scadență; **+5** dacă răspunsul anterior la ea a fost greșit (revenire). Apoi × modul (alege 1, scrie 1,5, scrie + caz 2), plafonul zilnic și × multiplicatorul de nivel; rotunjire pe fiecare răspuns.
+- Scadența se reconstituie pe server din răspunsurile anterioare ale utilizatorului, cu aceleași cutii și intervale ca în aplicație (0, 1, 3, 7, 14, 30 de zile), deci nu depinde de ce spune browserul.
+- Răspunsurile greșite sau „Nu știu” nu aduc XP. Nu se acordă XP pentru răspunsuri date înainte de lansare, mai vechi de 48 de ore sau din viitor.
+- Bonusuri la terminarea sesiunii: **+20** (minimum 10 răspunsuri, minimum 60% corecte) și **+10** la prima sesiune terminată a zilei (cel puțin un răspuns). Ziua și săptămâna sunt cele din Europe/Bucharest, săptămâna începe luni.
+- XP-ul se calculează pentru toate conturile; în clasament vor apărea doar cele înscrise.
+
+**În aplicație:** la rezultate apare blocul „Puncte XP” (total și detalii; dacă nu ești conectat la server, un mesaj că punctele apar după sincronizare); cardul „Liga ta” arată XP-ul de azi, din săptămâna aceasta și din săptămâna trecută; temele cu multiplicator mai mare de 1 au insigna „×N XP” (doar pentru cei cu cont).
+
+**Decizii luate la implementare (de confirmat, nu erau în cerințe):**
+1. O reluare a unei întrebări **înainte de scadență** valorează 5 puncte de bază (cerințele nu spuneau), ca să nu merite repetarea acelorași întrebări ușoare.
+2. „Prima sesiune a zilei” = prima sesiune **terminată** a zilei, cu cel puțin un răspuns; bonusul se acordă o singură dată pe zi.
+3. Plafonul zilnic se aplică după multiplicatorul modului și înainte de cel de nivel.
+4. O temă necunoscută serverului primește ×1: după orice schimbare de temă sau de nivel trebuie rulat `supabase/topic_levels.sql` (generat de `build.py`).
+
+**Verificare:** regulile de XP au fost testate direct pe baza de date, cu conturi de test anulate după aceea: răspuns nou 10, reluare înainte de scadență 5, revenire 20, reluare scadentă 15, B1 ×2 = 20, „scrie” A2 = 19, „scrie + caz” A2–B1 = 30, răspuns greșit / înainte de lansare / mai vechi de 48 h / din viitor = fără XP, livrare dublă = un singur punctaj, plafon (după 400 de puncte: 3 și 5 XP), bonusurile de sesiune (+20 și +10, o singură dată), un utilizator nu vede și nu poate scrie punctajele altuia; interfața a fost testată cu backend simulat (insigne, chip în antet, rezultate, card, sesiune amestecată, 0 XP, fără conexiune), pe desktop și la 402×874.
+**Neverificat:** un test cu cont real din Supabase și Safari pe iPhone.

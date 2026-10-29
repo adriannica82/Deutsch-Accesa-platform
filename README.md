@@ -36,6 +36,10 @@ Proiectul este static: preset „Other”, fără build command, directorul răd
 
 După o conectare nouă, utilizatorul este întrebat dacă vrea să se înscrie la provocarea săptămânală (cel mult o dată pe zi; caseta „Nu-mi mai aminti” oprește mesajul definitiv). Înscrierea se poate face și din cardul „Liga ta”. Profilul (`profiles`: nume afișat, avatar, înscris, „nu mai aminti”) se salvează în cont. Cerințele complete sunt în `weekly league requirements.md`; XP-ul și clasamentul urmează.
 
+### XP și multiplicatori
+
+Punctele XP se calculează **pe server** (triggere în baza de date, vezi `supabase/schema.sql`) din răspunsurile salvate. Multiplicatorul unei teme vine din nivelul ei: A1–A2 ×1 · A2 ×1,25 · A2–B1 ×1,5 · B1 ×2 (tabelul `LEVEL_XP` din `build.py`; un fișier de temă poate avea câmpul opțional `xpMultiplier`). `build.py` oprește construirea la un nivel necunoscut și generează `supabase/topic_levels.sql`: **rulează-l în Supabase după orice schimbare de temă sau de nivel**.
+
 ## Mobile (iPhone)
 
 Aplicația este optimizată pentru iPhone 17 (402×874) și iPhone 17 Pro Max (440×956): zone sigure (Dynamic Island, bara de acasă), ținte tactile de minimum 44 px, bară de acțiuni lipită jos în test, fișa de recapitulare ca carduri, gestul „înapoi” de pe iPhone care navighează între ecrane și pictogramă pentru „Adaugă pe ecranul principal” (`src/icon.png`, generată în `deutsch.html` de `build.py`).

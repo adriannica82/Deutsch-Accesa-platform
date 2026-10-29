@@ -26,6 +26,13 @@ BAD_DIACRITICS = "şţŞŢ"  # cu sedilă; în română se folosesc ș ț (virgu
 
 
 LEVELS = {"A1": 1, "A2": 2, "B1": 3, "B2": 4, "C1": 5, "C2": 6}
+# Liga: multiplicatorul de XP după nivelul temei (vezi „weekly league requirements.md”, secțiunea 10).
+LEVEL_XP = {"A1": 1.0, "A1–A2": 1.0, "A2": 1.25, "A2–B1": 1.5, "B1": 2.0, "B1–B2": 2.5, "B2": 3.0}
+
+
+def xp_multiplier(topic):
+    """Valoarea din câmpul opțional „xpMultiplier” sau, altfel, cea din tabelul LEVEL_XP."""
+    return topic["xpMultiplier"] if "xpMultiplier" in topic else LEVEL_XP[topic["level"]]
 
 
 def level_key(level):
@@ -57,6 +64,10 @@ def validate(topics):
         if tid in ids:
             err(tid, "id de temă duplicat")
         ids.add(tid)
+        if t.get("level") not in LEVEL_XP and "xpMultiplier" not in t:
+            err(tid, f"nivelul „{t.get('level')}” nu are multiplicator XP; folosește unul din {list(LEVEL_XP)} sau adaugă „xpMultiplier”")
+        if "xpMultiplier" in t and not (isinstance(t["xpMultiplier"], (int, float)) and not isinstance(t["xpMultiplier"], bool) and 0.5 <= t["xpMultiplier"] <= 5):
+            err(tid, "„xpMultiplier” trebuie să fie un număr între 0,5 și 5")
         if not re.findall(r"[ABC][12]", str(t.get("level", ""))):
             err(tid, "„level” trebuie să conțină un nivel (A1, A2, B1, B2…), ex. \"A2–B1\"")
         if not isinstance(t.get("order"), int):
@@ -135,7 +146,15 @@ def main():
         sys.exit(1)
     topics.sort(key=lambda t: (*level_key(t["level"]), t["order"]))
     for t in topics:
-        print(f"  {t['title']:<32} {t['level']:<7} {len(t['items']):>3} întrebări  ({', '.join(t['modes'])})")
+        t["xp"] = xp_multiplier(t)
+    os.makedirs(os.path.join(ROOT, "supabase"), exist_ok=True)
+    rows = ",\n".join(f"  ('{t['id']}', '{t['level']}', {t['xp']})" for t in sorted(topics, key=lambda t: t["id"]))
+    with open(os.path.join(ROOT, "supabase", "topic_levels.sql"), "w", encoding="utf-8") as f:
+        f.write("-- Generat de build.py din content/*.json. Rulează-l în Supabase după orice schimbare de nivel sau de temă.\n"
+                "insert into public.topic_levels (topic_id, level, multiplier) values\n" + rows + "\n"
+                "on conflict (topic_id) do update set level = excluded.level, multiplier = excluded.multiplier;\n")
+    for t in topics:
+        print(f"  {t['title']:<32} {t['level']:<7} ×{t['xp']:<5} {len(t['items']):>3} întrebări  ({', '.join(t['modes'])})")
     print(f"Total: {sum(len(t['items']) for t in topics)} întrebări în {len(topics)} teme")
     if "--check" in sys.argv:
         return
