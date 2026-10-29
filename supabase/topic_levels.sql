@@ -1,5 +1,6 @@
 -- Generat de build.py din content/*.json. Rulează-l în Supabase după orice schimbare de nivel sau de temă.
 insert into public.topic_levels (topic_id, level, multiplier) values
+  ('adjektivdeklination', 'A2', 1.25),
   ('artikel-genus', 'A1–A2', 1.0),
   ('artikel-genus-b1', 'B1', 2.0),
   ('indikativ-perfekt', 'A2', 1.25),
@@ -10,6 +11,7 @@ insert into public.topic_levels (topic_id, level, multiplier) values
   ('praesens-unregelmaessig', 'A1–A2', 1.0),
   ('praeteritum-sein-haben-modal', 'A2', 1.25),
   ('reflexive-verben', 'A2', 1.25),
+  ('trennbare-verben', 'A2', 1.25),
   ('verbe-neregulate-perfekt', 'A2–B1', 1.5),
   ('verben-praepositionen', 'A2–B1', 1.5),
   ('wechselpraepositionen', 'A2', 1.25)
