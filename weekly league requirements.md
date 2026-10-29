@@ -359,7 +359,7 @@ Toate cele zece întrebări au primit răspunsul recomandat.
 - **Server:** tabelele `league_members` (treapta și grupa fiecărui înscris), `league_weeks` (săptămânile închise) și `league_results` (locul, XP-ul și rezultatul fiecărui membru pe săptămână), coloana `profiles.league_recap_seen_week`; funcțiile `league_sync()` (creează membrii, le dă grupă, închide la cerere săptămânile scadente) și `league_close_week(date)` (clasează grupele, aplică promovările și retrogradările, reface grupele). Nu au drepturi pentru clienți; clienții apelează doar `league_standings()`, care acum întoarce și treapta, rezumatul ultimei săptămâni nevăzute și istoricul pe 12 săptămâni. Definițiile sunt în `supabase/schema.sql`, secțiunea 6.
 - **Aplicație:** insigna treptei în cardul „Liga ta” și pe ecranul clasamentului, clasamentul restrâns la grupa ta, cardul „Rezumatul săptămânii” pe pagina principală (mesaje separate pentru promovat, retrogradat, ai rămas, inactiv, grupă mică, prima săptămână; „Închide” îl salvează în profil, deci nu revine), lista „Săptămânile tale” pe ecranul clasamentului.
 
-**Decizii luate la implementare (nu erau în cerințe; de confirmat):**
+**Decizii luate la implementare (nu erau în cerințe; toate cele 8 confirmate la 2026-10-29):**
 1. Membrii **inactivi** (sub 50 XP) nu ocupă locuri de promovare sau de retrogradare; promovații și retrogradații se aleg doar dintre cei activi, iar suma lor nu depășește numărul celor activi.
 2. Regula locurilor (≥ 8 → 3/3, 4–7 → 1/0, < 4 → 0/0) se aplică la **numărul tuturor înscrișilor din grupă**, nu doar al celor activi.
 3. Închiderea este „leneșă”: la prima cerere după luni 06:00 se închid, pe rând, toate săptămânile scadente.
