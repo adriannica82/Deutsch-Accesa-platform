@@ -34,11 +34,15 @@ Proiectul este static: preset „Other”, fără build command, directorul răd
 
 ## Liga (provocarea săptămânală)
 
-După o conectare nouă, utilizatorul este întrebat dacă vrea să se înscrie la provocarea săptămânală (cel mult o dată pe zi; caseta „Nu-mi mai aminti” oprește mesajul definitiv). Înscrierea se poate face și din cardul „Liga ta”. Profilul (`profiles`: nume afișat, avatar, înscris, „nu mai aminti”) se salvează în cont. Cerințele complete sunt în `weekly league requirements.md`; XP-ul și clasamentul urmează.
+După o conectare nouă, utilizatorul este întrebat dacă vrea să se înscrie la provocarea săptămânală (cel mult o dată pe zi; caseta „Nu-mi mai aminti” oprește mesajul definitiv). Înscrierea se poate face și din cardul „Liga ta”. Profilul (`profiles`: nume afișat, avatar, înscris, „nu mai aminti”) se salvează în cont. Cerințele complete sunt în `weekly league requirements.md`; XP-ul, clasamentul și treptele sunt descrise mai jos.
 
 ### Clasament
 
 Cei înscriși la provocare văd un clasament săptămânal (luni–duminică, ora României) în cardul „Liga ta” și pe ecranul „Clasament săptămânal”. Îl calculează funcția `league_standings` din Supabase și arată doar numele, avatarul, XP-ul și locul; cine e singur în ligă se compară cu propria săptămână anterioară.
+
+### Trepte, grupe și rezumatul de luni
+
+Fiecare înscris are o treaptă (🌱 A1 Anfänger → 🧭 A2 Entdecker → 🏅 B1 Profi → 👑 B2 Meister) și o grupă de cel mult 15 persoane; clasamentul arată doar grupa ta. Luni la 06:00 (ora României), la prima cerere de după, se închide săptămâna: la cel puțin 8 membri primii 3 urcă și ultimii 3 coboară, la 4–7 urcă doar primul, sub 4 nimeni nu se mută; cine are sub 50 XP e „inactiv” și rămâne pe loc. Pe pagina principală apare o dată cardul „Rezumatul săptămânii”, iar ecranul clasamentului păstrează ultimele 12 săptămâni. Logica este în `supabase/schema.sql` (secțiunea 6: `league_sync`, `league_close_week`, `league_standings`); detalii în `weekly league requirements.md`, secțiunea 15.
 
 ### XP și multiplicatori
 

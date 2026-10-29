@@ -272,9 +272,9 @@ Calculul XP, clasamentul, promovările, ecranele ligii și mesajele săptămâna
 - **În aplicație**, cu backend simulat: locul 2 din 5 cu vecinii și diferența, primul loc, egalitate, mod solo și prima săptămână, eroare de server, utilizator neînscris, înscrierea și retragerea (clasamentul se încarcă / dispare), gestul „înapoi” de pe ecranul clasamentului; desktop și 402×874 (fără depășiri, ținte tactile ≥ 44 px, nume lung tăiat cu „…”); toate cele 2083 de răspunsuri din teme acceptate ca înainte.
 - **Neverificat:** un clasament cu mai mulți conturi reale și Safari pe un iPhone.
 
-## 15. Trepte, grupe, promovări și rezumatul de luni (faza 4) · confirmat, neimplementat
+## 15. Trepte, grupe, promovări și rezumatul de luni (faza 4) · implementat, 2026-10-29
 
-- **Stare:** cerințe scrise și **confirmate** la 2026-10-29, cu valorile din tabele. Nimic din această secțiune nu este implementat. Pornește de la designul discutat (secțiunea 11) și de la clasamentul din faza 3 (secțiunea 14).
+- **Stare:** cerințe scrise și **confirmate** la 2026-10-29, cu valorile din tabele. **Implementată** la 2026-10-29 (vezi 15.7). Pornește de la designul discutat (secțiunea 11) și de la clasamentul din faza 3 (secțiunea 14).
 - **Scop:** să existe o progresie pe termen lung (treptele) și competiție între utilizatori de ritm asemănător (grupele), cu un moment clar la sfârșitul săptămânii (rezumatul de luni).
 
 ### 15.1 Cerințe
@@ -352,3 +352,24 @@ Toate cele zece întrebări au primit răspunsul recomandat.
 - **Retrogradarea demotivează:** se aplică doar la grupe de cel puțin 8 și doar celor activi; textele rămân încurajatoare.
 - **Răspunsuri trimise târziu fără conexiune:** toleranța de 6 ore (WL-34); după aceea nu mai schimbă rezultatul.
 - **Cei avansați au multiplicatori mai mari:** grupele pe trepte îi separă de începători; multiplicatorul maxim rămâne moderat (×2 la B1).
+
+### 15.7 Stare implementare (2026-10-29)
+
+**Făcut:** toate cerințele WL-27…WL-40, cu valorile confirmate la 15.5.
+- **Server:** tabelele `league_members` (treapta și grupa fiecărui înscris), `league_weeks` (săptămânile închise) și `league_results` (locul, XP-ul și rezultatul fiecărui membru pe săptămână), coloana `profiles.league_recap_seen_week`; funcțiile `league_sync()` (creează membrii, le dă grupă, închide la cerere săptămânile scadente) și `league_close_week(date)` (clasează grupele, aplică promovările și retrogradările, reface grupele). Nu au drepturi pentru clienți; clienții apelează doar `league_standings()`, care acum întoarce și treapta, rezumatul ultimei săptămâni nevăzute și istoricul pe 12 săptămâni. Definițiile sunt în `supabase/schema.sql`, secțiunea 6.
+- **Aplicație:** insigna treptei în cardul „Liga ta” și pe ecranul clasamentului, clasamentul restrâns la grupa ta, cardul „Rezumatul săptămânii” pe pagina principală (mesaje separate pentru promovat, retrogradat, ai rămas, inactiv, grupă mică, prima săptămână; „Închide” îl salvează în profil, deci nu revine), lista „Săptămânile tale” pe ecranul clasamentului.
+
+**Decizii luate la implementare (nu erau în cerințe; de confirmat):**
+1. Membrii **inactivi** (sub 50 XP) nu ocupă locuri de promovare sau de retrogradare; promovații și retrogradații se aleg doar dintre cei activi, iar suma lor nu depășește numărul celor activi.
+2. Regula locurilor (≥ 8 → 3/3, 4–7 → 1/0, < 4 → 0/0) se aplică la **numărul tuturor înscrișilor din grupă**, nu doar al celor activi.
+3. Închiderea este „leneșă”: la prima cerere după luni 06:00 se închid, pe rând, toate săptămânile scadente.
+4. Cine s-a înscris în acea săptămână nu poate retrograda (poate promova).
+5. Grupele se refac la fiecare închidere (≤ 15 membri într-o treaptă = o grupă, altfel grupe de ~12, echilibrate după XP-ul săptămânii).
+6. Săgeata de tendință din clasament compară locul de acum cu locul din săptămâna trecută **în grupa curentă**.
+7. Rezumatul arată doar ultima săptămână închisă și nevăzută.
+8. `league_standings()` nu mai este „stable”: face și sincronizarea (funcție `security definer`, apelabilă de utilizatorii autentificați, prin proiectare).
+
+**Verificare:** (a) regulile, pe baza de date, într-o simulare anulată după rulare: grupă de 10 (cel inactiv rămâne pe loc, cel nou e protejat; primii 3 promovați, ultimii 3 activi retrogradați), treapta 4 nu promovează, treapta 1 nu retrogradează, 19 membri în treapta 1 → grupe de 9 + 10, retragerea păstrează treapta fără rezultat, a doua rulare nu schimbă nimic, rezumatul apare o dată și dispare după „Închide”, istoricul are 4 rânduri, niciun identificator sau e-mail în răspuns; (b) clientul, cu backend simulat: insigna, cele șase variante de rezumat, salvarea „Închide” în profil, lista de istoric, 402×874 fără depășiri și ținte de 44 px, consolă fără erori.
+**Neverificat:** un ciclu real de luni (prima închidere reală este luni 2 noiembrie 2026, 06:00) și Safari pe un iPhone real.
+
+**De știut:** cu cele 3 conturi actuale nimeni nu se mută între trepte: sunt necesare cel puțin 4 înscriși într-o grupă pentru ca primul să promoveze.

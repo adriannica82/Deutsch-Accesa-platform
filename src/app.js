@@ -278,7 +278,7 @@ lastFlushFailed=outbox.q.length>0;flushing=false;setSync()}
 async function sync(){
 try{
 await flush();
-if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();maybePrompt()}}
+if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at,league_recap_seen_week&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();maybePrompt()}}
 refreshLeague();
 const r=await api('/rest/v1/progress?select=item_id,box,due,seen,right_count,wrong_count,last&limit=1000');
 if(r.ok){const remote=Object.create(null),rows=await r.json();
@@ -311,6 +311,32 @@ setInterval(()=>{if(auth)flush()},30000)}
 // ---------- Liga: clasament ----------
 // Clasamentul vine de la server (funcția league_standings): doar numele, avatarul și XP-ul celor înscriși, niciodată răspunsurile.
 let standings=null,standingsErr=false;
+// Treptele ligii (WL-27): cine se înscrie începe în prima; promovările și retrogradările se fac luni dimineața, la închiderea săptămânii.
+const TIERS=[['A1 Anfänger','🌱'],['A2 Entdecker','🧭'],['B1 Profi','🏅'],['B2 Meister','👑']];
+const tierName=n=>TIERS[n-1]?TIERS[n-1][1]+' '+TIERS[n-1][0]:'';
+const tierPill=n=>TIERS[n-1]?'<span class="pill tier">'+escape(tierName(n))+'</span>':'';
+const tierLine=()=>standings&&standings.tier?'<p style="margin:6px 0 0">'+tierPill(standings.tier)+'</p>':'';
+const weekRange=ws=>{const a=new Date(ws+'T00:00:00'),b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+6),f=d=>d.toLocaleDateString('ro-RO',{day:'numeric',month:'short'});return f(a)+' – '+f(b)};
+const outcomeLabel=h=>h.outcome==='promoted'?'▲ promovat în '+tierName(h.new_tier):h.outcome==='demoted'?'▼ coborât în '+tierName(h.new_tier):h.outcome==='inactive'?'– sub 50 XP':'= ai rămas';
+// Rezumatul de luni (WL-36…WL-38): un card pe pagina principală, o singură dată pe săptămână, cu ton încurajator.
+function recapParts(rc){
+const cmp=rc.prev_xp>0?' ('+(rc.xp>=rc.prev_xp?'+':'')+Math.round((rc.xp-rc.prev_xp)/rc.prev_xp*100)+'% față de săptămâna dinainte)':'',place='locul '+rc.place+' din '+rc.size+' în '+tierName(rc.tier),xp=rc.xp+' XP'+cmp;
+if(rc.outcome==='inactive')return['Săptămâna trecută a fost liniștită','Ai avut '+rc.xp+' XP, sub pragul de 50 XP pentru clasament. Nu pierzi nimic: liga te așteaptă oricând.'];
+if(rc.outcome==='promoted')return['🎉 Ai fost promovat în '+tierName(rc.new_tier)+'!',place+' · '+xp+'.'];
+if(rc.outcome==='demoted')return['Treapta '+tierName(rc.new_tier)+': un nou început','Săptămâna trecută ai fost pe '+place+'. O săptămână bună te readuce sus; pornești de la '+rc.xp+' XP strânși deja.'];
+if(rc.size<4)return['Rezumatul săptămânii','Grupa ta este încă mică, deci nu s-a mutat nimeni. '+xp+(rc.prev_xp>0?'':' (prima ta săptămână)')+'.'];
+return[rc.first_week?'Prima ta săptămână în ligă':'Ai rămas în '+tierName(rc.tier),place+' · '+xp+'.']}
+function renderRecap(){
+const c=$('recapCard');if(!c)return;
+const rc=auth&&standings&&standings.registered?standings.recap:null,seen=profile&&profile.league_recap_seen_week;
+if(!rc||(seen&&seen>=rc.week_start)){c.hidden=true;return}
+const [t,b]=recapParts(rc);c.hidden=false;
+c.innerHTML='<div class="label">REZUMATUL SĂPTĂMÂNII · '+escape(weekRange(rc.week_start).toUpperCase())+'</div><h2 style="margin-top:12px">'+escape(t)+'</h2><p class="muted">'+escape(b)+'</p><div class="tools" style="margin-top:0"><button type="button" class="primary back" data-league="open">Vezi clasamentul</button><button type="button" class="quiet back" data-recap="close">Închide</button></div>'}
+function renderHistory(){
+const h=standings&&standings.registered&&standings.history?standings.history:[],card=$('leagueHistoryCard');
+card.hidden=!h.length;
+$('leagueHistory').innerHTML=h.map(x=>'<li><span class="hw">'+escape(weekRange(x.week_start))+'</span><span class="hp">'+escape(tierName(x.tier))+' · locul '+x.place+' din '+x.size+'</span><b class="hx">'+x.xp+' XP</b><span class="ho '+({promoted:'up',demoted:'down'}[x.outcome]||'same')+'">'+escape(outcomeLabel(x))+'</span></li>').join('')}
+$('recapCard').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.recap==='close'&&standings&&standings.recap)patchProfile({league_recap_seen_week:standings.recap.week_start});else if(b.dataset.league==='open')openLeague()};
 const dayWord=n=>n===1?'1 zi':n<20?n+' zile':n+' de zile';
 const medals=['🥇','🥈','🥉'];
 function rankRows(list){return '<ol class="rank">'+list.map(m=>{
@@ -342,8 +368,9 @@ else if(standingsErr&&!standings){$('leagueMeta').textContent='';body.innerHTML=
 else if(!standings||!standings.registered){$('leagueMeta').textContent='';body.innerHTML='<p class="muted">Se încarcă clasamentul…</p>'}
 else{
 const ms=standings.members||[],me=ms.find(m=>m.me),a=new Date(standings.week_start+'T00:00:00'),b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+6),f=d=>d.toLocaleDateString('ro-RO',{day:'numeric',month:'short'});
-$('leagueMeta').textContent='Săptămâna '+f(a)+' – '+f(b)+' · '+weekLeft();
+$('leagueMeta').innerHTML=tierPill(standings.tier)+' '+escape('Săptămâna '+f(a)+' – '+f(b)+' · '+weekLeft());
 body.innerHTML=(ms.length===1&&me?soloHtml(me):'')+rankRows(ms)+(ms.length===1?'':'<p class="small muted" style="margin-top:12px">Săgețile arată schimbarea locului față de săptămâna trecută. La egalitate de XP contează acuratețea, apoi cine a ajuns primul la scor.</p>')}
+renderHistory();
 $('leagueHowBody').innerHTML='<ul class="xplist"><li>Răspuns corect: <b>10</b> puncte de bază la o întrebare nouă, <b>15</b> la una scadentă, <b>5</b> la o reluare înainte de scadență, <b>+5</b> dacă ai greșit-o data trecută.</li><li>La „scrie” punctele se înmulțesc cu <b>1,5</b>, la „scrie + caz” cu <b>2</b>.</li><li>Primele 400 de puncte pe zi contează întregi, restul doar 25%.</li><li>Apoi se înmulțesc cu <b>multiplicatorul temei</b>: '+[...new Set(topics.map(t=>t.level+' ×'+fmtMult(t.xp)))].join(' · ')+'.</li><li>Bonusuri: <b>+20 XP</b> pentru o sesiune cu minimum 10 întrebări și minimum 60% corecte, <b>+10 XP</b> pentru prima sesiune a zilei.</li><li>Săptămâna începe luni și se încheie duminică (ora României). Clasamentul se actualizează după fiecare sesiune terminată.</li></ul>'}
 function openLeague(){show('league');refreshStandings()}
 $('leagueBack').onclick=()=>show('home');$('leagueRefresh').onclick=refreshStandings;
@@ -390,11 +417,11 @@ const defaultName=()=>{const w=((auth&&auth.user.email)||'').split('@')[0].split
 function loadProfile(){try{profile=JSON.parse(localStorage.getItem(PROFKEY+sfx()))}catch{profile=null}profileFresh=false}
 function patchProfile(patch){profile=Object.assign({},profile||{},patch);try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}enqueue({k:'pf',patch});renderLeagueCard()}
 function renderLeagueCard(){
-const c=$('leagueCard');if(!c)return;
+renderRecap();const c=$('leagueCard');if(!c)return;
 if(!CLOUD||!auth||(!profile&&!profileFresh)){c.hidden=true;return}
 const reg=profile&&profile.league_registered;c.hidden=false;
 c.innerHTML=reg
-?'<div class="label">LIGA TA</div><h2 style="margin-top:12px"><span aria-hidden="true">'+escape(profile.avatar)+'</span> '+escape(profile.display_name)+'</h2><p class="muted small">Ești înscris la provocarea săptămânală.</p>'+standingHtml()+xpLine()+'<div class="tools" style="margin-top:0"><button type="button" class="primary back" data-league="open">Clasament complet</button><button type="button" class="quiet back" data-league="edit">Editează profilul</button><button type="button" class="quiet back" data-league="leave">Retrage-te</button></div>'
+?'<div class="label">LIGA TA</div><h2 style="margin-top:12px"><span aria-hidden="true">'+escape(profile.avatar)+'</span> '+escape(profile.display_name)+'</h2>'+tierLine()+'<p class="muted small">Ești înscris la provocarea săptămânală.</p>'+standingHtml()+xpLine()+'<div class="tools" style="margin-top:0"><button type="button" class="primary back" data-league="open">Clasament complet</button><button type="button" class="quiet back" data-league="edit">Editează profilul</button><button type="button" class="quiet back" data-league="leave">Retrage-te</button></div>'
 :'<div class="label">LIGA TA</div><h2 style="margin-top:12px">Provocarea săptămânală</h2><p class="muted small">Aduni XP din teste și te compari cu colegii într-un clasament de luni până duminică. Temele mai grele aduc mai multe puncte.</p>'+xpLine()+'<button type="button" class="primary allwidth" data-league="join">Înscrie-te</button>'}
 function openLeagueDialog(mode){
 ldMode=mode;ldHandled=false;
