@@ -232,11 +232,11 @@ Calculul XP, clasamentul, promovările, ecranele ligii și mesajele săptămâna
 
 **În aplicație:** la rezultate apare blocul „Puncte XP” (total și detalii; dacă nu ești conectat la server, un mesaj că punctele apar după sincronizare); cardul „Liga ta” arată XP-ul de azi, din săptămâna aceasta și din săptămâna trecută; temele cu multiplicator mai mare de 1 au insigna „×N XP” (doar pentru cei cu cont).
 
-**Decizii luate la implementare (de confirmat, nu erau în cerințe):**
-1. O reluare a unei întrebări **înainte de scadență** valorează 5 puncte de bază (cerințele nu spuneau), ca să nu merite repetarea acelorași întrebări ușoare.
-2. „Prima sesiune a zilei” = prima sesiune **terminată** a zilei, cu cel puțin un răspuns; bonusul se acordă o singură dată pe zi.
-3. Plafonul zilnic se aplică după multiplicatorul modului și înainte de cel de nivel.
-4. O temă necunoscută serverului primește ×1: după orice schimbare de temă sau de nivel trebuie rulat `supabase/topic_levels.sql` (generat de `build.py`).
+**Decizii luate la implementare, confirmate la 2026-10-29 (nu erau în cerințele inițiale):**
+1. O reluare a unei întrebări **înainte de scadență** valorează 5 puncte de bază, ca să nu merite repetarea acelorași întrebări ușoare. **Confirmat.**
+2. „Prima sesiune a zilei” = prima sesiune **terminată** a zilei, cu cel puțin un răspuns; bonusul se acordă o singură dată pe zi. **Confirmat.**
+3. Plafonul zilnic se aplică după multiplicatorul modului și înainte de cel de nivel. **Confirmat.**
+4. O temă necunoscută serverului primește ×1: după orice schimbare de temă sau de nivel trebuie rulat `supabase/topic_levels.sql` (generat de `build.py`). **Confirmat** ca procedură.
 
 **Verificare:** regulile de XP au fost testate direct pe baza de date, cu conturi de test anulate după aceea: răspuns nou 10, reluare înainte de scadență 5, revenire 20, reluare scadentă 15, B1 ×2 = 20, „scrie” A2 = 19, „scrie + caz” A2–B1 = 30, răspuns greșit / înainte de lansare / mai vechi de 48 h / din viitor = fără XP, livrare dublă = un singur punctaj, plafon (după 400 de puncte: 3 și 5 XP), bonusurile de sesiune (+20 și +10, o singură dată), un utilizator nu vede și nu poate scrie punctajele altuia; interfața a fost testată cu backend simulat (insigne, chip în antet, rezultate, card, sesiune amestecată, 0 XP, fără conexiune), pe desktop și la 402×874.
 **Neverificat:** un test cu cont real din Supabase și Safari pe iPhone.
