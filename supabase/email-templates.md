@@ -1,6 +1,8 @@
 # Șabloane de email (Supabase → Authentication → Emails)
 
-Supabase nu permite setarea acestor șabloane din cod; se lipesc manual în panou, în română. Variabila `{{ .ConfirmationURL }}` este linkul care duce în aplicație.
+Supabase nu permite setarea acestor șabloane din cod; se lipesc manual în panou, în română.
+
+**Atenție (2026-10-30):** linkurile folosesc `{{ .SiteURL }}/?token_hash={{ .TokenHash }}&type=…`, nu `{{ .ConfirmationURL }}`. Motiv: scanerele de securitate ale căsuțelor de email deschid automat linkurile și consumă jetonul de unică folosință (vezi `bug record.md`, bug 2). Cu linkul de mai jos, jetonul se verifică abia când persoana apasă „Continuă” în aplicație. **Site URL** din Supabase trebuie să fie adresa platformei (`https://deutschplatform.vercel.app`).
 
 ## Invite user (invitația)
 
@@ -10,7 +12,7 @@ Supabase nu permite setarea acestor șabloane din cod; se lipesc manual în pano
 <h2>Ai fost invitat la Deutsch · antrenament</h2>
 <p>Un administrator te-a invitat în platforma de exersare a limbii germane, cu explicații în română.</p>
 <p>Apasă pe buton, completează prenumele, numele și alege o parolă. Durează sub un minut.</p>
-<p><a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:12px 22px;background:#173139;color:#ffffff;border-radius:10px;text-decoration:none;font-weight:700">Finalizează înregistrarea</a></p>
+<p><a href="{{ .SiteURL }}/?token_hash={{ .TokenHash }}&type=invite" style="display:inline-block;padding:12px 22px;background:#173139;color:#ffffff;border-radius:10px;text-decoration:none;font-weight:700">Finalizează înregistrarea</a></p>
 <p style="color:#61737a;font-size:13px">Dacă nu te așteptai la acest email, îl poți ignora. Linkul poate fi folosit o singură dată și expiră după câtva timp; dacă nu mai merge, cere o invitație nouă administratorului.</p>
 ```
 
@@ -21,7 +23,7 @@ Supabase nu permite setarea acestor șabloane din cod; se lipesc manual în pano
 ```html
 <h2>Alege o parolă nouă</h2>
 <p>Apasă pe buton ca să-ți alegi parola cu care intri în Deutsch · antrenament.</p>
-<p><a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:12px 22px;background:#173139;color:#ffffff;border-radius:10px;text-decoration:none;font-weight:700">Alege parola</a></p>
+<p><a href="{{ .SiteURL }}/?token_hash={{ .TokenHash }}&type=recovery" style="display:inline-block;padding:12px 22px;background:#173139;color:#ffffff;border-radius:10px;text-decoration:none;font-weight:700">Alege parola</a></p>
 <p style="color:#61737a;font-size:13px">Dacă nu ai cerut asta, ignoră acest email.</p>
 ```
 

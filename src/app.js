@@ -696,10 +696,29 @@ try{window.history.replaceState(null,'',location.pathname+location.search)}catch
 if(p.get('error'))return{error:p.get('error_code')||p.get('error')};
 const type=p.get('type');
 return p.get('access_token')&&(type==='invite'||type==='recovery')?{type,token:p.get('access_token'),refresh:p.get('refresh_token'),exp:Number(p.get('expires_in'))||3600}:null}
+// Linkurile din email cu ?token_hash=…&type=… nu consumă jetonul la deschidere: scanerele de email (care doar deschid linkul) nu îl pot folosi,
+// jetonul se verifică abia când persoana apasă „Continuă”.
+function readTokenQuery(){const p=new URLSearchParams(location.search),th=p.get('token_hash'),type=p.get('type');return th&&(type==='invite'||type==='recovery')?{gate:true,th,type}:null}
+function cleanQuery(){try{window.history.replaceState(null,'',location.pathname)}catch{}}
+function showRegGate(link){
+$('userMenu').hidden=true;show('register');
+const inv=link.type==='invite';
+$('regLabel').textContent=inv?'ÎNREGISTRARE':'PAROLĂ NOUĂ';$('regTitle').textContent=inv?'Ai fost invitat':'Alege o parolă nouă';
+$('regIntro').textContent=inv?'Apasă „Continuă” ca să-ți deschizi invitația și să-ți creezi contul.':'Apasă „Continuă” ca să-ți alegi o parolă nouă.';
+$('regForm').hidden=true;$('regGate').hidden=false;$('regGo').disabled=false;
+$('regGo').onclick=async()=>{
+$('regGo').disabled=true;
+try{const r=await fetch(CFG.url+'/auth/v1/verify',{method:'POST',headers:{apikey:CFG.key,'Content-Type':'application/json'},body:JSON.stringify({type:link.type,token_hash:link.th})});
+const j=await r.json().catch(()=>({}));cleanQuery();
+if(!r.ok||!j.access_token){regFail(LINK_DEAD);return}
+startRegister({type:link.type,token:j.access_token,refresh:j.refresh_token,exp:j.expires_in||3600})}
+catch{$('regGo').disabled=false;$('regIntro').textContent='Nu am putut contacta serverul. Verifică conexiunea și apasă din nou „Continuă”.'}}}
 function regFail(msg){showLogin();$('loginError').textContent=msg;$('loginError').hidden=false}
 const LINK_DEAD='Invitația a expirat sau a fost deja folosită. Cere o invitație nouă administratorului.';
 async function startRegister(link){
 if(link.error){regFail(LINK_DEAD);return}
+if(link.gate){showRegGate(link);return}
+$('regGate').hidden=true;$('regForm').hidden=false;
 reg={token:link.token,refresh:link.refresh,exp:link.exp,type:link.type};
 $('userMenu').hidden=true;
 show('register');$('regBtn').disabled=true;$('regErr').hidden=true;
@@ -768,4 +787,4 @@ finally{navSilent=false}});
 
 // ---------- Inițializare ----------
 if(!CLOUD){loadProgress();show('home')}
-else{const link=readAuthHash();if(link)startRegister(link);else{try{auth=JSON.parse(localStorage.getItem(AKEY))}catch{auth=null}if(auth&&auth.user&&auth.user.id&&auth.refresh_token)afterLogin();else{auth=null;showLogin()}}}
+else{const link=readAuthHash()||readTokenQuery();if(link)startRegister(link);else{try{auth=JSON.parse(localStorage.getItem(AKEY))}catch{auth=null}if(auth&&auth.user&&auth.user.id&&auth.refresh_token)afterLogin();else{auth=null;showLogin()}}}
