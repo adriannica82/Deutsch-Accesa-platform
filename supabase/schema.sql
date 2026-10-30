@@ -675,8 +675,13 @@ begin
            p.last_name,
            p.display_name,
            coalesce(p.role, 'user') as role,
-           case when u.banned_until is not null and u.banned_until > now() then 'disabled' else 'active' end as status,
+           case
+             when u.banned_until is not null and u.banned_until > now() then 'disabled'
+             when u.invited_at is not null and p.first_name is null then 'invited'
+             else 'active'
+           end as status,
            u.created_at,
+           u.invited_at,
            u.last_sign_in_at
     from auth.users u
     left join public.profiles p on p.user_id = u.id
@@ -712,6 +717,7 @@ begin
     'counts', jsonb_build_object(
       'accounts', (select count(*) from base),
       'active', (select count(*) from base where status = 'active'),
+      'invited', (select count(*) from base where status = 'invited'),
       'disabled', (select count(*) from base where status = 'disabled'),
       'admins', (select count(*) from base where role = 'admin')
     )
@@ -721,3 +727,48 @@ end;
 $$;
 revoke all on function public.admin_list_users(text, text, text, text, text, int, int) from public, anon;
 grant execute on function public.admin_list_users(text, text, text, text, text, int, int) to authenticated;
+
+-- ======================================================================
+-- 9. Administrator, faza 3: invitații (migrarea admin_invitations_phase3)
+--    (admin_list_users de mai sus include deja starea „invited” și contorul de invitații)
+-- ======================================================================
+
+alter table public.profiles add column if not exists invited_by uuid references auth.users (id) on delete set null;
+
+create table if not exists public.invite_log (
+  id bigint generated always as identity primary key,
+  admin_id uuid references auth.users (id) on delete set null,
+  action text not null check (action in ('invite', 'resend', 'revoke')),
+  target_email text not null,
+  details jsonb,
+  at timestamptz not null default now()
+);
+alter table public.invite_log enable row level security;
+revoke all on public.invite_log from anon, authenticated;
+create index if not exists invite_log_admin_at on public.invite_log (admin_id, at desc);
+
+-- „Invitat” = invitat de un administrator și înregistrare neterminată (fără prenume).
+-- Apelată doar de Edge Function (supabase/functions/admin-invite), cu cheia de serviciu.
+create or replace function public.invite_lookup(p_email text default null, p_user_id uuid default null)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select coalesce(
+    (select jsonb_build_object(
+        'user_id', u.id,
+        'email', u.email,
+        'confirmed', u.email_confirmed_at is not null,
+        'state', case when u.invited_at is not null and p.first_name is null then 'pending' else 'exists' end)
+     from auth.users u
+     left join public.profiles p on p.user_id = u.id
+     where u.deleted_at is null
+       and ((p_user_id is not null and u.id = p_user_id)
+         or (p_user_id is null and p_email is not null and lower(u.email) = lower(p_email)))
+     limit 1),
+    jsonb_build_object('state', 'none'));
+$$;
+revoke all on function public.invite_lookup(text, uuid) from public, anon, authenticated;
+grant execute on function public.invite_lookup(text, uuid) to service_role;

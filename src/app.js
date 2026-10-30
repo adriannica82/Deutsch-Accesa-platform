@@ -17,7 +17,7 @@ const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const LEVELS={A1:1,A2:2,B1:3,B2:4,C1:5,C2:6},levelKey=l=>{const r=(String(l).match(/[ABC][12]/g)||[]).map(x=>LEVELS[x]);return r.length?[Math.min(...r),Math.max(...r)]:[99,99]};
 const topics=CONTENT.topics.slice().sort((a,b)=>{const x=levelKey(a.level),y=levelKey(b.level);return x[0]-y[0]||x[1]-y[1]||a.order-b.order}),topicById=Object.create(null),byId=Object.create(null),allItems=[];
 topics.forEach(t=>{topicById[t.id]=t;t.qs=t.items.map(it=>{const q={...it,alt:it.alt||[],group:it.group||'',gid:t.id+'/'+it.id,topic:t};byId[q.gid]=q;allItems.push(q);return q})});
-const VIEWS=['login','home','topic','quiz','results','study','league','admin'];
+const VIEWS=['login','register','home','topic','quiz','results','study','league','admin'];
 let state={active:false},currentView='home',studyReturn='home',cur=null,builtFor='',studyTopic=null,progress=Object.create(null),history=[],storageOK=true;
 
 // ---------- Progres salvat local ----------
@@ -38,7 +38,7 @@ const modeLabel=(t,m)=>m==='choice'?'Alege '+t.answerNoun:m==='write'?'Scrie '+t
 const guideDetails=(t,open)=>t.guideHtml?'<details class="card prep-guide"'+(open?' open':'')+'><summary>'+escape(t.guideTitle)+'</summary>'+t.guideHtml+'</details>':'';
 
 // ---------- Navigare ----------
-function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;$('navHome').hidden=id==='home'||id==='quiz'||id==='login';syncAdminNav();if(id==='home')renderHome();if(id==='topic')renderTopic();if(id==='league')renderLeague();if(id!=='login')pushView(id);window.scrollTo(0,0)}
+function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;$('navHome').hidden=id==='home'||id==='quiz'||id==='login'||id==='register';syncAdminNav();if(id==='home')renderHome();if(id==='topic')renderTopic();if(id==='league')renderLeague();if(id!=='login')pushView(id);window.scrollTo(0,0)}
 function renderHome(){
 $('heroTopics').textContent=countRo(topics.length,['temă','teme']);$('heroItems').textContent=countRo(allItems.length,['întrebare','întrebări']);
 $('progressStats').innerHTML=statsHtml(allItems);$('timeStats').innerHTML=timeHtml();$('storeWarn').hidden=storageOK;
@@ -279,7 +279,7 @@ lastFlushFailed=outbox.q.length>0;flushing=false;setSync()}
 async function sync(){
 try{
 await flush();
-if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at,league_recap_seen_week,role&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();syncAdminNav();maybePrompt()}}
+if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at,league_recap_seen_week,role,first_name,last_name&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();syncAdminNav();maybePrompt()}}
 refreshLeague();
 const r=await api('/rest/v1/progress?select=item_id,box,due,seen,right_count,wrong_count,last&limit=1000');
 if(r.ok){const remote=Object.create(null),rows=await r.json();
@@ -386,12 +386,12 @@ function openLeague(){show('league');refreshStandings()}
 // ---------- Administrare ----------
 // Rolul vine de pe server (profiles.role); aici doar ascundem intrarea. Autorizarea o face serverul (is_admin()).
 const isAdmin=()=>!!(auth&&profile&&profile.role==='admin');
-function syncAdminNav(){$('navAdmin').hidden=!isAdmin()||['login','quiz','admin'].includes(currentView)}
+function syncAdminNav(){$('navAdmin').hidden=!isAdmin()||['login','register','quiz','admin'].includes(currentView)}
 const adm={q:'',status:'all',role:'all',sort:'created',dir:'desc',page:0,size:25};let admSeq=0,admTimer=0;
 const admDate=(x,t)=>x?new Date(x).toLocaleString('ro-RO',t?{dateStyle:'short',timeStyle:'short'}:{dateStyle:'medium'}):'—';
 function admDeny(){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}$('admCounts').innerHTML='';$('admCount').textContent='';$('admPager').innerHTML='';$('admList').innerHTML='<p>Nu ai acces la această zonă.</p>';syncAdminNav()}
 function admRow(u){const nm=[u.first_name,u.last_name].filter(Boolean).join(' ');
-return'<tr><td data-l="Nume"><b>'+(nm?escape(nm):'<span class="muted">—</span>')+'</b>'+(u.display_name?'<span class="small muted"> · '+escape(u.display_name)+'</span>':'')+'</td><td data-l="Email" class="admem">'+escape(u.email||'')+'</td><td data-l="Rol"><span class="pill r-'+u.role+'">'+(u.role==='admin'?'Administrator':'Utilizator')+'</span></td><td data-l="Stare"><span class="pill st-'+u.status+'">'+(u.status==='active'?'Activ':'Dezactivat')+'</span></td><td data-l="Înregistrat">'+admDate(u.created_at)+'</td><td data-l="Ultima autentificare">'+admDate(u.last_sign_in_at,1)+'</td></tr>'}
+return'<tr><td data-l="Nume"><b>'+(nm?escape(nm):'<span class="muted">—</span>')+'</b>'+(u.display_name?'<span class="small muted"> · '+escape(u.display_name)+'</span>':'')+'</td><td data-l="Email" class="admem">'+escape(u.email||'')+'</td><td data-l="Rol"><span class="pill r-'+u.role+'">'+(u.role==='admin'?'Administrator':'Utilizator')+'</span></td><td data-l="Stare"><span class="pill st-'+u.status+'">'+(u.status==='active'?'Activ':u.status==='invited'?'Invitat':'Dezactivat')+'</span></td><td data-l="Înregistrat">'+admDate(u.created_at)+'</td><td data-l="Ultima autentificare">'+(u.status==='invited'?'invitat la '+admDate(u.invited_at):admDate(u.last_sign_in_at,1))+'</td><td data-l="Acțiuni">'+(u.status==='invited'?'<div class="admact"><button type="button" data-act="resend" data-id="'+escape(u.user_id)+'">Retrimite</button><button type="button" data-act="revoke" data-id="'+escape(u.user_id)+'" data-email="'+escape(u.email||'')+'">Anulează</button></div>':'')+'</td></tr>'}
 async function loadAdmin(){
 const seq=++admSeq;
 try{
@@ -404,15 +404,15 @@ if(seq!==admSeq)return;
 if(!j.rows.length&&j.total>0&&adm.page>0){adm.page=Math.ceil(j.total/adm.size)-1;loadAdmin();return}
 const c=j.counts;
 $('adminMeta').textContent='Pagină vizibilă doar administratorilor.';
-$('admCounts').innerHTML=[[c.accounts,'conturi'],[c.active,'active'],[c.disabled,c.disabled===1?'dezactivat':'dezactivate'],[c.admins,c.admins===1?'administrator':'administratori']].map(x=>'<div><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join('');
+$('admCounts').innerHTML=[[c.accounts,'conturi'],[c.active,'active'],[c.invited,c.invited===1?'invitat':'invitați'],[c.disabled,c.disabled===1?'dezactivat':'dezactivate'],[c.admins,c.admins===1?'administrator':'administratori']].map(x=>'<div><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join('');
 $('admCount').textContent=j.total===c.accounts?countRo(j.total,['utilizator','utilizatori']):j.total+' din '+countRo(c.accounts,['utilizator','utilizatori']);
-$('admList').innerHTML=j.rows.length?'<table class="admtbl"><thead><tr><th>Nume</th><th>Email</th><th>Rol</th><th>Stare</th><th>Înregistrat</th><th>Ultima autentificare</th></tr></thead><tbody>'+j.rows.map(admRow).join('')+'</tbody></table>':'<p class="muted">Niciun utilizator nu corespunde filtrelor.</p>';
+$('admList').innerHTML=j.rows.length?'<table class="admtbl"><thead><tr><th>Nume</th><th>Email</th><th>Rol</th><th>Stare</th><th>Înregistrat</th><th>Ultima autentificare</th><th></th></tr></thead><tbody>'+j.rows.map(admRow).join('')+'</tbody></table>':'<p class="muted">Niciun utilizator nu corespunde filtrelor.</p>';
 const pages=Math.max(1,Math.ceil(j.total/adm.size));
 $('admPager').innerHTML=pages>1?'<button type="button" class="quiet back" data-pg="-1"'+(adm.page?'':' disabled')+'>← Înapoi</button><span class="small muted">Pagina '+(adm.page+1)+' din '+pages+'</span><button type="button" class="quiet back" data-pg="1"'+(adm.page+1<pages?'':' disabled')+'>Înainte →</button>':''}
 catch{if(seq===admSeq)$('admList').innerHTML='<p class="error">Nu am putut încărca utilizatorii. Verifică conexiunea și încearcă din nou.</p>'}}
 function openAdmin(){
 if(!isAdmin()){show('home');return}
-show('admin');$('adminMeta').textContent='';
+show('admin');$('adminMeta').textContent='';admSay('',true);
 $('admQ').value=adm.q;$('admStatus').value=adm.status;$('admRole').value=adm.role;$('admSort').value=adm.sort;$('admDir').textContent=adm.dir==='asc'?'↑ Crescător':'↓ Descrescător';
 $('admList').innerHTML='<p class="muted">Se încarcă…</p>';loadAdmin()}
 const admReload=()=>{adm.page=0;loadAdmin()};
@@ -421,6 +421,36 @@ $('admStatus').onchange=e=>{adm.status=e.target.value;admReload()};$('admRole').
 $('admSort').onchange=e=>{adm.sort=e.target.value;admReload()};
 $('admDir').onclick=()=>{adm.dir=adm.dir==='asc'?'desc':'asc';$('admDir').textContent=adm.dir==='asc'?'↑ Crescător':'↓ Descrescător';admReload()};
 $('admPager').onclick=e=>{const b=e.target.closest('[data-pg]');if(!b||b.disabled)return;adm.page=Math.max(0,adm.page+Number(b.dataset.pg));loadAdmin();$('admQ').scrollIntoView({block:'start'})};
+// Invitații: trimiterea emailului se face în Edge Function „admin-invite” (cheia de serviciu rămâne pe server).
+const INV_ERR={email:'Adresa de email nu este validă.',exists:'Există deja un cont cu acest email.',pending:'Acest email are deja o invitație în așteptare. Folosește „Retrimite” din listă.',rate:'Ai trimis prea multe invitații într-o oră. Încearcă mai târziu.',not_pending:'Invitația nu mai este în așteptare.',forbidden:'Nu ai acces la această acțiune.',auth:'Sesiunea a expirat. Intră din nou în cont.'};
+async function invCall(body){
+try{const r=await api('/functions/v1/admin-invite',{method:'POST',body});const j=await r.json().catch(()=>({}));
+if(r.ok)return{ok:true};
+if(r.status===502)return{msg:'Emailul nu a putut fi trimis. Verifică setările de email (SMTP) din Supabase.'};
+return{msg:INV_ERR[j.error]||'Ceva nu a mers. Încearcă din nou.',code:j.error}}
+catch{return{msg:'Nu am putut contacta serverul. Verifică conexiunea.'}}}
+function admSay(text,ok){const m=$('admMsg');m.textContent=text;m.className='small '+(ok?'ok':'bad');m.hidden=!text}
+const validEmail=x=>/^[^\s@<>()\[\]\\,;:"]+@[^\s@<>()\[\]\\,;:"]+\.[^\s@<>()\[\]\\,;:"]{2,}$/.test(x)&&x.length<=254;
+$('admInvite').onclick=()=>{$('invErr').hidden=$('invOk').hidden=$('invWarn').hidden=true;$('invEmail').value='';$('invRole').value='user';$('invSend').disabled=false;$('inviteDialog').showModal();$('invEmail').focus()};
+$('invRole').onchange=()=>{$('invWarn').hidden=$('invRole').value!=='admin'};
+$('invClose').onclick=()=>$('inviteDialog').close();
+$('inviteDialog').addEventListener('click',e=>{if(e.target===$('inviteDialog'))$('inviteDialog').close()});
+$('invForm').onsubmit=async e=>{e.preventDefault();
+const email=$('invEmail').value.trim().toLowerCase();$('invErr').hidden=$('invOk').hidden=true;
+if(!validEmail(email)){$('invErr').textContent=INV_ERR.email;$('invErr').hidden=false;$('invEmail').focus();return}
+$('invSend').disabled=true;
+const r=await invCall({action:'invite',email,role:$('invRole').value});
+$('invSend').disabled=false;
+if(!r.ok){$('invErr').textContent=r.msg;$('invErr').hidden=false;return}
+$('invOk').textContent='Invitație trimisă la '+email+'.';$('invOk').hidden=false;$('invEmail').value='';$('invEmail').focus();loadAdmin()};
+$('admList').onclick=async e=>{
+const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+const act=b.dataset.act;
+if(act==='revoke'&&!confirm('Anulezi invitația pentru '+b.dataset.email+'? Contul invitat va fi șters.'))return;
+b.disabled=true;admSay('',true);
+const r=await invCall({action:act,user_id:b.dataset.id});
+if(r.ok)admSay(act==='resend'?'Invitația a fost retrimisă.':'Invitația a fost anulată.',true);else admSay(r.msg,false);
+if(r.ok||r.code==='not_pending')loadAdmin();else b.disabled=false};
 $('navAdmin').onclick=openAdmin;$('adminBack').onclick=()=>show('home');
 $('leagueBack').onclick=()=>show('home');$('leagueRefresh').onclick=refreshStandings;
 $('leagueBody').onclick=e=>{if(e.target.closest('[data-league=join]'))openLeagueDialog('register')};
@@ -462,7 +492,7 @@ $('xpResult').onclick=e=>{if(e.target.closest('[data-league=join]'))openLeagueDi
 const PROFKEY='deutsch-profile-v1',AVATARS=['🦊','🐼','🦉','🐯','🐸','🦄','🐙','🦁','🐧','🦋','🐢','🐳'];
 let profile=null,profileFresh=false,pendingPrompt=false,ldMode='prompt',ldHandled=false;
 const sameDay=(a,b)=>a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
-const defaultName=()=>{const w=((auth&&auth.user.email)||'').split('@')[0].split(/[._+-]/)[0];return w?w.charAt(0).toUpperCase()+w.slice(1,24):''};
+const defaultName=()=>{if(profile&&profile.first_name)return profile.first_name.slice(0,24);const w=((auth&&auth.user.email)||'').split('@')[0].split(/[._+-]/)[0];return w?w.charAt(0).toUpperCase()+w.slice(1,24):''};
 function loadProfile(){try{profile=JSON.parse(localStorage.getItem(PROFKEY+sfx()))}catch{profile=null}profileFresh=false}
 function patchProfile(patch){profile=Object.assign({},profile||{},patch);try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}enqueue({k:'pf',patch});renderLeagueCard()}
 function renderLeagueCard(){
@@ -512,6 +542,59 @@ if(a==='join')openLeagueDialog('register');else if(a==='open')openLeague();else 
 else if(a==='leave'&&confirm('Te retragi din provocarea săptămânală? Poți reveni oricând din cardul „Liga ta”.')){patchProfile({league_registered:false,league_prompt_skip:true});standings=null;renderLeagueCard()}}}
 
 // ---------- Istoric: butonul „înapoi” și gestul de pe iPhone ----------
+// ---------- Înregistrare după invitație (linkul din email aduce jetonul în adresa paginii, după #)
+let reg=null;
+function readAuthHash(){
+const raw=location.hash.replace(/^#/,'');if(!raw)return null;
+const p=new URLSearchParams(raw);
+if(!p.get('access_token')&&!p.get('error'))return null;
+try{window.history.replaceState(null,'',location.pathname+location.search)}catch{}
+if(p.get('error'))return{error:p.get('error_code')||p.get('error')};
+const type=p.get('type');
+return p.get('access_token')&&(type==='invite'||type==='recovery')?{type,token:p.get('access_token'),refresh:p.get('refresh_token'),exp:Number(p.get('expires_in'))||3600}:null}
+function regFail(msg){showLogin();$('loginError').textContent=msg;$('loginError').hidden=false}
+const LINK_DEAD='Invitația a expirat sau a fost deja folosită. Cere o invitație nouă administratorului.';
+async function startRegister(link){
+if(link.error){regFail(LINK_DEAD);return}
+reg={token:link.token,refresh:link.refresh,exp:link.exp,type:link.type};
+$('logout').hidden=$('userEmail').hidden=$('syncState').hidden=true;
+show('register');$('regBtn').disabled=true;$('regErr').hidden=true;
+try{
+const H={apikey:CFG.key,Authorization:'Bearer '+reg.token};
+const ur=await fetch(CFG.url+'/auth/v1/user',{headers:H});if(!ur.ok)throw new Error('link');
+reg.user=await ur.json();
+const pr=await fetch(CFG.url+'/rest/v1/profiles?select=first_name,last_name&user_id=eq.'+encodeURIComponent(reg.user.id),{headers:H});
+const prof=pr.ok?((await pr.json())[0]||{}):{};
+reg.needNames=!prof.first_name;
+$('regEmail').value=reg.user.email||'';$('regFirst').value=prof.first_name||'';$('regLast').value=prof.last_name||'';$('regPass').value='';$('regShow').checked=false;$('regPass').type='password';
+$('regNames').hidden=!reg.needNames;
+const invite=reg.type==='invite'&&reg.needNames;
+$('regLabel').textContent=invite?'ÎNREGISTRARE':'PAROLĂ NOUĂ';$('regTitle').textContent=invite?'Finalizează înregistrarea':'Alege o parolă nouă';
+$('regIntro').textContent=invite?'Ai fost invitat în platformă. Completează datele de mai jos ca să-ți activezi contul.':'Alege parola cu care vei intra în cont.';
+$('regBtn').disabled=false;(reg.needNames?$('regFirst'):$('regPass')).focus()}
+catch{reg=null;regFail(LINK_DEAD)}}
+$('regShow').onchange=()=>{$('regPass').type=$('regShow').checked?'text':'password'};
+$('regForm').onsubmit=async e=>{e.preventDefault();
+if(!reg)return;
+const err=m=>{$('regErr').textContent=m;$('regErr').hidden=false};
+const first=$('regFirst').value.trim().replace(/\s+/g,' '),last=$('regLast').value.trim().replace(/\s+/g,' '),pw=$('regPass').value;
+$('regErr').hidden=true;
+if(reg.needNames&&!first){err('Completează prenumele.');$('regFirst').focus();return}
+if(reg.needNames&&!last){err('Completează numele.');$('regLast').focus();return}
+if(pw.length<8){err('Parola trebuie să aibă cel puțin 8 caractere.');$('regPass').focus();return}
+$('regBtn').disabled=true;
+const H={apikey:CFG.key,Authorization:'Bearer '+reg.token,'Content-Type':'application/json'};
+try{
+const r=await fetch(CFG.url+'/auth/v1/user',{method:'PUT',headers:H,body:JSON.stringify({password:pw})});
+if(!r.ok){const j=await r.json().catch(()=>({}));
+if(j.error_code!=='same_password'){err(j.error_code==='weak_password'?'Parola este prea slabă sau apare în liste de parole compromise. Alege alta.':r.status===401||r.status===403?LINK_DEAD:'Nu am putut salva parola. Încearcă din nou.');$('regBtn').disabled=false;return}}
+if(reg.needNames){
+const pr=await fetch(CFG.url+'/rest/v1/profiles?on_conflict=user_id',{method:'POST',headers:{...H,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([{user_id:reg.user.id,first_name:first,last_name:last}])});
+if(!pr.ok){err('Parola a fost salvată, dar numele nu. Apasă din nou „Finalizează”.');$('regBtn').disabled=false;return}}
+setAuth({access_token:reg.token,refresh_token:reg.refresh,expires_in:reg.exp,user:{id:reg.user.id,email:reg.user.email}});
+reg=null;$('regPass').value='';afterLogin()}
+catch{err('Nu am putut contacta serverul. Verifică conexiunea și încearcă din nou.');$('regBtn').disabled=false}};
+
 // Fiecare ecran are propria intrare în istoricul browserului, ca să nu ieși din aplicație la „înapoi”.
 // Atenție: variabila „history” din acest fișier sunt sesiunile, deci folosim window.history.
 let navSilent=false,navStarted=false;
@@ -540,4 +623,4 @@ finally{navSilent=false}});
 
 // ---------- Inițializare ----------
 if(!CLOUD){loadProgress();show('home')}
-else{try{auth=JSON.parse(localStorage.getItem(AKEY))}catch{auth=null}if(auth&&auth.user&&auth.user.id&&auth.refresh_token)afterLogin();else{auth=null;showLogin()}}
+else{const link=readAuthHash();if(link)startRegister(link);else{try{auth=JSON.parse(localStorage.getItem(AKEY))}catch{auth=null}if(auth&&auth.user&&auth.user.id&&auth.refresh_token)afterLogin();else{auth=null;showLogin()}}}
