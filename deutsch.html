@@ -117,6 +117,14 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 #account .card{margin-top:18px}
 @media(max-width:720px){.grid2{grid-template-columns:1fr}.kv{grid-template-columns:1fr;gap:2px}.kv dd{margin-bottom:10px}}
 
+.invdone{text-align:center}.invdone .ldactions{justify-content:center}
+.invcheck{color:var(--green);display:grid;place-items:center;width:84px;height:84px;margin:4px auto 0;border-radius:50%;background:#edf7e9}
+.invc{stroke-dasharray:145;stroke-dashoffset:145;animation:invdraw .5s ease-out .05s forwards}.invt{stroke-dasharray:40;stroke-dashoffset:40;animation:invdraw .35s ease-out .5s forwards}
+@keyframes invdraw{to{stroke-dashoffset:0}}
+.invdone:not([hidden]){animation:invpop .25s ease-out}@keyframes invpop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.admtbl tr.flash{animation:admflash 2.6s ease-out}@keyframes admflash{0%,35%{background:#fff3c8}100%{background:transparent}}
+@media(prefers-reduced-motion:reduce){.invc,.invt{animation:none;stroke-dashoffset:0}.invdone:not([hidden]),.admtbl tr.flash{animation:none}.admtbl tr.flash{background:#fff3c8}}
+
 </style>
 </head><body>
 <header><button type="button" class="brand" id="brandHome" aria-label="Deutsch · antrenament, pagina principală">Deutsch<span> / antrenament</span></button><div class="usermenu" id="userMenu" hidden><button type="button" class="chip" id="userChip" aria-haspopup="menu" aria-expanded="false" aria-controls="userPanel"><span class="chipav" id="chipAv" aria-hidden="true"></span><span class="chipdot" id="chipDot" aria-hidden="true"></span><span class="chipname" id="chipName"></span><span class="chipcar" aria-hidden="true">▾</span></button><div class="menuscrim" id="menuScrim" hidden></div><div class="menupanel" id="userPanel" role="menu" aria-label="Meniul utilizatorului" hidden><div class="mhead"><b id="mhName"></b><span class="small muted" id="mhEmail"></span><span class="pill" id="mhRole" hidden>Administrator</span><span class="small muted" id="syncState"></span></div><button type="button" role="menuitem" id="miAccount">Datele mele</button><button type="button" role="menuitem" id="miAdmin" hidden>Administrare</button><button type="button" role="menuitem" id="miLogout">Ieși</button></div></div></header>
@@ -187,7 +195,8 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 <dialog id="manageDialog" aria-labelledby="mgTitle"><div class="ldbox"><div class="label">CONT</div><h2 id="mgTitle" style="margin-top:12px;overflow-wrap:anywhere"></h2><p class="muted small" id="mgMeta" style="overflow-wrap:anywhere"></p><div class="mgacts" id="mgActs"></div>
 <div id="mgDelete" hidden><p class="small">Ștergerea este definitivă: dispar contul, progresul, sesiunile și locul din ligă. Scrie emailul <b id="mgDelEmail" style="overflow-wrap:anywhere"></b> ca să confirmi.</p><div class="field"><label for="mgDelInput">Email de confirmare</label><input type="text" id="mgDelInput" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"></div><div class="ldactions"><button type="button" class="danger" id="mgDelGo" disabled>Șterge definitiv</button><button type="button" id="mgDelCancel">Renunță</button></div></div>
 <p class="error" id="mgErr" role="alert" hidden></p><div class="ldactions"><button type="button" id="mgClose">Închide</button></div></div></dialog>
-<dialog id="inviteDialog" aria-labelledby="invTitle"><div class="ldbox"><form id="invForm" novalidate><div class="label">INVITAȚIE</div><h2 id="invTitle" style="margin-top:12px">Invită un utilizator</h2><p class="muted">Persoana primește un email cu un link și își completează singură prenumele, numele și parola.</p><div class="field"><label for="invEmail">Email</label><input type="email" id="invEmail" autocomplete="off" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="send"></div><div class="field" style="margin-top:14px"><label for="invRole">Rol</label><select id="invRole"><option value="user">Utilizator</option><option value="admin">Administrator</option></select></div><p class="small muted" id="invWarn" hidden>Un administrator vede toți utilizatorii și poate invita alte persoane.</p><p class="error" id="invErr" role="alert" hidden></p><p class="small" id="invOk" role="status" hidden></p><div class="ldactions"><button type="submit" class="primary" id="invSend">Trimite invitația</button><button type="button" id="invClose">Închide</button></div></form></div></dialog>
+<dialog id="inviteDialog" aria-labelledby="invTitle"><div class="ldbox"><form id="invForm" novalidate><div class="label">INVITAȚIE</div><h2 id="invTitle" style="margin-top:12px">Invită un utilizator</h2><p class="muted">Persoana primește un email cu un link și își completează singură prenumele, numele și parola.</p><div class="field"><label for="invEmail">Email</label><input type="email" id="invEmail" autocomplete="off" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="send"></div><div class="field" style="margin-top:14px"><label for="invRole">Rol</label><select id="invRole"><option value="user">Utilizator</option><option value="admin">Administrator</option></select></div><p class="small muted" id="invWarn" hidden>Un administrator vede toți utilizatorii și poate invita alte persoane.</p><p class="error" id="invErr" role="alert" hidden></p><p class="small" id="invOk" role="status" hidden></p><div class="ldactions"><button type="submit" class="primary" id="invSend">Trimite invitația</button><button type="button" id="invClose">Închide</button></div></form><div class="invdone" id="invDone" hidden><div class="invcheck" aria-hidden="true"><svg viewBox="0 0 52 52" width="64" height="64"><circle class="invc" cx="26" cy="26" r="23" fill="none" stroke="currentColor" stroke-width="3"/><path class="invt" d="M15 27.5l7.5 7.5L37.5 19" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="label" style="margin-top:14px">INVITAȚIE TRIMISĂ</div><h2 id="invDoneTitle" tabindex="-1" style="margin-top:8px;overflow-wrap:anywhere"></h2><p class="muted" id="invDoneText"></p><p class="small muted">Linkul din email este valabil 24 de ore. Dacă nu ajunge, persoana poate verifica și folderul Spam; din listă poți apăsa „Retrimite”.</p><div class="ldactions"><button type="button" class="primary" id="invAgain">Invită pe altcineva</button><button type="button" id="invDoneClose">Gata</button></div></div>
+</div></dialog>
 <dialog id="leagueDialog" aria-labelledby="ldTitle1"><div class="ldbox">
 <div id="ldStep1"><div class="label">PROVOCAREA SĂPTĂMÂNALĂ</div><h2 id="ldTitle1" style="margin-top:12px">Vrei să participi la provocarea săptămânală?</h2><p class="muted">Aduni XP din teste și te compari cu colegii într-un clasament de luni până duminică. Ceilalți văd doar numele, avatarul și XP-ul tău. Te poți retrage oricând.</p>
 <label class="checkbox"><input type="checkbox" id="ldSkip"> Nu-mi mai aminti</label>
@@ -681,11 +690,11 @@ $('accountBack').onclick=()=>show('home');
 // ---------- Administrare ----------
 // Rolul vine de pe server (profiles.role); aici doar ascundem intrarea. Autorizarea o face serverul (is_admin()).
 const isAdmin=()=>!!(auth&&profile&&profile.role==='admin');
-const adm={q:'',status:'all',role:'all',sort:'created',dir:'desc',page:0,size:25};let admSeq=0,admTimer=0,admRows=new Map();
+const adm={q:'',status:'all',role:'all',sort:'created',dir:'desc',page:0,size:25};let admSeq=0,admTimer=0,admRows=new Map(),admFlash=[];
 const admDate=(x,t)=>x?new Date(x).toLocaleString('ro-RO',t?{dateStyle:'short',timeStyle:'short'}:{dateStyle:'medium'}):'—';
 function admDeny(){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}$('admCounts').innerHTML='';$('admCount').textContent='';$('admPager').innerHTML='';$('admList').innerHTML='<p>Nu ai acces la această zonă.</p>';syncUserMenu()}
 function admRow(u){const nm=[u.first_name,u.last_name].filter(Boolean).join(' ');
-return'<tr><td data-l="Nume"><b>'+(nm?escape(nm):'<span class="muted">—</span>')+'</b>'+(u.display_name?'<span class="small muted"> · '+escape(u.display_name)+'</span>':'')+'</td><td data-l="Email" class="admem">'+escape(u.email||'')+'</td><td data-l="Rol"><span class="pill r-'+u.role+'">'+(u.role==='admin'?'Administrator':'Utilizator')+'</span></td><td data-l="Stare"><span class="pill st-'+u.status+'">'+(u.status==='active'?'Activ':u.status==='invited'?'Invitat':'Dezactivat')+'</span></td><td data-l="Înregistrat">'+admDate(u.created_at)+'</td><td data-l="Ultima autentificare">'+(u.status==='invited'?'invitat la '+admDate(u.invited_at):admDate(u.last_sign_in_at,1))+'</td><td data-l="Acțiuni">'+(u.status!=='invited'?'<div class="admact"><button type="button" data-act="manage" data-id="'+escape(u.user_id)+'">Gestionează</button></div>':'<div class="admact"><button type="button" data-act="resend" data-id="'+escape(u.user_id)+'">Retrimite</button><button type="button" data-act="revoke" data-id="'+escape(u.user_id)+'" data-email="'+escape(u.email||'')+'">Anulează</button></div>')+'</td></tr>'}
+return'<tr data-em="'+escape((u.email||'').toLowerCase())+'"><td data-l="Nume"><b>'+(nm?escape(nm):'<span class="muted">—</span>')+'</b>'+(u.display_name?'<span class="small muted"> · '+escape(u.display_name)+'</span>':'')+'</td><td data-l="Email" class="admem">'+escape(u.email||'')+'</td><td data-l="Rol"><span class="pill r-'+u.role+'">'+(u.role==='admin'?'Administrator':'Utilizator')+'</span></td><td data-l="Stare"><span class="pill st-'+u.status+'">'+(u.status==='active'?'Activ':u.status==='invited'?'Invitat':'Dezactivat')+'</span></td><td data-l="Înregistrat">'+admDate(u.created_at)+'</td><td data-l="Ultima autentificare">'+(u.status==='invited'?'invitat la '+admDate(u.invited_at):admDate(u.last_sign_in_at,1))+'</td><td data-l="Acțiuni">'+(u.status!=='invited'?'<div class="admact"><button type="button" data-act="manage" data-id="'+escape(u.user_id)+'">Gestionează</button></div>':'<div class="admact"><button type="button" data-act="resend" data-id="'+escape(u.user_id)+'">Retrimite</button><button type="button" data-act="revoke" data-id="'+escape(u.user_id)+'" data-email="'+escape(u.email||'')+'">Anulează</button></div>')+'</td></tr>'}
 async function loadAdmin(){
 const seq=++admSeq;
 try{
@@ -726,10 +735,11 @@ return{msg:INV_ERR[j.error]||'Ceva nu a mers. Încearcă din nou.',code:j.error}
 catch{return{msg:'Nu am putut contacta serverul. Verifică conexiunea.'}}}
 function admSay(text,ok){const m=$('admMsg');m.textContent=text;m.className='small '+(ok?'ok':'bad');m.hidden=!text}
 const validEmail=x=>/^[^\s@<>()\[\]\\,;:"]+@[^\s@<>()\[\]\\,;:"]+\.[^\s@<>()\[\]\\,;:"]{2,}$/.test(x)&&x.length<=254;
-$('admInvite').onclick=()=>{$('invErr').hidden=$('invOk').hidden=$('invWarn').hidden=true;$('invEmail').value='';$('invRole').value='user';$('invSend').disabled=false;$('inviteDialog').showModal();$('invEmail').focus()};
+function invShowForm(){$('invForm').hidden=false;$('invDone').hidden=true;$('inviteDialog').setAttribute('aria-labelledby','invTitle');$('invErr').hidden=$('invOk').hidden=$('invWarn').hidden=true;$('invEmail').value='';$('invRole').value='user';$('invSend').disabled=false}
+$('admInvite').onclick=()=>{invShowForm();$('inviteDialog').showModal();$('invEmail').focus()};
 $('invRole').onchange=()=>{$('invWarn').hidden=$('invRole').value!=='admin'};
-$('invClose').onclick=()=>$('inviteDialog').close();
-$('inviteDialog').addEventListener('click',e=>{if(e.target===$('inviteDialog'))$('inviteDialog').close()});
+$('invClose').onclick=()=>{$('inviteDialog').close();invFlash()};
+$('inviteDialog').addEventListener('click',e=>{if(e.target===$('inviteDialog')){$('inviteDialog').close();invFlash()}});
 $('invForm').onsubmit=async e=>{e.preventDefault();
 const email=$('invEmail').value.trim().toLowerCase();$('invErr').hidden=$('invOk').hidden=true;
 if(!validEmail(email)){$('invErr').textContent=INV_ERR.email;$('invErr').hidden=false;$('invEmail').focus();return}
@@ -737,7 +747,19 @@ $('invSend').disabled=true;
 const r=await invCall({action:'invite',email,role:$('invRole').value});
 $('invSend').disabled=false;
 if(!r.ok){$('invErr').textContent=r.msg;$('invErr').hidden=false;return}
-$('invOk').textContent='Invitație trimisă la '+email+'.';$('invOk').hidden=false;$('invEmail').value='';$('invEmail').focus();loadAdmin()};
+admFlash.push(email);
+$('invDoneTitle').textContent=email;
+$('invDoneText').textContent='Am trimis invitația'+($('invRole').value==='admin'?' (rol: Administrator)':'')+'. Persoana își completează singură prenumele, numele și parola.';
+$('invForm').hidden=true;$('invDone').hidden=false;$('inviteDialog').setAttribute('aria-labelledby','invDoneTitle');$('invDoneTitle').focus();loadAdmin()};
+$('invAgain').onclick=()=>{invShowForm();$('invEmail').focus()};
+// După închiderea dialogului, rândurile nou invitate se evidențiază scurt în listă (apelată din butoane și din evenimentul „close”; golește lista, deci rulează o singură dată).
+function invFlash(){
+const em=admFlash.splice(0);if(!em.length)return;
+const rows=[...document.querySelectorAll('.admtbl tbody tr[data-em]')].filter(r=>em.includes(r.dataset.em));
+rows.forEach(r=>{r.classList.remove('flash');void r.offsetWidth;r.classList.add('flash');setTimeout(()=>r.classList.remove('flash'),2700)});
+if(rows[0])rows[0].scrollIntoView({block:'nearest'})}
+$('inviteDialog').addEventListener('close',invFlash);
+$('invDoneClose').onclick=()=>{$('inviteDialog').close();invFlash()};
 $('admList').onclick=async e=>{
 const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
 const act=b.dataset.act;

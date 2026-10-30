@@ -476,11 +476,11 @@ $('accountBack').onclick=()=>show('home');
 // ---------- Administrare ----------
 // Rolul vine de pe server (profiles.role); aici doar ascundem intrarea. Autorizarea o face serverul (is_admin()).
 const isAdmin=()=>!!(auth&&profile&&profile.role==='admin');
-const adm={q:'',status:'all',role:'all',sort:'created',dir:'desc',page:0,size:25};let admSeq=0,admTimer=0,admRows=new Map();
+const adm={q:'',status:'all',role:'all',sort:'created',dir:'desc',page:0,size:25};let admSeq=0,admTimer=0,admRows=new Map(),admFlash=[];
 const admDate=(x,t)=>x?new Date(x).toLocaleString('ro-RO',t?{dateStyle:'short',timeStyle:'short'}:{dateStyle:'medium'}):'—';
 function admDeny(){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}$('admCounts').innerHTML='';$('admCount').textContent='';$('admPager').innerHTML='';$('admList').innerHTML='<p>Nu ai acces la această zonă.</p>';syncUserMenu()}
 function admRow(u){const nm=[u.first_name,u.last_name].filter(Boolean).join(' ');
-return'<tr><td data-l="Nume"><b>'+(nm?escape(nm):'<span class="muted">—</span>')+'</b>'+(u.display_name?'<span class="small muted"> · '+escape(u.display_name)+'</span>':'')+'</td><td data-l="Email" class="admem">'+escape(u.email||'')+'</td><td data-l="Rol"><span class="pill r-'+u.role+'">'+(u.role==='admin'?'Administrator':'Utilizator')+'</span></td><td data-l="Stare"><span class="pill st-'+u.status+'">'+(u.status==='active'?'Activ':u.status==='invited'?'Invitat':'Dezactivat')+'</span></td><td data-l="Înregistrat">'+admDate(u.created_at)+'</td><td data-l="Ultima autentificare">'+(u.status==='invited'?'invitat la '+admDate(u.invited_at):admDate(u.last_sign_in_at,1))+'</td><td data-l="Acțiuni">'+(u.status!=='invited'?'<div class="admact"><button type="button" data-act="manage" data-id="'+escape(u.user_id)+'">Gestionează</button></div>':'<div class="admact"><button type="button" data-act="resend" data-id="'+escape(u.user_id)+'">Retrimite</button><button type="button" data-act="revoke" data-id="'+escape(u.user_id)+'" data-email="'+escape(u.email||'')+'">Anulează</button></div>')+'</td></tr>'}
+return'<tr data-em="'+escape((u.email||'').toLowerCase())+'"><td data-l="Nume"><b>'+(nm?escape(nm):'<span class="muted">—</span>')+'</b>'+(u.display_name?'<span class="small muted"> · '+escape(u.display_name)+'</span>':'')+'</td><td data-l="Email" class="admem">'+escape(u.email||'')+'</td><td data-l="Rol"><span class="pill r-'+u.role+'">'+(u.role==='admin'?'Administrator':'Utilizator')+'</span></td><td data-l="Stare"><span class="pill st-'+u.status+'">'+(u.status==='active'?'Activ':u.status==='invited'?'Invitat':'Dezactivat')+'</span></td><td data-l="Înregistrat">'+admDate(u.created_at)+'</td><td data-l="Ultima autentificare">'+(u.status==='invited'?'invitat la '+admDate(u.invited_at):admDate(u.last_sign_in_at,1))+'</td><td data-l="Acțiuni">'+(u.status!=='invited'?'<div class="admact"><button type="button" data-act="manage" data-id="'+escape(u.user_id)+'">Gestionează</button></div>':'<div class="admact"><button type="button" data-act="resend" data-id="'+escape(u.user_id)+'">Retrimite</button><button type="button" data-act="revoke" data-id="'+escape(u.user_id)+'" data-email="'+escape(u.email||'')+'">Anulează</button></div>')+'</td></tr>'}
 async function loadAdmin(){
 const seq=++admSeq;
 try{
@@ -521,10 +521,11 @@ return{msg:INV_ERR[j.error]||'Ceva nu a mers. Încearcă din nou.',code:j.error}
 catch{return{msg:'Nu am putut contacta serverul. Verifică conexiunea.'}}}
 function admSay(text,ok){const m=$('admMsg');m.textContent=text;m.className='small '+(ok?'ok':'bad');m.hidden=!text}
 const validEmail=x=>/^[^\s@<>()\[\]\\,;:"]+@[^\s@<>()\[\]\\,;:"]+\.[^\s@<>()\[\]\\,;:"]{2,}$/.test(x)&&x.length<=254;
-$('admInvite').onclick=()=>{$('invErr').hidden=$('invOk').hidden=$('invWarn').hidden=true;$('invEmail').value='';$('invRole').value='user';$('invSend').disabled=false;$('inviteDialog').showModal();$('invEmail').focus()};
+function invShowForm(){$('invForm').hidden=false;$('invDone').hidden=true;$('inviteDialog').setAttribute('aria-labelledby','invTitle');$('invErr').hidden=$('invOk').hidden=$('invWarn').hidden=true;$('invEmail').value='';$('invRole').value='user';$('invSend').disabled=false}
+$('admInvite').onclick=()=>{invShowForm();$('inviteDialog').showModal();$('invEmail').focus()};
 $('invRole').onchange=()=>{$('invWarn').hidden=$('invRole').value!=='admin'};
-$('invClose').onclick=()=>$('inviteDialog').close();
-$('inviteDialog').addEventListener('click',e=>{if(e.target===$('inviteDialog'))$('inviteDialog').close()});
+$('invClose').onclick=()=>{$('inviteDialog').close();invFlash()};
+$('inviteDialog').addEventListener('click',e=>{if(e.target===$('inviteDialog')){$('inviteDialog').close();invFlash()}});
 $('invForm').onsubmit=async e=>{e.preventDefault();
 const email=$('invEmail').value.trim().toLowerCase();$('invErr').hidden=$('invOk').hidden=true;
 if(!validEmail(email)){$('invErr').textContent=INV_ERR.email;$('invErr').hidden=false;$('invEmail').focus();return}
@@ -532,7 +533,19 @@ $('invSend').disabled=true;
 const r=await invCall({action:'invite',email,role:$('invRole').value});
 $('invSend').disabled=false;
 if(!r.ok){$('invErr').textContent=r.msg;$('invErr').hidden=false;return}
-$('invOk').textContent='Invitație trimisă la '+email+'.';$('invOk').hidden=false;$('invEmail').value='';$('invEmail').focus();loadAdmin()};
+admFlash.push(email);
+$('invDoneTitle').textContent=email;
+$('invDoneText').textContent='Am trimis invitația'+($('invRole').value==='admin'?' (rol: Administrator)':'')+'. Persoana își completează singură prenumele, numele și parola.';
+$('invForm').hidden=true;$('invDone').hidden=false;$('inviteDialog').setAttribute('aria-labelledby','invDoneTitle');$('invDoneTitle').focus();loadAdmin()};
+$('invAgain').onclick=()=>{invShowForm();$('invEmail').focus()};
+// După închiderea dialogului, rândurile nou invitate se evidențiază scurt în listă (apelată din butoane și din evenimentul „close”; golește lista, deci rulează o singură dată).
+function invFlash(){
+const em=admFlash.splice(0);if(!em.length)return;
+const rows=[...document.querySelectorAll('.admtbl tbody tr[data-em]')].filter(r=>em.includes(r.dataset.em));
+rows.forEach(r=>{r.classList.remove('flash');void r.offsetWidth;r.classList.add('flash');setTimeout(()=>r.classList.remove('flash'),2700)});
+if(rows[0])rows[0].scrollIntoView({block:'nearest'})}
+$('inviteDialog').addEventListener('close',invFlash);
+$('invDoneClose').onclick=()=>{$('inviteDialog').close();invFlash()};
 $('admList').onclick=async e=>{
 const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
 const act=b.dataset.act;
