@@ -1,6 +1,6 @@
 # Pagina „Datele mele” și meniul utilizatorului (epic) · cerințe
 
-- **Stare:** recomandările din secțiunea 9 **aprobate** (2026-10-30). **Fazele 1 (meniul utilizatorului) și 2 („Datele mele” editabile) implementate** (2026-10-30), vezi secțiunea 12; fazele 3–4 urmează.
+- **Stare:** recomandările din secțiunea 9 **aprobate** (2026-10-30). **Fazele 1 (meniul utilizatorului), 2 („Datele mele” editabile) și 3 (schimbarea parolei) implementate** (2026-10-30), vezi secțiunea 12; faza 4 (opțională) urmează la cerere.
 - **Legat de:** `features backlog.md`, secțiunea 9; `admin dashboard requirements.md` (ecranul de administrare rămâne neschimbat, doar se schimbă intrarea în el).
 - **Despre ce este vorba:** antetul aplicației primește **un singur element în dreapta, meniul utilizatorului**. Din el se ajunge la o pagină nouă, **„Datele mele”**, la ecranul **Administrare** (doar pentru administratori) și la **Ieși**.
 
@@ -138,3 +138,12 @@ Criteriile pentru fazele 2–3 se detaliază după aprobarea acestui document.
 - **Fișiere:** `src/template.html`, `src/style.css`, `src/app.js` (modulul „Meniul utilizatorului și Datele mele”), `supabase/schema.sql`; regenerat `deutsch.html`.
 - **Verificare:** pe baza reală (tranzacție anulată): prenumele nu poate fi pus pe `null` și nici pe spații, dar poate fi schimbat. În browser (răspunsuri simulate): date inițiale corecte, validări (prenume lipsă, nume lipsă, peste 60, nume afișat sub 2 și peste 24, avatar), salvarea cu normalizarea spațiilor și trimiterea exactă a câmpurilor către server, actualizarea imediată a chipului (nume, avatar), retragerea (cu și fără confirmare) și reînscrierea cu starea și butoanele corecte, cont fără nume (indiciu vizibil), desktop și 375 px fără depășire orizontală.
 - **Netestat:** salvarea pe contul real (efectul pe server al noilor coloane în clasament), iPhone real.
+
+### Faza 3 · schimbarea parolei (implementat, 2026-10-30)
+
+- **Pagina:** cardul **Securitate** din „Datele mele”: parolă nouă și repetarea ei (minimum 8, maximum 72 de caractere), „Arată parolele”, buton **Schimbă parola**; câmpurile se golesc după succes. Sub formular, butonul **Trimite-mi un email de resetare** (cu confirmare) către adresa contului, care deschide același ecran „Alege o parolă nouă” ca resetarea cerută de administrator.
+- **Cum funcționează:** `PUT /auth/v1/user` cu parola nouă (același apel ca la înregistrare), cu reînnoirea automată a sesiunii. Fără modificări pe server.
+- **Mesaje în română pentru:** parolă prea scurtă, parole diferite, parolă slabă sau compromisă (`weak_password`; verificarea listelor de parole compromise există doar pe planul Pro), aceeași parolă ca cea curentă, **sesiune prea veche** (`reauthentication_needed` / 401 / 403: „trebuie să te fi autentificat recent… ieși și intră din nou, sau cere un email de resetare”), schimbarea care cere parola curentă (dacă se activează acea setare în Supabase) și lipsa conexiunii; la emailul de resetare, și limita de cereri (429).
+- **Fișiere:** `src/template.html`, `src/app.js` (modulul „Datele mele”); regenerat `deutsch.html`.
+- **Verificare (în browser, cu răspunsuri simulate):** toate cazurile de mai sus, trimiterea exactă a parolei, golirea câmpurilor după succes, „Arată parolele”, emailul de resetare (cu și fără confirmare, adresa de redirecționare corectă, mesajul pentru 429), 375 px fără depășire orizontală, butonul revine activ după fiecare încercare.
+- **Netestat:** schimbarea reală a parolei și emailul real de resetare (se încearcă pe contul propriu), comportamentul real al Supabase pentru sesiuni mai vechi de 24 de ore, iPhone real.

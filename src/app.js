@@ -425,7 +425,7 @@ $('acFirst').value=p.first_name||'';$('acLast').value=p.last_name||'';$('acNameH
 $('acName').value=p.display_name||defaultName();
 const av=p.avatar&&AVATARS.includes(p.avatar)?p.avatar:AVATARS[0];
 $('acAvatars').querySelectorAll('input').forEach(r=>r.checked=r.value===av);
-acSay(1);acSay(2);acRows();acLeagueState();
+acSay(1);acSay(2);acSay(3);$('acPass1').value=$('acPass2').value='';$('acPassShow').checked=false;$('acPass1').type=$('acPass2').type='password';acRows();acLeagueState();
 api('/auth/v1/user').then(r=>r.ok?r.json():null).then(u=>{if(u&&auth&&currentView==='account'){acctInfo={created_at:u.created_at,last_sign_in_at:u.last_sign_in_at};acRows()}}).catch(()=>{})}
 const cleanName=x=>x.trim().replace(/\s+/g,' ');
 $('acProfile').onsubmit=e=>{e.preventDefault();
@@ -450,6 +450,27 @@ patchProfile({display_name:v.name,avatar:v.av,league_registered:true,registered_
 $('acName').value=v.name;settleQueue().then(refreshStandings);acLeagueState();acSay(2,'Te-ai înscris la provocarea săptămânală.'+acOff(),true)};
 $('acLeave').onclick=()=>{if(!confirm('Te retragi din provocarea săptămânală? Poți reveni oricând de aici sau din cardul „Liga ta”.'))return;
 patchProfile({league_registered:false,league_prompt_skip:true});standings=null;renderLeagueCard();acLeagueState();acSay(2,'Te-ai retras din provocare.'+acOff(),true)};
+// Parola: PUT /auth/v1/user. Supabase poate cere o autentificare recentă; atunci oferim emailul de resetare către propria adresă.
+const PW_ERR={weak_password:'Parola este prea slabă sau apare în liste de parole compromise. Alege alta.',same_password:'Parola nouă trebuie să fie diferită de cea curentă.',reauthentication_needed:'Din motive de securitate, trebuie să te fi autentificat recent. Ieși din cont și intră din nou, sau cere un email de resetare cu butonul de mai jos.',reauthentication_not_valid:'Din motive de securitate, trebuie să te fi autentificat recent. Ieși din cont și intră din nou, sau cere un email de resetare cu butonul de mai jos.',current_password_required:'Schimbarea cere parola curentă. Folosește butonul „Trimite-mi un email de resetare”.'};
+$('acPassShow').onchange=()=>{$('acPass1').type=$('acPass2').type=$('acPassShow').checked?'text':'password'};
+$('acPassForm').onsubmit=async e=>{e.preventDefault();
+const p1=$('acPass1').value,p2=$('acPass2').value;acSay(3);
+if(p1.length<8){acSay(3,'Parola trebuie să aibă cel puțin 8 caractere.');$('acPass1').focus();return}
+if(p1!==p2){acSay(3,'Cele două parole nu coincid.');$('acPass2').focus();return}
+$('acSave3').disabled=true;
+try{
+const r=await api('/auth/v1/user',{method:'PUT',body:{password:p1}});
+if(r.ok){$('acPass1').value=$('acPass2').value='';$('acPassShow').checked=false;$('acPass1').type=$('acPass2').type='password';acSay(3,'Parola a fost schimbată.',true)}
+else{const j=await r.json().catch(()=>({}));acSay(3,PW_ERR[j.error_code||j.code]||(r.status===401||r.status===403?PW_ERR.reauthentication_needed:'Nu am putut schimba parola. Încearcă din nou.'))}}
+catch{acSay(3,'Nu am putut contacta serverul. Verifică conexiunea și încearcă din nou.')}
+$('acSave3').disabled=false};
+$('acReset').onclick=async()=>{
+if(!confirm('Trimiți un email de resetare a parolei către '+auth.user.email+'?'))return;
+acSay(3);$('acReset').disabled=true;
+try{const r=await fetch(CFG.url+'/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+'/'),{method:'POST',headers:{apikey:CFG.key,'Content-Type':'application/json'},body:JSON.stringify({email:auth.user.email})});
+acSay(3,r.ok?'Am trimis emailul de resetare la '+auth.user.email+'. Deschide linkul din el ca să alegi o parolă nouă.':r.status===429?'Ai cerut prea multe emailuri. Încearcă din nou peste câteva minute.':'Nu am putut trimite emailul. Încearcă din nou.',r.ok)}
+catch{acSay(3,'Nu am putut contacta serverul. Verifică conexiunea și încearcă din nou.')}
+$('acReset').disabled=false};
 $('accountBack').onclick=()=>show('home');
 
 // ---------- Administrare ----------

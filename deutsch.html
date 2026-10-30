@@ -167,7 +167,9 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 <div class="card"><div class="label">LIGA</div><p class="muted" id="acLeagueState" style="margin-top:8px"></p><form id="acLeagueForm" novalidate><div class="field"><label for="acName">Nume afișat</label><input type="text" id="acName" maxlength="24" autocomplete="nickname" autocapitalize="words" enterkeyhint="done"></div><fieldset class="avatarset"><legend>Avatar</legend><div class="avatars" id="acAvatars"></div></fieldset>
 <p class="small muted">Ceilalți utilizatori văd numele, avatarul, XP-ul și treapta ta; niciodată răspunsurile.</p>
 <p class="error" id="acErr2" role="alert" hidden></p><p class="small ok" id="acOk2" role="status" hidden></p>
-<div class="tools"><button type="submit" class="primary" id="acSave2">Salvează</button><button type="button" id="acJoin">Înscrie-te la provocare</button><button type="button" class="quiet back" id="acLeave">Retrage-te</button></div></form></div></section>
+<div class="tools"><button type="submit" class="primary" id="acSave2">Salvează</button><button type="button" id="acJoin">Înscrie-te la provocare</button><button type="button" class="quiet back" id="acLeave">Retrage-te</button></div></form></div><div class="card"><div class="label">SECURITATE</div><h2 style="margin-top:10px;font-size:22px">Schimbă parola</h2><form id="acPassForm" novalidate><div class="field"><label for="acPass1">Parola nouă</label><input type="password" id="acPass1" maxlength="72" autocomplete="new-password" enterkeyhint="next"><span class="small muted">Cel puțin 8 caractere.</span></div><div class="field" style="margin-top:14px"><label for="acPass2">Repetă parola nouă</label><input type="password" id="acPass2" maxlength="72" autocomplete="new-password" enterkeyhint="done"></div><label class="checkbox"><input type="checkbox" id="acPassShow"> Arată parolele</label>
+<p class="error" id="acErr3" role="alert" hidden></p><p class="small ok" id="acOk3" role="status" hidden></p>
+<div class="tools"><button type="submit" class="primary" id="acSave3">Schimbă parola</button><button type="button" class="quiet back" id="acReset">Trimite-mi un email de resetare</button></div></form></div></section>
 <section id="admin" hidden><div class="row"><div><div class="label">ADMINISTRARE</div><h1 style="font-size:36px">Utilizatori</h1></div><div class="tools" style="margin:0"><button id="admInvite" class="primary">+ Invită utilizator</button><button id="adminBack" class="quiet back">← Înapoi</button></div></div><p class="muted" id="adminMeta"></p>
 <div class="card"><div class="mstats admcounts" id="admCounts"></div></div>
 <div class="card"><div class="admbar"><div class="field admq"><label for="admQ">Caută</label><input type="search" id="admQ" placeholder="Nume sau email" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="search"></div><div class="field"><label for="admStatus">Stare</label><select id="admStatus"><option value="all">Toate</option><option value="active">Activ</option><option value="invited">Invitat</option><option value="disabled">Dezactivat</option></select></div><div class="field"><label for="admRole">Rol</label><select id="admRole"><option value="all">Toate</option><option value="user">Utilizator</option><option value="admin">Administrator</option></select></div><div class="field"><label for="admSort">Sortează după</label><select id="admSort"><option value="created">Data înregistrării</option><option value="name">Nume</option><option value="email">Email</option><option value="role">Rol</option><option value="status">Stare</option><option value="last_sign_in">Ultima autentificare</option></select></div><button type="button" class="quiet back" id="admDir" aria-label="Sens sortare">↓ Descrescător</button></div>
@@ -628,7 +630,7 @@ $('acFirst').value=p.first_name||'';$('acLast').value=p.last_name||'';$('acNameH
 $('acName').value=p.display_name||defaultName();
 const av=p.avatar&&AVATARS.includes(p.avatar)?p.avatar:AVATARS[0];
 $('acAvatars').querySelectorAll('input').forEach(r=>r.checked=r.value===av);
-acSay(1);acSay(2);acRows();acLeagueState();
+acSay(1);acSay(2);acSay(3);$('acPass1').value=$('acPass2').value='';$('acPassShow').checked=false;$('acPass1').type=$('acPass2').type='password';acRows();acLeagueState();
 api('/auth/v1/user').then(r=>r.ok?r.json():null).then(u=>{if(u&&auth&&currentView==='account'){acctInfo={created_at:u.created_at,last_sign_in_at:u.last_sign_in_at};acRows()}}).catch(()=>{})}
 const cleanName=x=>x.trim().replace(/\s+/g,' ');
 $('acProfile').onsubmit=e=>{e.preventDefault();
@@ -653,6 +655,27 @@ patchProfile({display_name:v.name,avatar:v.av,league_registered:true,registered_
 $('acName').value=v.name;settleQueue().then(refreshStandings);acLeagueState();acSay(2,'Te-ai înscris la provocarea săptămânală.'+acOff(),true)};
 $('acLeave').onclick=()=>{if(!confirm('Te retragi din provocarea săptămânală? Poți reveni oricând de aici sau din cardul „Liga ta”.'))return;
 patchProfile({league_registered:false,league_prompt_skip:true});standings=null;renderLeagueCard();acLeagueState();acSay(2,'Te-ai retras din provocare.'+acOff(),true)};
+// Parola: PUT /auth/v1/user. Supabase poate cere o autentificare recentă; atunci oferim emailul de resetare către propria adresă.
+const PW_ERR={weak_password:'Parola este prea slabă sau apare în liste de parole compromise. Alege alta.',same_password:'Parola nouă trebuie să fie diferită de cea curentă.',reauthentication_needed:'Din motive de securitate, trebuie să te fi autentificat recent. Ieși din cont și intră din nou, sau cere un email de resetare cu butonul de mai jos.',reauthentication_not_valid:'Din motive de securitate, trebuie să te fi autentificat recent. Ieși din cont și intră din nou, sau cere un email de resetare cu butonul de mai jos.',current_password_required:'Schimbarea cere parola curentă. Folosește butonul „Trimite-mi un email de resetare”.'};
+$('acPassShow').onchange=()=>{$('acPass1').type=$('acPass2').type=$('acPassShow').checked?'text':'password'};
+$('acPassForm').onsubmit=async e=>{e.preventDefault();
+const p1=$('acPass1').value,p2=$('acPass2').value;acSay(3);
+if(p1.length<8){acSay(3,'Parola trebuie să aibă cel puțin 8 caractere.');$('acPass1').focus();return}
+if(p1!==p2){acSay(3,'Cele două parole nu coincid.');$('acPass2').focus();return}
+$('acSave3').disabled=true;
+try{
+const r=await api('/auth/v1/user',{method:'PUT',body:{password:p1}});
+if(r.ok){$('acPass1').value=$('acPass2').value='';$('acPassShow').checked=false;$('acPass1').type=$('acPass2').type='password';acSay(3,'Parola a fost schimbată.',true)}
+else{const j=await r.json().catch(()=>({}));acSay(3,PW_ERR[j.error_code||j.code]||(r.status===401||r.status===403?PW_ERR.reauthentication_needed:'Nu am putut schimba parola. Încearcă din nou.'))}}
+catch{acSay(3,'Nu am putut contacta serverul. Verifică conexiunea și încearcă din nou.')}
+$('acSave3').disabled=false};
+$('acReset').onclick=async()=>{
+if(!confirm('Trimiți un email de resetare a parolei către '+auth.user.email+'?'))return;
+acSay(3);$('acReset').disabled=true;
+try{const r=await fetch(CFG.url+'/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+'/'),{method:'POST',headers:{apikey:CFG.key,'Content-Type':'application/json'},body:JSON.stringify({email:auth.user.email})});
+acSay(3,r.ok?'Am trimis emailul de resetare la '+auth.user.email+'. Deschide linkul din el ca să alegi o parolă nouă.':r.status===429?'Ai cerut prea multe emailuri. Încearcă din nou peste câteva minute.':'Nu am putut trimite emailul. Încearcă din nou.',r.ok)}
+catch{acSay(3,'Nu am putut contacta serverul. Verifică conexiunea și încearcă din nou.')}
+$('acReset').disabled=false};
 $('accountBack').onclick=()=>show('home');
 
 // ---------- Administrare ----------
