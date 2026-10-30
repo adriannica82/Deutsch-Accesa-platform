@@ -52,7 +52,7 @@
 |---|---|---|
 | AD-12 | Butonul **„Invită utilizator”** deschide un dialog cu **un singur câmp obligatoriu: emailul** (și, opțional, rolul, implicit „Utilizator”). Administratorul nu introduce numele: îl completează persoana invitată. | cerută / propunere |
 | AD-13 | La trimitere, serverul verifică rolul de administrator, **validează emailul**, refuză emailurile deja înregistrate sau deja invitate (cu mesaj clar) și trimite emailul de invitație. | propunere |
-| AD-14 | Emailul de invitație este **în limba română**, are un expeditor ușor de recunoscut și un buton/link către aplicație. Linkul este de **unică folosință** și **expiră** (recomandat: 7 zile). | propunere |
+| AD-14 | Emailul de invitație este **în limba română**, are un expeditor ușor de recunoscut și un buton/link către aplicație. Linkul este de **unică folosință** și **expiră** (maximum 24 de ore, limita Supabase; apoi „Retrimite”). | propunere |
 | AD-15 | Administratorul poate **retrimite** (link nou, cel vechi nu mai funcționează) și **anula** o invitație în așteptare. | propunere |
 | AD-16 | Înregistrarea publică rămâne **închisă**: fără invitație nu se poate crea cont. | propunere |
 
@@ -130,7 +130,7 @@
 |---|---|---|
 | 10.1 | „Doar prenume, nume și email”: cum se autentifică apoi persoana? Ecranul de login are acum email + **parolă**. | La înregistrare se cere **și o parolă** (singurul câmp în plus, necesar tehnic). Alternativa fără parolă (link magic prin email) schimbă tot fluxul de login și nu e recomandată acum. |
 | 10.2 | Poate un administrator să invite alți administratori? | **Da**, prin selectorul de rol din dialog; pe ecran apare un avertisment la alegerea rolului Administrator. |
-| 10.3 | Expirarea invitației | **7 zile**, retrimitere nelimitată. |
+| 10.3 | Expirarea invitației | **24 de ore** (maximul permis de Supabase pentru linkurile din email), retrimitere nelimitată din panou. *Corectat la implementare: recomandarea inițială de 7 zile nu este posibilă.* |
 | 10.4 | Ce se întâmplă cu conturile existente (3 acum)? | Rămân active, rol `user`; tu devii primul administrator (SQL). Prenumele/numele rămân goale până la o completare opțională viitoare. |
 | 10.5 | Dezactivare sau ștergere? | **Ambele**: dezactivarea ca acțiune obișnuită, ștergerea definitivă doar cu confirmare tastată. |
 | 10.6 | Expeditorul emailurilor | Adresa/domeniul de pe care vrei să plece invitațiile (trebuie decis înainte de faza 3). |
@@ -191,4 +191,4 @@ Nu sunt incluse în fazele 1–4; le poți alege sau le poți lăsa pentru un ep
 - **Fișiere:** `supabase/functions/admin-invite/index.ts`, `supabase/schema.sql` (secțiunea 9), `supabase/email-templates.md` (șabloanele de email în română și setările necesare), `src/app.js`, `src/template.html`, `src/style.css`; regenerat `deutsch.html`.
 - **Verificare:** pe baza reală: `invite_lookup` întoarce `none`/`exists`/`pending` corect și nu poate fi apelată de utilizatori autentificați; lista filtrează „invited”; funcția refuză fără jeton (401), cu cheia publică în loc de jeton (401) și răspunde la preflight (204). În browser (răspunsuri simulate): dialogul pe telefon, toate mesajele de eroare, invitație reușită cu rolul trimis corect, retrimitere, anulare cu și fără confirmare, ecranul de înregistrare (validări, parolă, salvarea numelui fără a atinge rolul, intrarea în aplicație), link expirat/invalid, parolă slabă, ecranul de parolă nouă.
 - **Netestat:** trimiterea unui email real și clic pe linkul primit (nu există încă SMTP/adrese permise), apelul funcției cu jetonul real al unui administrator, iPhone real.
-- **Constatare importantă:** în proiect **înregistrarea publică este deschisă** (`disable_signup = false` în setările de autentificare); oricine cu cheia publică își poate crea cont. Trebuie oprită din panoul Supabase înainte de folosirea invitațiilor (AD-16). Vezi `supabase/email-templates.md`, punctul 4.
+- **Constatare importantă:** în proiect **înregistrarea publică este deschisă** (`disable_signup = false` în setările de autentificare); oricine cu cheia publică își poate crea cont. Trebuie oprită din panoul Supabase înainte de folosirea invitațiilor (AD-16). Vezi `supabase/email-templates.md`, punctul 1. „Leaked password protection” există doar pe planul Pro; pe planul gratuit rămâne doar lungimea minimă de 8 caractere.

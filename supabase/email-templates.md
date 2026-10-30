@@ -27,7 +27,9 @@ Supabase nu permite setarea acestor șabloane din cod; se lipesc manual în pano
 
 ## Setări necesare în Supabase (le face proprietarul proiectului)
 
-1. **Authentication → URL Configuration:** adaugă adresa platformei (de ex. `https://…vercel.app`) la **Site URL** și la **Redirect URLs**, altfel linkul din email nu duce în aplicație.
-2. **Project Settings → Authentication → SMTP Settings:** activează un SMTP propriu (Resend, Brevo etc.) și alege adresa expeditorului. Emailurile implicite pleacă doar către adresele echipei proiectului și sunt foarte limitate.
-3. **Authentication → Providers → Email:** la **Email OTP Expiration** pune 604800 (7 zile) ca invitațiile să rămână valabile o săptămână.
-4. **Authentication → Providers → Email:** dezactivează „Allow new users to sign up” (înregistrarea publică rămâne închisă) și activează „Leaked password protection”.
+1. **Authentication → Sign In / Providers → User Signups:** oprește „Allow new users to sign up” (înregistrarea publică rămâne închisă; invitațiile merg în continuare, pentru că sunt create de server).
+2. **Authentication → URL Configuration:** la **Site URL** pune adresa platformei (de ex. `https://…vercel.app`) și adaugă aceeași adresă (cu `/**` la sfârșit, sau exact adresa) la **Redirect URLs**. Altfel linkul din email nu duce în aplicație.
+3. **Authentication → Emails → SMTP Settings:** activează „Custom SMTP” cu datele unui furnizor (Resend, Brevo, SendGrid etc.): host, port, utilizator, parolă și adresa/numele expeditorului. Emailurile implicite pleacă doar către adresele echipei proiectului și sunt foarte limitate.
+4. **Authentication → Emails → Templates:** lipește șabloanele „Invite user” și „Reset password” de mai sus (subiect + conținut).
+5. **Authentication → Sign In / Providers → Email → Email OTP Expiration:** valoarea maximă permisă este **86400 secunde (24 de ore)**, deci o invitație este valabilă cel mult o zi; după aceea administratorul apasă „Retrimite”.
+6. **Opțional, doar pe planul Pro:** „Prevent use of leaked passwords” (Authentication → Sign In / Providers → Email); pe planul gratuit nu există.
