@@ -408,9 +408,48 @@ else if(e.key==='Home'){e.preventDefault();it[0].focus()}
 else if(e.key==='End'){e.preventDefault();it[it.length-1].focus()}});
 $('brandHome').onclick=()=>{if(CLOUD&&!auth)return;if(['login','register','quiz'].includes(currentView))return;show('home')};
 $('miAccount').onclick=()=>{closeUserMenu();show('account')};
-function renderAccount(){
-const p=profile||{},rows=[['Nume',[p.first_name,p.last_name].filter(Boolean).join(' ')||'—'],['Email',auth.user.email],['Rol',isAdmin()?'Administrator':'Utilizator'],['Nume afișat în ligă',p.display_name||'—']];
+let acctInfo=null;
+const acOff=()=>navigator.onLine?'':' Ești offline: se trimite când revii online.';
+function acRows(){
+const rows=[['Email',auth.user.email],['Rol',isAdmin()?'Administrator':'Utilizator'],['Cont creat la',acctInfo?admDate(acctInfo.created_at):'—'],['Ultima autentificare',acctInfo?admDate(acctInfo.last_sign_in_at,1):'—']];
 $('accountBody').innerHTML=rows.map(r=>'<dt>'+r[0]+'</dt><dd>'+escape(r[1])+'</dd>').join('')}
+function acLeagueState(){
+const reg=!!(profile&&profile.league_registered);
+$('acLeagueState').textContent=reg?'Ești înscris la provocarea săptămânală.':'Nu ești înscris la provocarea săptămânală.';
+$('acJoin').hidden=reg;$('acLeave').hidden=!reg}
+function acSay(n,msg,ok){$('acErr'+n).hidden=$('acOk'+n).hidden=true;if(msg){const e=$(ok?'acOk'+n:'acErr'+n);e.textContent=msg;e.hidden=false}}
+function renderAccount(){
+const p=profile||{};
+if(!$('acAvatars').children.length)$('acAvatars').innerHTML=AVATARS.map(a=>'<label><input type="radio" name="acavatar" value="'+a+'"><span aria-hidden="true">'+a+'</span><span class="sr">'+a+'</span></label>').join('');
+$('acFirst').value=p.first_name||'';$('acLast').value=p.last_name||'';$('acNameHint').hidden=!!p.first_name;
+$('acName').value=p.display_name||defaultName();
+const av=p.avatar&&AVATARS.includes(p.avatar)?p.avatar:AVATARS[0];
+$('acAvatars').querySelectorAll('input').forEach(r=>r.checked=r.value===av);
+acSay(1);acSay(2);acRows();acLeagueState();
+api('/auth/v1/user').then(r=>r.ok?r.json():null).then(u=>{if(u&&auth&&currentView==='account'){acctInfo={created_at:u.created_at,last_sign_in_at:u.last_sign_in_at};acRows()}}).catch(()=>{})}
+const cleanName=x=>x.trim().replace(/\s+/g,' ');
+$('acProfile').onsubmit=e=>{e.preventDefault();
+const first=cleanName($('acFirst').value),last=cleanName($('acLast').value);
+if(!first){acSay(1,'Completează prenumele.');$('acFirst').focus();return}
+if(!last){acSay(1,'Completează numele.');$('acLast').focus();return}
+if(first.length>60||last.length>60){acSay(1,'Prenumele și numele pot avea cel mult 60 de caractere.');return}
+patchProfile({first_name:first,last_name:last});$('acFirst').value=first;$('acLast').value=last;$('acNameHint').hidden=true;
+acSay(1,'Salvat.'+acOff(),true)};
+function acLeagueValues(){
+const name=cleanName($('acName').value),av=($('acAvatars').querySelector('input:checked')||{}).value;
+if(name.length<2||name.length>24){acSay(2,name.length<2?'Numele afișat trebuie să aibă cel puțin 2 caractere.':'Numele afișat poate avea cel mult 24 de caractere.');$('acName').focus();return null}
+if(!av){acSay(2,'Alege un avatar.');return null}
+return{name,av}}
+$('acLeagueForm').onsubmit=e=>{e.preventDefault();
+const v=acLeagueValues();if(!v)return;
+patchProfile({display_name:v.name,avatar:v.av});$('acName').value=v.name;
+if(profile&&profile.league_registered)settleQueue().then(refreshStandings);
+acSay(2,'Salvat.'+acOff(),true)};
+$('acJoin').onclick=()=>{const v=acLeagueValues();if(!v)return;
+patchProfile({display_name:v.name,avatar:v.av,league_registered:true,registered_at:(profile&&profile.registered_at)||new Date().toISOString()});
+$('acName').value=v.name;settleQueue().then(refreshStandings);acLeagueState();acSay(2,'Te-ai înscris la provocarea săptămânală.'+acOff(),true)};
+$('acLeave').onclick=()=>{if(!confirm('Te retragi din provocarea săptămânală? Poți reveni oricând de aici sau din cardul „Liga ta”.'))return;
+patchProfile({league_registered:false,league_prompt_skip:true});standings=null;renderLeagueCard();acLeagueState();acSay(2,'Te-ai retras din provocare.'+acOff(),true)};
 $('accountBack').onclick=()=>show('home');
 
 // ---------- Administrare ----------

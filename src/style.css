@@ -102,3 +102,8 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 .kv{display:grid;grid-template-columns:max-content 1fr;gap:12px 22px;margin:0}.kv dt{color:var(--muted);font-size:14px}.kv dd{margin:0;font-weight:650;overflow-wrap:anywhere}
 @media(max-width:720px){.menuscrim{background:rgba(23,49,57,.5)}.menupanel{position:fixed;left:0;right:0;bottom:0;top:auto;max-width:none;border-radius:20px 20px 0 0;padding:12px 12px max(12px,env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(23,49,57,.3)}}
 @media(max-width:480px){.chipname,.chipcar{display:none}button.chip{padding:4px}.chipdot{left:28px;top:28px}button.brand span{display:none}button.brand{font-size:16px}}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid2 .field{margin:0}
+.ok{color:var(--green)}
+#account .card{margin-top:18px}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}.kv{grid-template-columns:1fr;gap:2px}.kv dd{margin-bottom:10px}}

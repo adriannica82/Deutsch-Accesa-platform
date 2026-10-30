@@ -1,6 +1,6 @@
 # Pagina „Datele mele” și meniul utilizatorului (epic) · cerințe
 
-- **Stare:** recomandările din secțiunea 9 **aprobate** (2026-10-30). **Faza 1 (meniul utilizatorului) implementată** (2026-10-30), vezi secțiunea 12; fazele 2–4 urmează.
+- **Stare:** recomandările din secțiunea 9 **aprobate** (2026-10-30). **Fazele 1 (meniul utilizatorului) și 2 („Datele mele” editabile) implementate** (2026-10-30), vezi secțiunea 12; fazele 3–4 urmează.
 - **Legat de:** `features backlog.md`, secțiunea 9; `admin dashboard requirements.md` (ecranul de administrare rămâne neschimbat, doar se schimbă intrarea în el).
 - **Despre ce este vorba:** antetul aplicației primește **un singur element în dreapta, meniul utilizatorului**. Din el se ajunge la o pagină nouă, **„Datele mele”**, la ecranul **Administrare** (doar pentru administratori) și la **Ieși**.
 
@@ -68,7 +68,7 @@ Salvarea: butoane „Salvează” pe fiecare secțiune, mesaj de confirmare „S
 
 ## 7. Date și server
 
-- **Fără migrare obligatorie:** prenumele, numele, numele afișat și avatarul sunt deja coloane scriptibile de utilizator pe propriul rând (`profiles`), cu aceleași verificări. Rolul, `invited_by` și emailul rămân doar pentru server.
+- **Fără migrare obligatorie (faza 2 a adăugat totuși un declanșator de protecție, vezi secțiunea 12):** prenumele, numele, numele afișat și avatarul sunt deja coloane scriptibile de utilizator pe propriul rând (`profiles`), cu aceleași verificări. Rolul, `invited_by` și emailul rămân doar pentru server.
 - **Datele contului** (data creării, ultima autentificare, email) se citesc din răspunsul `GET /auth/v1/user` al sesiunii curente; nu e nevoie de funcții noi.
 - **Schimbarea parolei:** `PUT /auth/v1/user` cu parola nouă (același apel ca la înregistrare). Supabase poate cere reautentificarea pentru sesiuni mai vechi de 24 de ore; în acest caz pagina cere deconectare și reconectare, sau trimite emailul de resetare existent.
 - **Interfață:** chip + meniu în antet (`src/template.html`, `src/style.css`), ecran `account` și logica lor în `src/app.js` (modulul „Cont”); butoanele actuale din antet sunt înlocuite, nu duplicate.
@@ -130,3 +130,11 @@ Criteriile pentru fazele 2–3 se detaliază după aprobarea acestui document.
 - **Fișiere:** `src/template.html` (antet, ecranul `account`, butoanele de întoarcere), `src/style.css`, `src/app.js` (modulul „Meniul utilizatorului”, `show`, `setSync`, `afterLogin`, `popstate`); regenerat `deutsch.html`. Fără modificări pe server.
 - **Verificare (în browser, cu răspunsuri simulate):** antet cu doar sigla și chipul pe desktop și pe 375 px, fără depășire orizontală, țintă de 44 × 44 px; meniul pentru administrator (3 opțiuni) și pentru utilizator obișnuit (2 opțiuni, fără insignă); avatar, respectiv inițială când lipsește; tastatură (săgeți, End, Esc cu revenirea focusului), închidere prin fundal; „Datele mele” și întoarcerea; Administrare din meniu; sigla duce acasă, dar nu scoate din test; temă → înapoi; punct offline/online; ieșirea din cont; istoricul browserului pentru „Datele mele”.
 - **Netestat:** butonul „Toate temele” de pe ecranul de rezultate pe un test terminat (verificat doar că există și că are același comportament ca cel din temă), ecranul ligii cu date reale, iPhone real.
+
+### Faza 2 · „Datele mele” editabile (implementat, 2026-10-30)
+
+- **Pagina:** card **Profil** cu prenume și nume editabile (1–60 de caractere, spații curățate, ambele obligatorii la salvare), emailul, rolul, data creării contului și ultima autentificare (citite din `/auth/v1/user`; „—” dacă serverul nu răspunde), cu mențiunea că emailul și rolul se schimbă doar prin administrator. Card **Liga** cu numele afișat (2–24 de caractere) și avatarul (aceleași reguli ca în pop-up), starea înscrierii și butoanele **Salvează**, **Înscrie-te la provocare** / **Retrage-te** (cu confirmare, aceleași efecte ca din cardul „Liga ta”). Conturile fără nume văd „Completează-ți prenumele și numele. Le văd doar administratorii.” și pot continua fără să le completeze (9.7). Modificările apar imediat în chip și în clasament; offline se salvează local și se trimit la revenire, cu mesaj.
+- **Server (migrarea `profiles_keep_first_name_phase2`, în `supabase/schema.sql`, secțiunea 11):** declanșator care **interzice ștergerea prenumelui după ce a fost completat**. Motiv: starea „Invitat” din administrare înseamnă „invitat și fără prenume”; fără protecție, un utilizator și-ar fi putut șterge prenumele prin API și ar fi apărut ca „Invitat”, iar „Anulează” ar fi putut șterge contul. Redenumirea rămâne permisă.
+- **Fișiere:** `src/template.html`, `src/style.css`, `src/app.js` (modulul „Meniul utilizatorului și Datele mele”), `supabase/schema.sql`; regenerat `deutsch.html`.
+- **Verificare:** pe baza reală (tranzacție anulată): prenumele nu poate fi pus pe `null` și nici pe spații, dar poate fi schimbat. În browser (răspunsuri simulate): date inițiale corecte, validări (prenume lipsă, nume lipsă, peste 60, nume afișat sub 2 și peste 24, avatar), salvarea cu normalizarea spațiilor și trimiterea exactă a câmpurilor către server, actualizarea imediată a chipului (nume, avatar), retragerea (cu și fără confirmare) și reînscrierea cu starea și butoanele corecte, cont fără nume (indiciu vizibil), desktop și 375 px fără depășire orizontală.
+- **Netestat:** salvarea pe contul real (efectul pe server al noilor coloane în clasament), iPhone real.

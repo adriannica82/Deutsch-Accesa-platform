@@ -872,3 +872,26 @@ end;
 $$;
 revoke all on function public.admin_audit_list(int, int) from public, anon;
 grant execute on function public.admin_audit_list(int, int) to authenticated;
+
+-- ======================================================================
+-- 11. „Datele mele”, faza 2: prenumele, odată completat, nu mai poate fi șters (migrarea profiles_keep_first_name_phase2)
+--     Motiv: starea „Invitat” din panoul de administrare = invitat și fără prenume.
+-- ======================================================================
+
+create or replace function public.profiles_keep_first_name()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if old.first_name is not null and new.first_name is null then
+    raise exception 'first_name cannot be cleared' using errcode = '23514';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists profiles_keep_first_name on public.profiles;
+create trigger profiles_keep_first_name
+  before update on public.profiles
+  for each row execute function public.profiles_keep_first_name();
