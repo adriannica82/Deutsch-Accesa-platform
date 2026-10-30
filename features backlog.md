@@ -113,3 +113,9 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
   5. **Statistici de conținut:** primele 20 de întrebări cel mai des greșite și temele cu cea mai mică rată de reușită (date agregate, fără nume).
 - **De decis înainte de implementare:** (a) confidențialitate la punctul 1: recomandare să informăm utilizatorii („Administratorul poate vedea progresul tău”) în ecranul de autentificare și în pop-up-ul ligii; (b) la punctul 3, doar resetarea numelui sau și scoaterea din ligă; (c) la punctul 5, vizibil doar administratorilor (recomandat) sau și un rezumat pe pagina principală.
 - **Ordine recomandată:** 1 → 2 → 3, apoi 4 și 5 doar la nevoie. Detaliile (efort, garanții de verificare) sunt în conversația de definire a epicului; cerințele de bază rămân în `admin dashboard requirements.md`, secțiunea 11.
+
+## 9. Epic: meniul utilizatorului și pagina „Datele mele” (2026-10-30)
+
+- **Cerere:** pagină cu detaliile utilizatorului; în antet un **singur element** (propus: un „chip” cu avatarul, prenumele și un punct de sincronizare), care deschide un dropdown cu **Datele mele**, **Administrare** (doar pentru administratori) și **Ieși**.
+- **Status:** **definit, în așteptarea aprobării** (nimic implementat). Cerințele, meniul, pagina „Datele mele” (profil, ligă, parolă), fazele (1 meniul, 2 datele mele, 3 securitate, 4 opțional), riscurile și deciziile deschise cu recomandări sunt în `user details page requirements.md`.
+- **De decis înainte de implementare:** ce înlocuiește „← Toate temele” din antet (recomandat: sigla clicabilă plus butoane „Înapoi” în pagină unde lipsesc), cum se schimbă parola, dacă Exportă/Importă/Resetează se mută în „Datele mele”.
