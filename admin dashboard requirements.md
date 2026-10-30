@@ -1,6 +1,6 @@
 # Administrator și panoul de administrare (epic) · cerințe
 
-- **Stare:** recomandările din secțiunea 10 **aprobate** (2026-10-30). **Fazele 1 (fundația), 2 (lista), 3 (invitații și înregistrare, verificată cu o invitație reală) și 4 (gestionarea conturilor) implementate** (2026-10-30), vezi secțiunea 13; faza 5 (opțională) urmează la cerere.
+- **Stare:** recomandările din secțiunea 10 **aprobate** (2026-10-30). **Fazele 1 (fundația), 2 (lista), 3 (invitații și înregistrare) și 4 (gestionarea conturilor) implementate și verificate cu teste reale** (2026-10-30), vezi secțiunea 13; **faza 5 (opțională) este parcată pentru mai târziu**, vezi `features backlog.md`, secțiunea 8.
 - **Legat de:** `features backlog.md`, secțiunea 8
 - **Despre ce este vorba:** un rol nou, **Administrator**, și un **panou de administrare** (Admin dashboard) la care are acces doar el. Prima versiune acoperă gestionarea utilizatorilor: lista conturilor și invitarea de utilizatori noi prin email.
 
