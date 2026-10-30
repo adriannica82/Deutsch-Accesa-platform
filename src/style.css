@@ -86,3 +86,19 @@ dialog#leagueDialog::backdrop,dialog#inviteDialog::backdrop,dialog#manageDialog:
 .mgacts{display:grid;gap:10px;margin:16px 0 8px}.mgacts button{width:100%;text-align:left}
 button.danger{color:var(--red);border-color:var(--red)}button.danger:disabled{opacity:.4}
 .audit li{display:block;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;overflow-wrap:anywhere}.audit .when{display:block;font-size:12px;color:var(--muted)}
+
+button.brand{background:none;border:0;border-radius:8px;padding:0;min-height:44px;color:var(--ink);font-weight:800;letter-spacing:-.6px;font-size:19px;text-align:left;cursor:pointer}button.brand:hover:not(:disabled){background:none}button.brand span{font-weight:450;color:var(--muted)}
+.usermenu{position:relative}
+button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:4px 12px 4px 4px;border-radius:999px;position:relative}
+.chipav{width:34px;height:34px;border-radius:50%;background:var(--lime);color:var(--green);display:grid;place-items:center;font-size:18px;font-weight:800;line-height:1}
+.chipname{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chipcar{font-size:12px;color:var(--muted)}
+.chipdot{position:absolute;left:30px;top:30px;width:12px;height:12px;border-radius:50%;border:2px solid #fff;background:#9aa8ad}
+.chip[data-sync=ok] .chipdot{background:var(--green)}.chip[data-sync=pending] .chipdot{background:#d9822b}.chip[data-sync=offline] .chipdot{background:#9aa8ad}
+.menuscrim{position:fixed;inset:0;z-index:40;background:transparent}
+.menupanel{position:absolute;right:0;top:calc(100% + 8px);z-index:50;min-width:260px;max-width:min(320px,calc(100vw - 32px));background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 40px rgba(23,49,57,.22);padding:8px;display:grid;gap:4px}
+.menupanel[hidden],.menuscrim[hidden]{display:none}
+.mhead{display:grid;gap:2px;padding:10px 12px 12px;border-bottom:1px solid var(--line);margin-bottom:4px;overflow-wrap:anywhere}.mhead b{font-size:16px}.mhead .pill{justify-self:start;margin:6px 0 0}
+.menupanel button[role=menuitem]{border:0;background:transparent;text-align:left;padding:12px;border-radius:10px;min-height:44px;width:100%}.menupanel button[role=menuitem]:hover:not(:disabled),.menupanel button[role=menuitem]:focus-visible{background:#edf3ed}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:12px 22px;margin:0}.kv dt{color:var(--muted);font-size:14px}.kv dd{margin:0;font-weight:650;overflow-wrap:anywhere}
+@media(max-width:720px){.menuscrim{background:rgba(23,49,57,.5)}.menupanel{position:fixed;left:0;right:0;bottom:0;top:auto;max-width:none;border-radius:20px 20px 0 0;padding:12px 12px max(12px,env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(23,49,57,.3)}}
+@media(max-width:480px){.chipname,.chipcar{display:none}button.chip{padding:4px}.chipdot{left:28px;top:28px}button.brand span{display:none}button.brand{font-size:16px}}

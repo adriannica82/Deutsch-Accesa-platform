@@ -17,7 +17,7 @@ const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const LEVELS={A1:1,A2:2,B1:3,B2:4,C1:5,C2:6},levelKey=l=>{const r=(String(l).match(/[ABC][12]/g)||[]).map(x=>LEVELS[x]);return r.length?[Math.min(...r),Math.max(...r)]:[99,99]};
 const topics=CONTENT.topics.slice().sort((a,b)=>{const x=levelKey(a.level),y=levelKey(b.level);return x[0]-y[0]||x[1]-y[1]||a.order-b.order}),topicById=Object.create(null),byId=Object.create(null),allItems=[];
 topics.forEach(t=>{topicById[t.id]=t;t.qs=t.items.map(it=>{const q={...it,alt:it.alt||[],group:it.group||'',gid:t.id+'/'+it.id,topic:t};byId[q.gid]=q;allItems.push(q);return q})});
-const VIEWS=['login','register','home','topic','quiz','results','study','league','admin'];
+const VIEWS=['login','register','home','topic','quiz','results','study','league','account','admin'];
 let state={active:false},currentView='home',studyReturn='home',cur=null,builtFor='',studyTopic=null,progress=Object.create(null),history=[],storageOK=true;
 
 // ---------- Progres salvat local ----------
@@ -38,7 +38,7 @@ const modeLabel=(t,m)=>m==='choice'?'Alege '+t.answerNoun:m==='write'?'Scrie '+t
 const guideDetails=(t,open)=>t.guideHtml?'<details class="card prep-guide"'+(open?' open':'')+'><summary>'+escape(t.guideTitle)+'</summary>'+t.guideHtml+'</details>':'';
 
 // ---------- Navigare ----------
-function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;$('navHome').hidden=id==='home'||id==='quiz'||id==='login'||id==='register';syncAdminNav();if(id==='home')renderHome();if(id==='topic')renderTopic();if(id==='league')renderLeague();if(id!=='login')pushView(id);window.scrollTo(0,0)}
+function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;closeUserMenu();syncUserMenu();if(id==='home')renderHome();if(id==='topic')renderTopic();if(id==='league')renderLeague();if(id==='account')renderAccount();if(id!=='login')pushView(id);window.scrollTo(0,0)}
 function renderHome(){
 $('heroTopics').textContent=countRo(topics.length,['temă','teme']);$('heroItems').textContent=countRo(allItems.length,['întrebare','întrebări']);
 $('progressStats').innerHTML=statsHtml(allItems);$('timeStats').innerHTML=timeHtml();$('storeWarn').hidden=storageOK;
@@ -217,7 +217,7 @@ $('retry').onclick=()=>begin(shuffled(state.answers.filter(a=>!a.ok).map(a=>byId
 $('check').onclick=()=>check();$('skip').onclick=()=>check(true);$('next').onclick=advance;
 $('prev').onclick=()=>{if(state.active&&state.index>0){state.index--;renderQuestion()}};
 $('quit').onclick=()=>{if(!confirm('Închei sesiunea acum? Vei vedea scorul pentru întrebările la care ai răspuns.'))return;endSession()};
-$('newTest').onclick=()=>show(state.topic?'topic':'home');$('navHome').onclick=()=>show('home');
+$('newTest').onclick=()=>show(state.topic?'topic':'home');$('topicBack').onclick=$('resultsHome').onclick=()=>show('home');
 $('resultStudy').onclick=()=>openStudy(state.topic);$('topicStudy').onclick=()=>openStudy(cur);$('studyBack').onclick=()=>show(studyReturn);
 $('search').oninput=renderStudy;$('studyFilter').onchange=renderStudy;
 $('topicGrid').onclick=e=>{const b=e.target.closest('[data-topic]');if(b)openTopic(b.dataset.topic)};
@@ -258,7 +258,7 @@ const saveOutbox=()=>{try{localStorage.setItem(OKEY+sfx(),JSON.stringify(outbox)
 function loadOutbox(){try{const o=JSON.parse(localStorage.getItem(OKEY+sfx()));outbox={q:Array.isArray(o&&o.q)?o.q:[],p:Array.isArray(o&&o.p)?o.p:[],d:o&&o.d&&typeof o.d==='object'&&!Array.isArray(o.d)?o.d:{}}}catch{outbox={q:[],p:[],d:{}}}}
 function enqueue(op){outbox.q.push(op);saveOutbox();flush()}
 function queueProgress(g){if(!outbox.p.includes(g))outbox.p.push(g);saveOutbox();flush()}
-function setSync(){if(!auth)return;const n=outbox.q.length+outbox.p.length+Object.keys(outbox.d).length;$('syncState').textContent=!navigator.onLine?'Offline':n?n+' de trimis':'Sincronizat';$('syncState').classList.toggle('ok',navigator.onLine&&!n)}
+function setSync(){if(!auth)return;const n=outbox.q.length+outbox.p.length+Object.keys(outbox.d).length,st=!navigator.onLine?'offline':n?'pending':'ok';$('syncState').textContent=st==='offline'?'Offline':st==='pending'?n+' de trimis':'Sincronizat';$('userChip').dataset.sync=st}
 async function send(path,method,body,prefer){const r=await api(path,{method,body,headers:{Prefer:[prefer,'return=minimal'].filter(Boolean).join(',')}});return r.ok?'ok':(r.status>=500||r.status===429||r.status===401||r.status===408)?'retry':(console.warn('Sincronizare respinsă',r.status,path),'drop')}
 function sendOp(op){
 if(op.k==='s')return send('/rest/v1/sessions?on_conflict=id','POST',[op.row],'resolution=ignore-duplicates');
@@ -279,7 +279,7 @@ lastFlushFailed=outbox.q.length>0;flushing=false;setSync()}
 async function sync(){
 try{
 await flush();
-if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at,league_recap_seen_week,role,first_name,last_name&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();syncAdminNav();maybePrompt()}}
+if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at,league_recap_seen_week,role,first_name,last_name&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();syncUserMenu();maybePrompt()}}
 refreshLeague();
 const r=await api('/rest/v1/progress?select=item_id,box,due,seen,right_count,wrong_count,last&limit=1000');
 if(r.ok){const remote=Object.create(null),rows=await r.json();
@@ -293,9 +293,9 @@ const tr=await api('/rest/v1/sessions?select=id,started_at,duration_s&duration_s
 if(tr.ok)mergeTime(cleanTime((await tr.json()).map(x=>({id:x.id,t:Date.parse(x.started_at),sec:x.duration_s}))));
 save();saveTime();if(currentView==='home')renderHome();if(currentView==='topic')renderTopic()}catch{}
 setSync()}
-function showLogin(){$('logout').hidden=$('userEmail').hidden=$('syncState').hidden=true;$('loginError').hidden=true;show('login')}
+function showLogin(){$('userMenu').hidden=true;$('loginError').hidden=true;show('login')}
 async function afterLogin(){
-loadProgress();loadOutbox();loadProfile();$('userEmail').textContent=auth.user.email;$('userEmail').hidden=$('syncState').hidden=$('logout').hidden=false;
+loadProgress();loadOutbox();loadProfile();
 $('storeNote').textContent='Conectat ca '+auth.user.email+'. Progresul și sesiunile tale se salvează în contul tău și se sincronizează între dispozitive. Exportă-l dacă vrei o copie.';
 $('footNote').textContent='Exemple adaptate pentru test · Date salvate în contul personal.';
 show('home');setSync();sync()}
@@ -305,7 +305,7 @@ $('loginForm').onsubmit=async e=>{e.preventDefault();const b=$('loginBtn');b.dis
 try{await authCall('password',{email:$('email').value.trim(),password:$('password').value});$('password').value='';pendingPrompt=true;await afterLogin()}
 catch(err){$('password').value='';$('loginError').textContent=err.message==='bad'?'Email sau parolă incorecte.':'Nu m-am putut conecta la server. Verifică conexiunea și încearcă din nou.';$('loginError').hidden=false}
 b.disabled=false};
-$('logout').onclick=async()=>{await flush();try{await api('/auth/v1/logout',{method:'POST'})}catch{}dropSession()};
+$('miLogout').onclick=async()=>{closeUserMenu();await flush();try{await api('/auth/v1/logout',{method:'POST'})}catch{}dropSession()};
 addEventListener('online',()=>{if(auth){flush().then(sync)}else setSync()});addEventListener('offline',setSync);
 setInterval(()=>{if(auth)flush()},30000)}
 
@@ -383,13 +383,42 @@ body.innerHTML=(ms.length===1&&me?soloHtml(me):'')+rankRows(ms)+(ms.length===1?'
 renderHistory();
 $('leagueHowBody').innerHTML='<ul class="xplist"><li>Răspuns corect: <b>10</b> puncte de bază la o întrebare nouă, <b>15</b> la una scadentă, <b>5</b> la o reluare înainte de scadență, <b>+5</b> dacă ai greșit-o data trecută.</li><li>La „scrie” punctele se înmulțesc cu <b>1,5</b>, la „scrie + caz” cu <b>2</b>.</li><li>Primele 400 de puncte pe zi contează întregi, restul doar 25%.</li><li>Apoi se înmulțesc cu <b>multiplicatorul temei</b>: '+[...new Set(topics.map(t=>t.level+' ×'+fmtMult(t.xp)))].join(' · ')+'.</li><li>Bonusuri: <b>+20 XP</b> pentru o sesiune cu minimum 10 întrebări și minimum 60% corecte, <b>+10 XP</b> pentru prima sesiune a zilei.</li><li>Săptămâna începe luni și se încheie duminică (ora României). Clasamentul se actualizează după fiecare sesiune terminată.</li></ul>'}
 function openLeague(){show('league');refreshStandings()}
+// ---------- Meniul utilizatorului (chip în antet) și pagina „Datele mele”
+// Singurul element din dreapta antetului: avatar + prenume + punct de sincronizare; deschide Datele mele · Administrare (doar administratori) · Ieși.
+const userFirst=()=>(profile&&profile.first_name)||(profile&&profile.display_name)||((auth&&auth.user.email)||'').split('@')[0];
+function syncUserMenu(){
+const m=$('userMenu'),on=!!auth&&!['login','register','quiz'].includes(currentView);
+m.hidden=!on;if(!on){closeUserMenu();return}
+const p=profile||{},nm=userFirst(),full=[p.first_name,p.last_name].filter(Boolean).join(' ')||nm;
+$('chipAv').textContent=p.avatar||(nm||'?').charAt(0).toUpperCase();$('chipName').textContent=nm;
+$('mhName').textContent=full;$('mhEmail').textContent=auth.user.email;$('mhRole').hidden=!isAdmin();$('miAdmin').hidden=!isAdmin();
+$('userChip').setAttribute('aria-label','Meniul utilizatorului: '+full)}
+function openUserMenu(){$('userPanel').hidden=$('menuScrim').hidden=false;$('userChip').setAttribute('aria-expanded','true');const f=$('userPanel').querySelector('[role=menuitem]:not([hidden])');if(f)f.focus()}
+function closeUserMenu(focusChip){if($('userPanel').hidden)return;$('userPanel').hidden=$('menuScrim').hidden=true;$('userChip').setAttribute('aria-expanded','false');if(focusChip)$('userChip').focus()}
+$('userChip').onclick=()=>{if($('userPanel').hidden)openUserMenu();else closeUserMenu(true)};
+$('userChip').addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();if($('userPanel').hidden)openUserMenu()}});
+$('menuScrim').onclick=()=>closeUserMenu(true);
+$('userPanel').addEventListener('keydown',e=>{
+if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeUserMenu(true);return}
+if(e.key==='Tab'){closeUserMenu();return}
+const it=[...$('userPanel').querySelectorAll('[role=menuitem]:not([hidden])')],i=it.indexOf(document.activeElement);
+if(e.key==='ArrowDown'){e.preventDefault();it[(i+1)%it.length].focus()}
+else if(e.key==='ArrowUp'){e.preventDefault();it[(i-1+it.length)%it.length].focus()}
+else if(e.key==='Home'){e.preventDefault();it[0].focus()}
+else if(e.key==='End'){e.preventDefault();it[it.length-1].focus()}});
+$('brandHome').onclick=()=>{if(CLOUD&&!auth)return;if(['login','register','quiz'].includes(currentView))return;show('home')};
+$('miAccount').onclick=()=>{closeUserMenu();show('account')};
+function renderAccount(){
+const p=profile||{},rows=[['Nume',[p.first_name,p.last_name].filter(Boolean).join(' ')||'—'],['Email',auth.user.email],['Rol',isAdmin()?'Administrator':'Utilizator'],['Nume afișat în ligă',p.display_name||'—']];
+$('accountBody').innerHTML=rows.map(r=>'<dt>'+r[0]+'</dt><dd>'+escape(r[1])+'</dd>').join('')}
+$('accountBack').onclick=()=>show('home');
+
 // ---------- Administrare ----------
 // Rolul vine de pe server (profiles.role); aici doar ascundem intrarea. Autorizarea o face serverul (is_admin()).
 const isAdmin=()=>!!(auth&&profile&&profile.role==='admin');
-function syncAdminNav(){$('navAdmin').hidden=!isAdmin()||['login','register','quiz','admin'].includes(currentView)}
 const adm={q:'',status:'all',role:'all',sort:'created',dir:'desc',page:0,size:25};let admSeq=0,admTimer=0,admRows=new Map();
 const admDate=(x,t)=>x?new Date(x).toLocaleString('ro-RO',t?{dateStyle:'short',timeStyle:'short'}:{dateStyle:'medium'}):'—';
-function admDeny(){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}$('admCounts').innerHTML='';$('admCount').textContent='';$('admPager').innerHTML='';$('admList').innerHTML='<p>Nu ai acces la această zonă.</p>';syncAdminNav()}
+function admDeny(){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}$('admCounts').innerHTML='';$('admCount').textContent='';$('admPager').innerHTML='';$('admList').innerHTML='<p>Nu ai acces la această zonă.</p>';syncUserMenu()}
 function admRow(u){const nm=[u.first_name,u.last_name].filter(Boolean).join(' ');
 return'<tr><td data-l="Nume"><b>'+(nm?escape(nm):'<span class="muted">—</span>')+'</b>'+(u.display_name?'<span class="small muted"> · '+escape(u.display_name)+'</span>':'')+'</td><td data-l="Email" class="admem">'+escape(u.email||'')+'</td><td data-l="Rol"><span class="pill r-'+u.role+'">'+(u.role==='admin'?'Administrator':'Utilizator')+'</span></td><td data-l="Stare"><span class="pill st-'+u.status+'">'+(u.status==='active'?'Activ':u.status==='invited'?'Invitat':'Dezactivat')+'</span></td><td data-l="Înregistrat">'+admDate(u.created_at)+'</td><td data-l="Ultima autentificare">'+(u.status==='invited'?'invitat la '+admDate(u.invited_at):admDate(u.last_sign_in_at,1))+'</td><td data-l="Acțiuni">'+(u.status!=='invited'?'<div class="admact"><button type="button" data-act="manage" data-id="'+escape(u.user_id)+'">Gestionează</button></div>':'<div class="admact"><button type="button" data-act="resend" data-id="'+escape(u.user_id)+'">Retrimite</button><button type="button" data-act="revoke" data-id="'+escape(u.user_id)+'" data-email="'+escape(u.email||'')+'">Anulează</button></div>')+'</td></tr>'}
 async function loadAdmin(){
@@ -506,7 +535,7 @@ catch{if(seq===audSeq)$('admAudit').innerHTML='<p class="error">Nu am putut înc
 const auditRefresh=()=>{if($('admAuditBox').open)loadAudit(false)};
 $('admAuditBox').addEventListener('toggle',()=>{if($('admAuditBox').open)loadAudit(false)});
 $('admAudit').onclick=e=>{if(e.target.closest('#audMore'))loadAudit(true)};
-$('navAdmin').onclick=openAdmin;$('adminBack').onclick=()=>show('home');
+$('miAdmin').onclick=()=>{closeUserMenu();openAdmin()};$('adminBack').onclick=()=>show('home');
 $('leagueBack').onclick=()=>show('home');$('leagueRefresh').onclick=refreshStandings;
 $('leagueBody').onclick=e=>{if(e.target.closest('[data-league=join]'))openLeagueDialog('register')};
 
@@ -549,7 +578,7 @@ let profile=null,profileFresh=false,pendingPrompt=false,ldMode='prompt',ldHandle
 const sameDay=(a,b)=>a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
 const defaultName=()=>{if(profile&&profile.first_name)return profile.first_name.slice(0,24);const w=((auth&&auth.user.email)||'').split('@')[0].split(/[._+-]/)[0];return w?w.charAt(0).toUpperCase()+w.slice(1,24):''};
 function loadProfile(){try{profile=JSON.parse(localStorage.getItem(PROFKEY+sfx()))}catch{profile=null}profileFresh=false}
-function patchProfile(patch){profile=Object.assign({},profile||{},patch);try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}enqueue({k:'pf',patch});renderLeagueCard()}
+function patchProfile(patch){profile=Object.assign({},profile||{},patch);try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}enqueue({k:'pf',patch});renderLeagueCard();syncUserMenu()}
 function renderLeagueCard(){
 renderRecap();const c=$('leagueCard');if(!c)return;
 if(!CLOUD||!auth||(!profile&&!profileFresh)){c.hidden=true;return}
@@ -612,7 +641,7 @@ const LINK_DEAD='Invitația a expirat sau a fost deja folosită. Cere o invitaț
 async function startRegister(link){
 if(link.error){regFail(LINK_DEAD);return}
 reg={token:link.token,refresh:link.refresh,exp:link.exp,type:link.type};
-$('logout').hidden=$('userEmail').hidden=$('syncState').hidden=true;
+$('userMenu').hidden=true;
 show('register');$('regBtn').disabled=true;$('regErr').hidden=true;
 try{
 const H={apikey:CFG.key,Authorization:'Bearer '+reg.token};
@@ -672,6 +701,7 @@ else if(s.v==='study'&&topicById[s.s])openStudy(topicById[s.s]);
 else if(s.v==='results'&&state.answers&&state.answers.length&&!state.active)show('results');
 else if(s.v==='quiz'&&state.active)show('quiz');
 else if(s.v==='league'&&CLOUD&&auth)openLeague();
+else if(s.v==='account'&&CLOUD&&auth)show('account');
 else if(s.v==='admin'&&isAdmin())openAdmin();
 else show('home')}
 finally{navSilent=false}});

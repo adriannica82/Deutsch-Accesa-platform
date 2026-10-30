@@ -1,6 +1,6 @@
 # Pagina „Datele mele” și meniul utilizatorului (epic) · cerințe
 
-- **Stare:** **ciornă pentru aprobare** (2026-10-30). Nimic nu este implementat încă. Deciziile deschise sunt în secțiunea 9, fiecare cu o recomandare.
+- **Stare:** recomandările din secțiunea 9 **aprobate** (2026-10-30). **Faza 1 (meniul utilizatorului) implementată** (2026-10-30), vezi secțiunea 12; fazele 2–4 urmează.
 - **Legat de:** `features backlog.md`, secțiunea 9; `admin dashboard requirements.md` (ecranul de administrare rămâne neschimbat, doar se schimbă intrarea în el).
 - **Despre ce este vorba:** antetul aplicației primește **un singur element în dreapta, meniul utilizatorului**. Din el se ajunge la o pagină nouă, **„Datele mele”**, la ecranul **Administrare** (doar pentru administratori) și la **Ieși**.
 
@@ -119,4 +119,14 @@ Criteriile pentru fazele 2–3 se detaliază după aprobarea acestui document.
 
 ## 12. Stare implementare
 
-Nimic implementat încă. După aprobarea secțiunii 9 încep cu faza 1 și actualizez acest document cu starea fiecărei faze.
+### Faza 1 · meniul utilizatorului (implementat, 2026-10-30)
+
+- **Antet:** în dreapta rămâne un singur element, **chipul** (avatar sau inițială, prenume, săgeată ▾, punct de sincronizare). Dispar din antet emailul, textul de sincronizare, **Administrare**, **← Toate temele** și **Ieși**. Sigla „Deutsch / antrenament” este acum un buton către pagina principală (nu face nimic pe ecranul de autentificare, de înregistrare și în timpul unui test).
+- **Meniu:** se deschide la clic/atingere; cap cu numele, emailul, insigna „Administrator” (doar administratori) și starea sincronizării în cuvinte; opțiunile **Datele mele**, **Administrare** (ascunsă pentru utilizatorii obișnuiți; accesul real rămâne verificat pe server) și **Ieși**. Se închide la clic în afară, la Esc (focusul revine pe chip), la Tab, la alegerea unei opțiuni și la schimbarea ecranului. Săgeți sus/jos, Home și End mută focusul între opțiuni; atribute `aria-haspopup`, `aria-expanded`, `role=menu`/`menuitem`. Pe ecrane sub 720 px apare ca foaie ancorată jos, cu fundal întunecat; sub 480 px chipul arată doar avatarul.
+- **Punctul de sincronizare:** verde (sincronizat), portocaliu (date de trimis, cu numărul în meniu), gri (offline).
+- **Decizie la implementare:** în timpul unui test chipul este **ascuns** (testul e un mod concentrat, are propriul buton „← Încheie sesiunea”); apare din nou la rezultate și pe celelalte ecrane. Pe ecranul de autentificare și de înregistrare nu există chip; în modul local (fără cont) nu există chip.
+- **Căi de întoarcere (9.1):** tema primește butonul **← Toate temele** în pagină, rezultatele primesc **Toate temele** lângă „Configurează alt test”; ecranele de studiu, ligă, administrare și „Datele mele” aveau/au propriul „← Înapoi”.
+- **„Datele mele” (versiune simplă):** ecran nou, cu intrare proprie în istoricul browserului (butoanele „înapoi”/„înainte” funcționează), cu nume, email, rol și nume afișat în ligă, doar citire. Editarea vine în faza 2.
+- **Fișiere:** `src/template.html` (antet, ecranul `account`, butoanele de întoarcere), `src/style.css`, `src/app.js` (modulul „Meniul utilizatorului”, `show`, `setSync`, `afterLogin`, `popstate`); regenerat `deutsch.html`. Fără modificări pe server.
+- **Verificare (în browser, cu răspunsuri simulate):** antet cu doar sigla și chipul pe desktop și pe 375 px, fără depășire orizontală, țintă de 44 × 44 px; meniul pentru administrator (3 opțiuni) și pentru utilizator obișnuit (2 opțiuni, fără insignă); avatar, respectiv inițială când lipsește; tastatură (săgeți, End, Esc cu revenirea focusului), închidere prin fundal; „Datele mele” și întoarcerea; Administrare din meniu; sigla duce acasă, dar nu scoate din test; temă → înapoi; punct offline/online; ieșirea din cont; istoricul browserului pentru „Datele mele”.
+- **Netestat:** butonul „Toate temele” de pe ecranul de rezultate pe un test terminat (verificat doar că există și că are același comportament ca cel din temă), ecranul ligii cu date reale, iPhone real.
