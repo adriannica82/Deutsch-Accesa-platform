@@ -1,6 +1,6 @@
 # Administrator și panoul de administrare (epic) · cerințe
 
-- **Stare:** **ciornă pentru aprobare** (2026-10-30). Nimic nu este implementat încă. Deciziile deschise sunt în secțiunea 10, fiecare cu o recomandare.
+- **Stare:** recomandările din secțiunea 10 **aprobate** (2026-10-30). **Faza 1 (fundația) implementată** (2026-10-30), vezi secțiunea 13; fazele 2–5 urmează.
 - **Legat de:** `features backlog.md`, secțiunea 8
 - **Despre ce este vorba:** un rol nou, **Administrator**, și un **panou de administrare** (Admin dashboard) la care are acces doar el. Prima versiune acoperă gestionarea utilizatorilor: lista conturilor și invitarea de utilizatori noi prin email.
 
@@ -163,4 +163,12 @@ Nu sunt incluse în fazele 1–4; le poți alege sau le poți lăsa pentru un ep
 
 ## 13. Stare implementare
 
-Nimic implementat încă. După aprobarea secțiunii 10 încep cu faza 1 și actualizez acest document cu starea fiecărei faze.
+### Faza 1 · fundația (implementat, 2026-10-30)
+
+- **Server (migrarea `admin_role_phase1`, copiată în `supabase/schema.sql`, secțiunea 7):** coloana `profiles.role` (`user` / `admin`, implicit `user`); utilizatorii au acum drepturi de `insert`/`update` **doar pe coloanele lor** (fără `role`), deci nu își pot acorda rolul; funcția `is_admin()`; funcția `admin_summary()` (numără conturile și administratorii, **refuză cu eroare 403** pe oricine nu e administrator).
+- **Primul administrator:** contul `adrian.nica@accesa.eu` (singurul cont „Adrian”), pus prin SQL. Alte conturi: `user`.
+- **Aplicație:** butonul **Administrare** în antet, vizibil doar când profilul are `role = admin`; ecranul „Panou de administrare” confirmă accesul prin server și arată numărul de conturi și de administratori. Dacă serverul refuză (rol local falsificat sau retras), apare „Nu ai acces la această zonă.”, iar butonul dispare.
+- **Fișiere modificate:** `src/app.js` (modulul „Administrare”, `role` în citirea profilului, ruta `admin` la „înapoi”), `src/template.html` (butonul și secțiunea `#admin`), `supabase/schema.sql`; regenerat `deutsch.html`.
+- **Verificare (pe baza reală, într-o tranzacție anulată):** un utilizator obișnuit nu poate nici să insereze, nici să actualizeze `role = 'admin'` (eroare de permisiune), nu poate apela `admin_summary()` și `is_admin()` întoarce `false`; administratorul primește `is_admin() = true` și `admin_summary()` = 3 conturi, 1 administrator, și își poate actualiza în continuare profilul. În browser (cu răspunsuri simulate): utilizatorul obișnuit nu vede butonul, administratorul vede ecranul cu cifrele, iar un rol falsificat local primește „Nu ai acces”; antetul încape pe telefon (375 px).
+- **Nu e acoperit încă:** AD-5 (protecția ultimului administrator) se face în faza 4, odată cu schimbarea rolurilor din panou. Testul pe un iPhone real nu a fost făcut.
+- **Observații Supabase:** avertismentele „SECURITY DEFINER executabil de utilizatori autentificați” pentru `is_admin()` și `admin_summary()` sunt intenționate (funcțiile verifică singure rolul). **Protecția la parole compromise (Leaked password protection) este oprită** în proiect; recomand s-o pornești din Supabase (Authentication → Policies) înainte de faza 3, când utilizatorii noi își aleg parola.

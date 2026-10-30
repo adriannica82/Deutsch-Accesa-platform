@@ -600,3 +600,44 @@ end $function$;
 revoke execute on function public.league_close_week(date), public.league_sync() from public, anon, authenticated;
 revoke execute on function public.league_standings() from public, anon;
 grant execute on function public.league_standings() to authenticated;
+
+-- ======================================================================
+-- 7. Rolul Administrator, faza 1 (migrarea admin_role_phase1)
+-- ======================================================================
+
+alter table public.profiles add column if not exists role text not null default 'user';
+alter table public.profiles drop constraint if exists profiles_role_valid;
+alter table public.profiles add constraint profiles_role_valid check (role in ('user', 'admin'));
+
+-- Utilizatorii scriu doar pe coloanele lor; „role” rămâne doar pentru server (și pentru SQL manual).
+revoke insert, update on public.profiles from authenticated;
+grant insert (user_id, display_name, avatar, league_registered, league_prompt_skip, league_prompted_at, league_recap_seen_week, registered_at, created_at)
+  on public.profiles to authenticated;
+grant update (user_id, display_name, avatar, league_registered, league_prompt_skip, league_prompted_at, league_recap_seen_week, registered_at, created_at)
+  on public.profiles to authenticated;
+
+create or replace function public.is_admin()
+returns boolean language sql stable security definer set search_path = ''
+as $$ select exists (select 1 from public.profiles where user_id = (select auth.uid()) and role = 'admin'); $$;
+revoke all on function public.is_admin() from public, anon;
+grant execute on function public.is_admin() to authenticated;
+
+create or replace function public.admin_summary()
+returns jsonb language plpgsql stable security definer set search_path = ''
+as $$
+begin
+  if not public.is_admin() then
+    raise exception 'forbidden' using errcode = '42501';
+  end if;
+  return jsonb_build_object(
+    'accounts', (select count(*) from auth.users),
+    'admins', (select count(*) from public.profiles where role = 'admin')
+  );
+end;
+$$;
+revoke all on function public.admin_summary() from public, anon;
+grant execute on function public.admin_summary() to authenticated;
+
+-- Primul administrator (o singură dată, manual; înlocuiește id-ul):
+-- insert into public.profiles (user_id, role) values ('<id din auth.users>', 'admin')
+--   on conflict (user_id) do update set role = 'admin';

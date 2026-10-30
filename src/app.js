@@ -17,7 +17,7 @@ const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const LEVELS={A1:1,A2:2,B1:3,B2:4,C1:5,C2:6},levelKey=l=>{const r=(String(l).match(/[ABC][12]/g)||[]).map(x=>LEVELS[x]);return r.length?[Math.min(...r),Math.max(...r)]:[99,99]};
 const topics=CONTENT.topics.slice().sort((a,b)=>{const x=levelKey(a.level),y=levelKey(b.level);return x[0]-y[0]||x[1]-y[1]||a.order-b.order}),topicById=Object.create(null),byId=Object.create(null),allItems=[];
 topics.forEach(t=>{topicById[t.id]=t;t.qs=t.items.map(it=>{const q={...it,alt:it.alt||[],group:it.group||'',gid:t.id+'/'+it.id,topic:t};byId[q.gid]=q;allItems.push(q);return q})});
-const VIEWS=['login','home','topic','quiz','results','study','league'];
+const VIEWS=['login','home','topic','quiz','results','study','league','admin'];
 let state={active:false},currentView='home',studyReturn='home',cur=null,builtFor='',studyTopic=null,progress=Object.create(null),history=[],storageOK=true;
 
 // ---------- Progres salvat local ----------
@@ -38,7 +38,7 @@ const modeLabel=(t,m)=>m==='choice'?'Alege '+t.answerNoun:m==='write'?'Scrie '+t
 const guideDetails=(t,open)=>t.guideHtml?'<details class="card prep-guide"'+(open?' open':'')+'><summary>'+escape(t.guideTitle)+'</summary>'+t.guideHtml+'</details>':'';
 
 // ---------- Navigare ----------
-function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;$('navHome').hidden=id==='home'||id==='quiz'||id==='login';if(id==='home')renderHome();if(id==='topic')renderTopic();if(id==='league')renderLeague();if(id!=='login')pushView(id);window.scrollTo(0,0)}
+function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;$('navHome').hidden=id==='home'||id==='quiz'||id==='login';syncAdminNav();if(id==='home')renderHome();if(id==='topic')renderTopic();if(id==='league')renderLeague();if(id!=='login')pushView(id);window.scrollTo(0,0)}
 function renderHome(){
 $('heroTopics').textContent=countRo(topics.length,['temă','teme']);$('heroItems').textContent=countRo(allItems.length,['întrebare','întrebări']);
 $('progressStats').innerHTML=statsHtml(allItems);$('timeStats').innerHTML=timeHtml();$('storeWarn').hidden=storageOK;
@@ -279,7 +279,7 @@ lastFlushFailed=outbox.q.length>0;flushing=false;setSync()}
 async function sync(){
 try{
 await flush();
-if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at,league_recap_seen_week&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();maybePrompt()}}
+if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at,league_recap_seen_week,role&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();syncAdminNav();maybePrompt()}}
 refreshLeague();
 const r=await api('/rest/v1/progress?select=item_id,box,due,seen,right_count,wrong_count,last&limit=1000');
 if(r.ok){const remote=Object.create(null),rows=await r.json();
@@ -383,6 +383,22 @@ body.innerHTML=(ms.length===1&&me?soloHtml(me):'')+rankRows(ms)+(ms.length===1?'
 renderHistory();
 $('leagueHowBody').innerHTML='<ul class="xplist"><li>Răspuns corect: <b>10</b> puncte de bază la o întrebare nouă, <b>15</b> la una scadentă, <b>5</b> la o reluare înainte de scadență, <b>+5</b> dacă ai greșit-o data trecută.</li><li>La „scrie” punctele se înmulțesc cu <b>1,5</b>, la „scrie + caz” cu <b>2</b>.</li><li>Primele 400 de puncte pe zi contează întregi, restul doar 25%.</li><li>Apoi se înmulțesc cu <b>multiplicatorul temei</b>: '+[...new Set(topics.map(t=>t.level+' ×'+fmtMult(t.xp)))].join(' · ')+'.</li><li>Bonusuri: <b>+20 XP</b> pentru o sesiune cu minimum 10 întrebări și minimum 60% corecte, <b>+10 XP</b> pentru prima sesiune a zilei.</li><li>Săptămâna începe luni și se încheie duminică (ora României). Clasamentul se actualizează după fiecare sesiune terminată.</li></ul>'}
 function openLeague(){show('league');refreshStandings()}
+// ---------- Administrare ----------
+// Rolul vine de pe server (profiles.role); aici doar ascundem intrarea. Autorizarea o face serverul (is_admin()).
+const isAdmin=()=>!!(auth&&profile&&profile.role==='admin');
+function syncAdminNav(){$('navAdmin').hidden=!isAdmin()||['login','quiz','admin'].includes(currentView)}
+async function openAdmin(){
+if(!isAdmin()){show('home');return}
+show('admin');$('adminMeta').textContent='';$('adminBody').innerHTML='<p class="muted">Se verifică accesul…</p>';
+try{
+const r=await api('/rest/v1/rpc/admin_summary',{method:'POST',body:{}});
+if(r.status===401||r.status===403){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}$('adminBody').innerHTML='<p>Nu ai acces la această zonă.</p>';syncAdminNav();return}
+if(!r.ok)throw new Error('http');
+const j=await r.json();
+$('adminMeta').textContent='Acces confirmat de server. Gestionarea utilizatorilor urmează în pașii următori.';
+$('adminBody').innerHTML='<div class="mstats"><div><b>'+j.accounts+'</b><span>conturi</span></div><div><b>'+j.admins+'</b><span>'+(j.admins===1?'administrator':'administratori')+'</span></div></div>'}
+catch{$('adminBody').innerHTML='<p class="error">Nu am putut verifica accesul. Verifică conexiunea și încearcă din nou.</p>'}}
+$('navAdmin').onclick=openAdmin;$('adminBack').onclick=()=>show('home');
 $('leagueBack').onclick=()=>show('home');$('leagueRefresh').onclick=refreshStandings;
 $('leagueBody').onclick=e=>{if(e.target.closest('[data-league=join]'))openLeagueDialog('register')};
 
@@ -495,6 +511,7 @@ else if(s.v==='study'&&topicById[s.s])openStudy(topicById[s.s]);
 else if(s.v==='results'&&state.answers&&state.answers.length&&!state.active)show('results');
 else if(s.v==='quiz'&&state.active)show('quiz');
 else if(s.v==='league'&&CLOUD&&auth)openLeague();
+else if(s.v==='admin'&&isAdmin())openAdmin();
 else show('home')}
 finally{navSilent=false}});
 
