@@ -73,3 +73,11 @@ dialog#leagueDialog::backdrop{background:rgba(23,49,57,.55)}
 .hist .hw{font-weight:700}.hist .hx{text-align:right}.hist .hp{color:var(--muted)}.hist .ho{text-align:right;font-weight:700;font-size:13px}.ho.up{color:var(--green)}.ho.down{color:var(--red)}.ho.same{color:var(--muted)}
 
 .levelhead{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:14px 0 0;padding:0 0 8px;border-bottom:2px solid var(--line);font-size:15px;letter-spacing:0;font-weight:700;color:var(--ink)}.levelhead:first-child{margin-top:0}.levelhead .lv{background:var(--ink);color:var(--lime);border-radius:999px;padding:3px 12px;font-size:14px;letter-spacing:.3px}.levelhead .ld{font-weight:700}.levelhead .ln{margin-left:auto;font-weight:500;font-size:13px;color:var(--muted)}
+
+.admcounts{grid-template-columns:repeat(4,1fr);margin-top:0}
+.admbar{display:grid;grid-template-columns:2fr 1fr 1fr 1.3fr auto;gap:12px;align-items:end}.admbar .field{margin:0}.admbar select,.admbar input{width:100%}
+.admtbl{width:100%;border-collapse:collapse;margin-top:8px}.admtbl th{text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}.admtbl td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}.admem{overflow-wrap:anywhere}
+.pill.st-active{background:var(--lime);color:var(--green)}.pill.st-disabled{background:#f6dcdc;color:var(--red)}.pill.r-admin{background:#e4eff8;color:#325b7e}
+.admpager{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px}.admpager button:disabled{opacity:.4}
+@media(max-width:900px){.admbar{grid-template-columns:1fr 1fr}.admbar .admq{grid-column:1/-1}}
+@media(max-width:720px){.admcounts{grid-template-columns:1fr 1fr}.admtbl thead{display:none}.admtbl,.admtbl tbody{display:block}.admtbl tr{display:block;padding:12px 0;border-bottom:1px solid var(--line)}.admtbl td{display:flex;justify-content:space-between;gap:14px;padding:3px 0;border:0;text-align:right}.admtbl td::before{content:attr(data-l);color:var(--muted);font-size:13px;text-align:left;flex:none}}

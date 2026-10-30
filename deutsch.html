@@ -83,6 +83,14 @@ dialog#leagueDialog::backdrop{background:rgba(23,49,57,.55)}
 
 .levelhead{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:14px 0 0;padding:0 0 8px;border-bottom:2px solid var(--line);font-size:15px;letter-spacing:0;font-weight:700;color:var(--ink)}.levelhead:first-child{margin-top:0}.levelhead .lv{background:var(--ink);color:var(--lime);border-radius:999px;padding:3px 12px;font-size:14px;letter-spacing:.3px}.levelhead .ld{font-weight:700}.levelhead .ln{margin-left:auto;font-weight:500;font-size:13px;color:var(--muted)}
 
+.admcounts{grid-template-columns:repeat(4,1fr);margin-top:0}
+.admbar{display:grid;grid-template-columns:2fr 1fr 1fr 1.3fr auto;gap:12px;align-items:end}.admbar .field{margin:0}.admbar select,.admbar input{width:100%}
+.admtbl{width:100%;border-collapse:collapse;margin-top:8px}.admtbl th{text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}.admtbl td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}.admem{overflow-wrap:anywhere}
+.pill.st-active{background:var(--lime);color:var(--green)}.pill.st-disabled{background:#f6dcdc;color:var(--red)}.pill.r-admin{background:#e4eff8;color:#325b7e}
+.admpager{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px}.admpager button:disabled{opacity:.4}
+@media(max-width:900px){.admbar{grid-template-columns:1fr 1fr}.admbar .admq{grid-column:1/-1}}
+@media(max-width:720px){.admcounts{grid-template-columns:1fr 1fr}.admtbl thead{display:none}.admtbl,.admtbl tbody{display:block}.admtbl tr{display:block;padding:12px 0;border-bottom:1px solid var(--line)}.admtbl td{display:flex;justify-content:space-between;gap:14px;padding:3px 0;border:0;text-align:right}.admtbl td::before{content:attr(data-l);color:var(--muted);font-size:13px;text-align:left;flex:none}}
+
 </style>
 </head><body>
 <header><div class="brand">Deutsch<span> / antrenament</span></div><div class="userbar"><span id="userEmail" class="small muted" hidden></span><span id="syncState" class="small muted" hidden></span><button id="navAdmin" class="quiet back" hidden>Administrare</button><button id="navHome" class="quiet back" hidden>← Toate temele</button><button id="logout" class="quiet back" hidden>Ieși</button></div></header>
@@ -121,7 +129,10 @@ dialog#leagueDialog::backdrop{background:rgba(23,49,57,.55)}
 <div id="tGuide"></div>
 </section>
 
-<section id="admin" hidden><div class="row"><div><div class="label">ADMINISTRARE</div><h1 style="font-size:36px">Panou de administrare</h1></div><button id="adminBack" class="primary">← Înapoi</button></div><p class="muted" id="adminMeta"></p><div class="card"><div id="adminBody"></div></div></section>
+<section id="admin" hidden><div class="row"><div><div class="label">ADMINISTRARE</div><h1 style="font-size:36px">Utilizatori</h1></div><button id="adminBack" class="primary">← Înapoi</button></div><p class="muted" id="adminMeta"></p>
+<div class="card"><div class="mstats admcounts" id="admCounts"></div></div>
+<div class="card"><div class="admbar"><div class="field admq"><label for="admQ">Caută</label><input type="search" id="admQ" placeholder="Nume sau email" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="search"></div><div class="field"><label for="admStatus">Stare</label><select id="admStatus"><option value="all">Toate</option><option value="active">Activ</option><option value="disabled">Dezactivat</option></select></div><div class="field"><label for="admRole">Rol</label><select id="admRole"><option value="all">Toate</option><option value="user">Utilizator</option><option value="admin">Administrator</option></select></div><div class="field"><label for="admSort">Sortează după</label><select id="admSort"><option value="created">Data înregistrării</option><option value="name">Nume</option><option value="email">Email</option><option value="role">Rol</option><option value="status">Stare</option><option value="last_sign_in">Ultima autentificare</option></select></div><button type="button" class="quiet back" id="admDir" aria-label="Sens sortare">↓ Descrescător</button></div>
+<p class="small muted" id="admCount" aria-live="polite"></p><div id="admList"></div><div class="admpager" id="admPager"></div></div></section>
 <section id="league" hidden><div class="row"><div><div class="label">LIGA TA</div><h1 style="font-size:36px">Clasament săptămânal</h1></div><button id="leagueBack" class="primary">← Înapoi</button></div><p class="muted" id="leagueMeta"></p><div class="card"><div id="leagueBody"></div><div class="tools"><button type="button" class="quiet back" id="leagueRefresh">Actualizează</button></div></div><div class="card" id="leagueHistoryCard" hidden><div class="label">SĂPTĂMÂNILE TALE</div><ol class="hist" id="leagueHistory"></ol></div><details class="card prep-guide"><summary>Cum se calculează XP-ul</summary><div id="leagueHowBody"></div></details></section>
 
 <section id="quiz" hidden aria-label="Test în desfășurare"><div class="row"><button class="quiet back" id="quit">← Încheie sesiunea</button><span class="small muted sessionbar"><button type="button" class="timer" id="timer" aria-pressed="false" title="Ascunde cronometrul">⏱ 00:00</button><span class="xpchip" id="xpChip" hidden></span><span id="sessionLabel"></span></span></div><div class="progress" role="progressbar" aria-label="Întrebări parcurse" aria-valuemin="0" aria-valuemax="100" id="progress"><div id="bar"></div></div><div class="card"><div class="row"><span class="label" id="qCounter"></span><span class="small muted" id="runningScore"></span></div><div id="qContent"></div><div id="answerArea"></div><p id="validation" class="error" role="alert" hidden></p><div id="feedback" aria-live="polite"></div><div class="actions"><div class="group"><button id="prev" class="quiet" hidden>← Anterioara</button><button id="skip" class="quiet">Nu știu</button></div><button id="check" class="primary">Verifică răspunsul</button><button id="next" class="primary" hidden>Următoarea →</button></div></div><p class="small muted guide kbd-hint">Tastatură: 1–4 pentru variante · Enter pentru verificare / continuare.</p></section>
@@ -535,17 +546,40 @@ function openLeague(){show('league');refreshStandings()}
 // Rolul vine de pe server (profiles.role); aici doar ascundem intrarea. Autorizarea o face serverul (is_admin()).
 const isAdmin=()=>!!(auth&&profile&&profile.role==='admin');
 function syncAdminNav(){$('navAdmin').hidden=!isAdmin()||['login','quiz','admin'].includes(currentView)}
-async function openAdmin(){
-if(!isAdmin()){show('home');return}
-show('admin');$('adminMeta').textContent='';$('adminBody').innerHTML='<p class="muted">Se verifică accesul…</p>';
+const adm={q:'',status:'all',role:'all',sort:'created',dir:'desc',page:0,size:25};let admSeq=0,admTimer=0;
+const admDate=(x,t)=>x?new Date(x).toLocaleString('ro-RO',t?{dateStyle:'short',timeStyle:'short'}:{dateStyle:'medium'}):'—';
+function admDeny(){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}$('admCounts').innerHTML='';$('admCount').textContent='';$('admPager').innerHTML='';$('admList').innerHTML='<p>Nu ai acces la această zonă.</p>';syncAdminNav()}
+function admRow(u){const nm=[u.first_name,u.last_name].filter(Boolean).join(' ');
+return'<tr><td data-l="Nume"><b>'+(nm?escape(nm):'<span class="muted">—</span>')+'</b>'+(u.display_name?'<span class="small muted"> · '+escape(u.display_name)+'</span>':'')+'</td><td data-l="Email" class="admem">'+escape(u.email||'')+'</td><td data-l="Rol"><span class="pill r-'+u.role+'">'+(u.role==='admin'?'Administrator':'Utilizator')+'</span></td><td data-l="Stare"><span class="pill st-'+u.status+'">'+(u.status==='active'?'Activ':'Dezactivat')+'</span></td><td data-l="Înregistrat">'+admDate(u.created_at)+'</td><td data-l="Ultima autentificare">'+admDate(u.last_sign_in_at,1)+'</td></tr>'}
+async function loadAdmin(){
+const seq=++admSeq;
 try{
-const r=await api('/rest/v1/rpc/admin_summary',{method:'POST',body:{}});
-if(r.status===401||r.status===403){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}$('adminBody').innerHTML='<p>Nu ai acces la această zonă.</p>';syncAdminNav();return}
+const r=await api('/rest/v1/rpc/admin_list_users',{method:'POST',body:{p_search:adm.q,p_status:adm.status,p_role:adm.role,p_sort:adm.sort,p_dir:adm.dir,p_limit:adm.size,p_offset:adm.page*adm.size}});
+if(seq!==admSeq)return;
+if(r.status===401||r.status===403){admDeny();return}
 if(!r.ok)throw new Error('http');
 const j=await r.json();
-$('adminMeta').textContent='Acces confirmat de server. Gestionarea utilizatorilor urmează în pașii următori.';
-$('adminBody').innerHTML='<div class="mstats"><div><b>'+j.accounts+'</b><span>conturi</span></div><div><b>'+j.admins+'</b><span>'+(j.admins===1?'administrator':'administratori')+'</span></div></div>'}
-catch{$('adminBody').innerHTML='<p class="error">Nu am putut verifica accesul. Verifică conexiunea și încearcă din nou.</p>'}}
+if(seq!==admSeq)return;
+if(!j.rows.length&&j.total>0&&adm.page>0){adm.page=Math.ceil(j.total/adm.size)-1;loadAdmin();return}
+const c=j.counts;
+$('adminMeta').textContent='Pagină vizibilă doar administratorilor.';
+$('admCounts').innerHTML=[[c.accounts,'conturi'],[c.active,'active'],[c.disabled,c.disabled===1?'dezactivat':'dezactivate'],[c.admins,c.admins===1?'administrator':'administratori']].map(x=>'<div><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join('');
+$('admCount').textContent=j.total===c.accounts?countRo(j.total,['utilizator','utilizatori']):j.total+' din '+countRo(c.accounts,['utilizator','utilizatori']);
+$('admList').innerHTML=j.rows.length?'<table class="admtbl"><thead><tr><th>Nume</th><th>Email</th><th>Rol</th><th>Stare</th><th>Înregistrat</th><th>Ultima autentificare</th></tr></thead><tbody>'+j.rows.map(admRow).join('')+'</tbody></table>':'<p class="muted">Niciun utilizator nu corespunde filtrelor.</p>';
+const pages=Math.max(1,Math.ceil(j.total/adm.size));
+$('admPager').innerHTML=pages>1?'<button type="button" class="quiet back" data-pg="-1"'+(adm.page?'':' disabled')+'>← Înapoi</button><span class="small muted">Pagina '+(adm.page+1)+' din '+pages+'</span><button type="button" class="quiet back" data-pg="1"'+(adm.page+1<pages?'':' disabled')+'>Înainte →</button>':''}
+catch{if(seq===admSeq)$('admList').innerHTML='<p class="error">Nu am putut încărca utilizatorii. Verifică conexiunea și încearcă din nou.</p>'}}
+function openAdmin(){
+if(!isAdmin()){show('home');return}
+show('admin');$('adminMeta').textContent='';
+$('admQ').value=adm.q;$('admStatus').value=adm.status;$('admRole').value=adm.role;$('admSort').value=adm.sort;$('admDir').textContent=adm.dir==='asc'?'↑ Crescător':'↓ Descrescător';
+$('admList').innerHTML='<p class="muted">Se încarcă…</p>';loadAdmin()}
+const admReload=()=>{adm.page=0;loadAdmin()};
+$('admQ').oninput=e=>{adm.q=e.target.value;clearTimeout(admTimer);admTimer=setTimeout(admReload,250)};
+$('admStatus').onchange=e=>{adm.status=e.target.value;admReload()};$('admRole').onchange=e=>{adm.role=e.target.value;admReload()};
+$('admSort').onchange=e=>{adm.sort=e.target.value;admReload()};
+$('admDir').onclick=()=>{adm.dir=adm.dir==='asc'?'desc':'asc';$('admDir').textContent=adm.dir==='asc'?'↑ Crescător':'↓ Descrescător';admReload()};
+$('admPager').onclick=e=>{const b=e.target.closest('[data-pg]');if(!b||b.disabled)return;adm.page=Math.max(0,adm.page+Number(b.dataset.pg));loadAdmin();$('admQ').scrollIntoView({block:'start'})};
 $('navAdmin').onclick=openAdmin;$('adminBack').onclick=()=>show('home');
 $('leagueBack').onclick=()=>show('home');$('leagueRefresh').onclick=refreshStandings;
 $('leagueBody').onclick=e=>{if(e.target.closest('[data-league=join]'))openLeagueDialog('register')};

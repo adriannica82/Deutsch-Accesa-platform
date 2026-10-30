@@ -622,22 +622,102 @@ as $$ select exists (select 1 from public.profiles where user_id = (select auth.
 revoke all on function public.is_admin() from public, anon;
 grant execute on function public.is_admin() to authenticated;
 
-create or replace function public.admin_summary()
-returns jsonb language plpgsql stable security definer set search_path = ''
-as $$
-begin
-  if not public.is_admin() then
-    raise exception 'forbidden' using errcode = '42501';
-  end if;
-  return jsonb_build_object(
-    'accounts', (select count(*) from auth.users),
-    'admins', (select count(*) from public.profiles where role = 'admin')
-  );
-end;
-$$;
-revoke all on function public.admin_summary() from public, anon;
-grant execute on function public.admin_summary() to authenticated;
+-- (admin_summary() din faza 1 a fost înlocuită în faza 2 de admin_list_users())
 
 -- Primul administrator (o singură dată, manual; înlocuiește id-ul):
 -- insert into public.profiles (user_id, role) values ('<id din auth.users>', 'admin')
 --   on conflict (user_id) do update set role = 'admin';
+
+-- ======================================================================
+-- 8. Administrator, faza 2: lista utilizatorilor (migrarea admin_list_users_phase2)
+-- ======================================================================
+
+alter table public.profiles add column if not exists first_name text;
+alter table public.profiles add column if not exists last_name text;
+alter table public.profiles drop constraint if exists profiles_first_name_len;
+alter table public.profiles drop constraint if exists profiles_last_name_len;
+alter table public.profiles add constraint profiles_first_name_len check (first_name is null or char_length(btrim(first_name)) between 1 and 60);
+alter table public.profiles add constraint profiles_last_name_len check (last_name is null or char_length(btrim(last_name)) between 1 and 60);
+grant insert (first_name, last_name), update (first_name, last_name) on public.profiles to authenticated;
+
+drop function if exists public.admin_summary();
+
+create or replace function public.admin_list_users(
+  p_search text default '',
+  p_status text default 'all',
+  p_role text default 'all',
+  p_sort text default 'created',
+  p_dir text default 'desc',
+  p_limit int default 25,
+  p_offset int default 0
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_search text := lower(btrim(coalesce(p_search, '')));
+  v_limit int := least(greatest(coalesce(p_limit, 25), 1), 100);
+  v_offset int := greatest(coalesce(p_offset, 0), 0);
+  v_asc boolean := p_dir = 'asc';
+  v_result jsonb;
+begin
+  if not public.is_admin() then
+    raise exception 'forbidden' using errcode = '42501';
+  end if;
+
+  with base as (
+    select u.id as user_id,
+           u.email::text as email,
+           p.first_name,
+           p.last_name,
+           p.display_name,
+           coalesce(p.role, 'user') as role,
+           case when u.banned_until is not null and u.banned_until > now() then 'disabled' else 'active' end as status,
+           u.created_at,
+           u.last_sign_in_at
+    from auth.users u
+    left join public.profiles p on p.user_id = u.id
+    where u.deleted_at is null
+  ),
+  filtered as (
+    select * from base
+    where (p_status is null or p_status = 'all' or status = p_status)
+      and (p_role is null or p_role = 'all' or role = p_role)
+      and (v_search = '' or strpos(lower(concat_ws(' ', email, first_name, last_name, display_name)), v_search) > 0)
+  ),
+  page as (
+    select * from filtered
+    order by
+      case when p_sort = 'name'  and v_asc     then lower(concat_ws(' ', last_name, first_name, display_name)) end asc,
+      case when p_sort = 'name'  and not v_asc then lower(concat_ws(' ', last_name, first_name, display_name)) end desc,
+      case when p_sort = 'email' and v_asc     then lower(email) end asc,
+      case when p_sort = 'email' and not v_asc then lower(email) end desc,
+      case when p_sort = 'role'  and v_asc     then role end asc,
+      case when p_sort = 'role'  and not v_asc then role end desc,
+      case when p_sort = 'status' and v_asc     then status end asc,
+      case when p_sort = 'status' and not v_asc then status end desc,
+      case when p_sort = 'last_sign_in' and v_asc     then last_sign_in_at end asc nulls last,
+      case when p_sort = 'last_sign_in' and not v_asc then last_sign_in_at end desc nulls last,
+      case when p_sort not in ('name', 'email', 'role', 'status', 'last_sign_in') and v_asc     then created_at end asc,
+      case when p_sort not in ('name', 'email', 'role', 'status', 'last_sign_in') and not v_asc then created_at end desc,
+      email
+    limit v_limit offset v_offset
+  )
+  select jsonb_build_object(
+    'total', (select count(*) from filtered),
+    'rows', coalesce((select jsonb_agg(to_jsonb(page)) from page), '[]'::jsonb),
+    'counts', jsonb_build_object(
+      'accounts', (select count(*) from base),
+      'active', (select count(*) from base where status = 'active'),
+      'disabled', (select count(*) from base where status = 'disabled'),
+      'admins', (select count(*) from base where role = 'admin')
+    )
+  ) into v_result;
+  return v_result;
+end;
+$$;
+revoke all on function public.admin_list_users(text, text, text, text, text, int, int) from public, anon;
+grant execute on function public.admin_list_users(text, text, text, text, text, int, int) to authenticated;

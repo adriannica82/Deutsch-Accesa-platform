@@ -387,17 +387,40 @@ function openLeague(){show('league');refreshStandings()}
 // Rolul vine de pe server (profiles.role); aici doar ascundem intrarea. Autorizarea o face serverul (is_admin()).
 const isAdmin=()=>!!(auth&&profile&&profile.role==='admin');
 function syncAdminNav(){$('navAdmin').hidden=!isAdmin()||['login','quiz','admin'].includes(currentView)}
-async function openAdmin(){
-if(!isAdmin()){show('home');return}
-show('admin');$('adminMeta').textContent='';$('adminBody').innerHTML='<p class="muted">Se verifică accesul…</p>';
+const adm={q:'',status:'all',role:'all',sort:'created',dir:'desc',page:0,size:25};let admSeq=0,admTimer=0;
+const admDate=(x,t)=>x?new Date(x).toLocaleString('ro-RO',t?{dateStyle:'short',timeStyle:'short'}:{dateStyle:'medium'}):'—';
+function admDeny(){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}$('admCounts').innerHTML='';$('admCount').textContent='';$('admPager').innerHTML='';$('admList').innerHTML='<p>Nu ai acces la această zonă.</p>';syncAdminNav()}
+function admRow(u){const nm=[u.first_name,u.last_name].filter(Boolean).join(' ');
+return'<tr><td data-l="Nume"><b>'+(nm?escape(nm):'<span class="muted">—</span>')+'</b>'+(u.display_name?'<span class="small muted"> · '+escape(u.display_name)+'</span>':'')+'</td><td data-l="Email" class="admem">'+escape(u.email||'')+'</td><td data-l="Rol"><span class="pill r-'+u.role+'">'+(u.role==='admin'?'Administrator':'Utilizator')+'</span></td><td data-l="Stare"><span class="pill st-'+u.status+'">'+(u.status==='active'?'Activ':'Dezactivat')+'</span></td><td data-l="Înregistrat">'+admDate(u.created_at)+'</td><td data-l="Ultima autentificare">'+admDate(u.last_sign_in_at,1)+'</td></tr>'}
+async function loadAdmin(){
+const seq=++admSeq;
 try{
-const r=await api('/rest/v1/rpc/admin_summary',{method:'POST',body:{}});
-if(r.status===401||r.status===403){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}$('adminBody').innerHTML='<p>Nu ai acces la această zonă.</p>';syncAdminNav();return}
+const r=await api('/rest/v1/rpc/admin_list_users',{method:'POST',body:{p_search:adm.q,p_status:adm.status,p_role:adm.role,p_sort:adm.sort,p_dir:adm.dir,p_limit:adm.size,p_offset:adm.page*adm.size}});
+if(seq!==admSeq)return;
+if(r.status===401||r.status===403){admDeny();return}
 if(!r.ok)throw new Error('http');
 const j=await r.json();
-$('adminMeta').textContent='Acces confirmat de server. Gestionarea utilizatorilor urmează în pașii următori.';
-$('adminBody').innerHTML='<div class="mstats"><div><b>'+j.accounts+'</b><span>conturi</span></div><div><b>'+j.admins+'</b><span>'+(j.admins===1?'administrator':'administratori')+'</span></div></div>'}
-catch{$('adminBody').innerHTML='<p class="error">Nu am putut verifica accesul. Verifică conexiunea și încearcă din nou.</p>'}}
+if(seq!==admSeq)return;
+if(!j.rows.length&&j.total>0&&adm.page>0){adm.page=Math.ceil(j.total/adm.size)-1;loadAdmin();return}
+const c=j.counts;
+$('adminMeta').textContent='Pagină vizibilă doar administratorilor.';
+$('admCounts').innerHTML=[[c.accounts,'conturi'],[c.active,'active'],[c.disabled,c.disabled===1?'dezactivat':'dezactivate'],[c.admins,c.admins===1?'administrator':'administratori']].map(x=>'<div><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join('');
+$('admCount').textContent=j.total===c.accounts?countRo(j.total,['utilizator','utilizatori']):j.total+' din '+countRo(c.accounts,['utilizator','utilizatori']);
+$('admList').innerHTML=j.rows.length?'<table class="admtbl"><thead><tr><th>Nume</th><th>Email</th><th>Rol</th><th>Stare</th><th>Înregistrat</th><th>Ultima autentificare</th></tr></thead><tbody>'+j.rows.map(admRow).join('')+'</tbody></table>':'<p class="muted">Niciun utilizator nu corespunde filtrelor.</p>';
+const pages=Math.max(1,Math.ceil(j.total/adm.size));
+$('admPager').innerHTML=pages>1?'<button type="button" class="quiet back" data-pg="-1"'+(adm.page?'':' disabled')+'>← Înapoi</button><span class="small muted">Pagina '+(adm.page+1)+' din '+pages+'</span><button type="button" class="quiet back" data-pg="1"'+(adm.page+1<pages?'':' disabled')+'>Înainte →</button>':''}
+catch{if(seq===admSeq)$('admList').innerHTML='<p class="error">Nu am putut încărca utilizatorii. Verifică conexiunea și încearcă din nou.</p>'}}
+function openAdmin(){
+if(!isAdmin()){show('home');return}
+show('admin');$('adminMeta').textContent='';
+$('admQ').value=adm.q;$('admStatus').value=adm.status;$('admRole').value=adm.role;$('admSort').value=adm.sort;$('admDir').textContent=adm.dir==='asc'?'↑ Crescător':'↓ Descrescător';
+$('admList').innerHTML='<p class="muted">Se încarcă…</p>';loadAdmin()}
+const admReload=()=>{adm.page=0;loadAdmin()};
+$('admQ').oninput=e=>{adm.q=e.target.value;clearTimeout(admTimer);admTimer=setTimeout(admReload,250)};
+$('admStatus').onchange=e=>{adm.status=e.target.value;admReload()};$('admRole').onchange=e=>{adm.role=e.target.value;admReload()};
+$('admSort').onchange=e=>{adm.sort=e.target.value;admReload()};
+$('admDir').onclick=()=>{adm.dir=adm.dir==='asc'?'desc':'asc';$('admDir').textContent=adm.dir==='asc'?'↑ Crescător':'↓ Descrescător';admReload()};
+$('admPager').onclick=e=>{const b=e.target.closest('[data-pg]');if(!b||b.disabled)return;adm.page=Math.max(0,adm.page+Number(b.dataset.pg));loadAdmin();$('admQ').scrollIntoView({block:'start'})};
 $('navAdmin').onclick=openAdmin;$('adminBack').onclick=()=>show('home');
 $('leagueBack').onclick=()=>show('home');$('leagueRefresh').onclick=refreshStandings;
 $('leagueBody').onclick=e=>{if(e.target.closest('[data-league=join]'))openLeagueDialog('register')};
