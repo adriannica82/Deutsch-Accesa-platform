@@ -1,5 +1,7 @@
-// Edge Function „admin-invite”: invitații pentru utilizatori noi (doar administratori).
-// Acțiuni (POST, JSON): { action: "invite", email, role? } · { action: "resend", user_id } · { action: "revoke", user_id }
+// Edge Function „admin-invite”: invitații și gestionarea conturilor (doar administratori).
+// Acțiuni (POST, JSON):
+//   invite {email, role?} · resend {user_id} · revoke {user_id}
+//   set_role {user_id, role} · disable {user_id} · enable {user_id} · reset_password {user_id} · delete {user_id, confirm_email}
 // Cheia de serviciu există doar aici (variabilă de mediu a funcției), niciodată în aplicație.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -8,7 +10,9 @@ const service = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABA
 });
 
 const EMAIL_RE = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[^\s@<>()[\]\\,;:"]{2,}$/;
-const MAX_PER_HOUR = 20;
+const MAX_EMAILS_PER_HOUR = 20;
+const SENDS_EMAIL = ["invite", "resend", "reset_password"];
+const BAN_FOREVER = "876000h"; // ~100 de ani
 
 Deno.serve(async (req) => {
   const origin = req.headers.get("origin");
@@ -37,18 +41,22 @@ Deno.serve(async (req) => {
   } catch {
     return reply(400, { error: "bad_request" });
   }
-  const action = body.action;
+  const action = String(body.action ?? "");
   // Linkul din email duce înapoi în aplicația din care a plecat cererea (Supabase îl acceptă doar dacă e în lista de adrese permise).
   const redirectTo = origin && /^(https:\/\/|http:\/\/localhost)/.test(origin) ? origin + "/" : undefined;
 
-  // 2. Limită de ritm: cel mult 20 de emailuri pe oră pe administrator
-  const since = new Date(Date.now() - 3600_000).toISOString();
-  const { count } = await service.from("invite_log").select("id", { count: "exact", head: true }).eq("admin_id", admin.id).gte("at", since);
-  if ((count ?? 0) >= MAX_PER_HOUR && action !== "revoke") return reply(429, { error: "rate" });
+  // 2. Limită de ritm pentru emailuri: cel mult 20 pe oră pe administrator
+  if (SENDS_EMAIL.includes(action)) {
+    const since = new Date(Date.now() - 3600_000).toISOString();
+    const { count } = await service.from("admin_audit").select("id", { count: "exact", head: true })
+      .eq("admin_id", admin.id).in("action", SENDS_EMAIL).gte("at", since);
+    if ((count ?? 0) >= MAX_EMAILS_PER_HOUR) return reply(429, { error: "rate" });
+  }
 
-  const log = (act: string, email: string, details: Record<string, unknown> = {}) =>
-    service.from("invite_log").insert({ admin_id: admin.id, action: act, target_email: email, details });
+  const log = (act: string, email: string, details: Record<string, unknown> = {}, targetId?: string) =>
+    service.from("admin_audit").insert({ admin_id: admin.id, action: act, target_email: email, details, target_user_id: targetId ?? null });
   const lookup = async (args: Record<string, unknown>) => (await service.rpc("invite_lookup", args)).data as Record<string, unknown> | null;
+  const otherActiveAdmins = async (exclude: string) => Number((await service.rpc("admin_active_admins", { p_exclude: exclude })).data ?? 0);
 
   if (action === "invite") {
     const email = String(body.email ?? "").trim().toLowerCase();
@@ -72,21 +80,28 @@ Deno.serve(async (req) => {
       await service.auth.admin.deleteUser(data.user.id);
       return reply(500, { error: "profile" });
     }
-    await log("invite", email, { role });
+    await log("invite", email, { role }, data.user.id);
     return reply(200, { ok: true, user_id: data.user.id });
   }
 
-  if (action === "resend" || action === "revoke") {
-    const id = String(body.user_id ?? "");
-    if (!/^[0-9a-f-]{36}$/i.test(id)) return reply(400, { error: "bad_request" });
-    const u = await lookup({ p_user_id: id });
-    if (u?.state !== "pending") return reply(409, { error: "not_pending" });
-    const email = String(u.email);
+  const managed = ["resend", "revoke", "set_role", "disable", "enable", "reset_password", "delete"];
+  if (!managed.includes(action)) return reply(400, { error: "bad_request" });
 
+  const id = String(body.user_id ?? "");
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return reply(400, { error: "bad_request" });
+  const u = await lookup({ p_user_id: id });
+  if (!u || u.state === "none") return reply(404, { error: "not_found" });
+  const email = String(u.email);
+  const pending = u.state === "pending";
+  const isSelf = id === admin.id;
+  const targetIsActiveAdmin = u.role === "admin" && !u.banned && !pending;
+
+  if (action === "resend" || action === "revoke") {
+    if (!pending) return reply(409, { error: "not_pending" });
     if (action === "revoke") {
       const { error } = await service.auth.admin.deleteUser(id);
       if (error) return reply(500, { error: "delete" });
-      await log("revoke", email);
+      await log("revoke", email, {}, id);
       return reply(200, { ok: true });
     }
     // Cine a deschis deja linkul are contul confirmat: primește un link de resetare a parolei în loc de invitație.
@@ -94,9 +109,46 @@ Deno.serve(async (req) => {
       ? await service.auth.resetPasswordForEmail(email, { redirectTo })
       : await service.auth.admin.inviteUserByEmail(email, { redirectTo });
     if (sent.error) return reply(502, { error: "email", detail: sent.error.message });
-    await log("resend", email, { confirmed: !!u.confirmed });
+    await log("resend", email, { confirmed: !!u.confirmed }, id);
     return reply(200, { ok: true });
   }
 
-  return reply(400, { error: "bad_request" });
+  // Acțiunile următoare se aplică doar conturilor înregistrate; invitațiile se gestionează cu „Retrimite” / „Anulează”.
+  if (pending) return reply(409, { error: "is_pending" });
+
+  if (action === "set_role") {
+    const role = body.role === "admin" ? "admin" : body.role === "user" ? "user" : null;
+    if (!role) return reply(400, { error: "bad_request" });
+    if (u.role === role) return reply(200, { ok: true, unchanged: true });
+    if (role === "user" && targetIsActiveAdmin && (await otherActiveAdmins(id)) < 1) return reply(409, { error: "last_admin" });
+    const { error } = await service.from("profiles").upsert({ user_id: id, role }, { onConflict: "user_id" });
+    if (error) return reply(500, { error: "profile" });
+    await log("set_role", email, { from: u.role, to: role }, id);
+    return reply(200, { ok: true });
+  }
+
+  if (action === "disable" || action === "enable") {
+    if (isSelf) return reply(409, { error: "self" });
+    if (action === "disable" && targetIsActiveAdmin && (await otherActiveAdmins(id)) < 1) return reply(409, { error: "last_admin" });
+    const { error } = await service.auth.admin.updateUserById(id, { ban_duration: action === "disable" ? BAN_FOREVER : "none" });
+    if (error) return reply(500, { error: "ban" });
+    await log(action, email, {}, id);
+    return reply(200, { ok: true });
+  }
+
+  if (action === "reset_password") {
+    const { error } = await service.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) return reply(502, { error: "email", detail: error.message });
+    await log("reset_password", email, {}, id);
+    return reply(200, { ok: true });
+  }
+
+  // delete: ștergere definitivă, cu emailul tastat drept confirmare
+  if (isSelf) return reply(409, { error: "self" });
+  if (String(body.confirm_email ?? "").trim().toLowerCase() !== email.toLowerCase()) return reply(400, { error: "confirm_mismatch" });
+  if (targetIsActiveAdmin && (await otherActiveAdmins(id)) < 1) return reply(409, { error: "last_admin" });
+  const { error } = await service.auth.admin.deleteUser(id);
+  if (error) return reply(500, { error: "delete" });
+  await log("delete", email, { role: u.role }, id);
+  return reply(200, { ok: true });
 });

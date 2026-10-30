@@ -772,3 +772,103 @@ as $$
 $$;
 revoke all on function public.invite_lookup(text, uuid) from public, anon, authenticated;
 grant execute on function public.invite_lookup(text, uuid) to service_role;
+
+-- ======================================================================
+-- 10. Administrator, faza 4: gestionarea conturilor și jurnalul de audit (migrarea admin_manage_accounts_phase4)
+-- ======================================================================
+
+alter table public.invite_log rename to admin_audit;
+alter index if exists public.invite_log_admin_at rename to admin_audit_admin_at;
+
+do $$
+declare c record;
+begin
+  for c in
+    select conname from pg_constraint
+    where conrelid = 'public.admin_audit'::regclass and contype = 'c'
+      and pg_get_constraintdef(oid) ilike '%action%'
+  loop
+    execute format('alter table public.admin_audit drop constraint %I', c.conname);
+  end loop;
+end $$;
+alter table public.admin_audit add constraint admin_audit_action_check
+  check (action in ('invite', 'resend', 'revoke', 'disable', 'enable', 'set_role', 'reset_password', 'delete'));
+alter table public.admin_audit add column if not exists target_user_id uuid;
+
+-- Căutarea contului țintă (doar pentru Edge Function): acum întoarce și rolul și starea de blocare.
+create or replace function public.invite_lookup(p_email text default null, p_user_id uuid default null)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select coalesce(
+    (select jsonb_build_object(
+        'user_id', u.id,
+        'email', u.email,
+        'confirmed', u.email_confirmed_at is not null,
+        'role', coalesce(p.role, 'user'),
+        'banned', (u.banned_until is not null and u.banned_until > now()),
+        'state', case when u.invited_at is not null and p.first_name is null then 'pending' else 'exists' end)
+     from auth.users u
+     left join public.profiles p on p.user_id = u.id
+     where u.deleted_at is null
+       and ((p_user_id is not null and u.id = p_user_id)
+         or (p_user_id is null and p_email is not null and lower(u.email) = lower(p_email)))
+     limit 1),
+    jsonb_build_object('state', 'none'));
+$$;
+revoke all on function public.invite_lookup(text, uuid) from public, anon, authenticated;
+grant execute on function public.invite_lookup(text, uuid) to service_role;
+
+-- Câți administratori ACTIVI (înregistrați, neblocați) există în afară de cel exclus (protecția ultimului administrator).
+create or replace function public.admin_active_admins(p_exclude uuid default null)
+returns int
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select count(*)::int
+  from public.profiles p
+  join auth.users u on u.id = p.user_id
+  where p.role = 'admin'
+    and u.deleted_at is null
+    and not (u.banned_until is not null and u.banned_until > now())
+    and not (u.invited_at is not null and p.first_name is null)
+    and (p_exclude is null or p.user_id <> p_exclude);
+$$;
+revoke all on function public.admin_active_admins(uuid) from public, anon, authenticated;
+grant execute on function public.admin_active_admins(uuid) to service_role;
+
+-- Jurnalul de activitate, vizibil doar administratorilor.
+create or replace function public.admin_audit_list(p_limit int default 25, p_offset int default 0)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_limit int := least(greatest(coalesce(p_limit, 25), 1), 100);
+  v_offset int := greatest(coalesce(p_offset, 0), 0);
+begin
+  if not public.is_admin() then
+    raise exception 'forbidden' using errcode = '42501';
+  end if;
+  return jsonb_build_object(
+    'total', (select count(*) from public.admin_audit),
+    'rows', coalesce((
+      select jsonb_agg(to_jsonb(r) order by r.at desc, r.id desc)
+      from (
+        select a.id, a.at, a.action, a.target_email, a.details,
+               (select u.email::text from auth.users u where u.id = a.admin_id) as admin_email
+        from public.admin_audit a
+        order by a.at desc, a.id desc
+        limit v_limit offset v_offset
+      ) r), '[]'::jsonb));
+end;
+$$;
+revoke all on function public.admin_audit_list(int, int) from public, anon;
+grant execute on function public.admin_audit_list(int, int) to authenticated;

@@ -42,8 +42,8 @@ header{padding-top:max(14px,env(safe-area-inset-top));padding-bottom:8px}footer{
 @media(orientation:landscape) and (max-height:520px){#quiz .card{overflow:clip}#quiz .actions{position:sticky;bottom:0;z-index:5;margin:14px -22px -18px;padding:10px 22px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);-webkit-backdrop-filter:saturate(1.4) blur(10px);backdrop-filter:saturate(1.4) blur(10px);border-top:1px solid var(--line)}#quiz .actions button{min-height:48px}}
 
 .leftcol{display:flex;flex-direction:column;gap:22px;min-width:0}
-dialog#leagueDialog,dialog#inviteDialog{border:0;padding:0;border-radius:20px;width:calc(100% - 32px);max-width:480px;background:#fff;color:var(--ink);box-shadow:0 20px 60px rgba(23,49,57,.35)}
-dialog#leagueDialog::backdrop,dialog#inviteDialog::backdrop{background:rgba(23,49,57,.55)}
+dialog#leagueDialog,dialog#inviteDialog,dialog#manageDialog{border:0;padding:0;border-radius:20px;width:calc(100% - 32px);max-width:480px;background:#fff;color:var(--ink);box-shadow:0 20px 60px rgba(23,49,57,.35)}
+dialog#leagueDialog::backdrop,dialog#inviteDialog::backdrop,dialog#manageDialog::backdrop{background:rgba(23,49,57,.55)}
 .ldbox{padding:26px}
 .ldactions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}.ldactions button{min-height:48px}
 .avatarset{border:0;padding:0;margin:16px 0 12px}.avatarset legend{font-size:13px;font-weight:750;margin-bottom:7px;padding:0}
@@ -52,7 +52,7 @@ dialog#leagueDialog::backdrop,dialog#inviteDialog::backdrop{background:rgba(23,4
 .avatars span[aria-hidden]{display:flex;align-items:center;justify-content:center;height:48px;border:2px solid var(--line);border-radius:12px;font-size:26px;background:#fff}
 .avatars input:checked+span{border-color:var(--green);background:#edf7e9}.avatars input:focus-visible+span{outline:3px solid #d08b38;outline-offset:2px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-@media(max-width:720px){dialog#leagueDialog,dialog#inviteDialog{margin:auto 0 0;width:100%;max-width:none;border-radius:20px 20px 0 0}.ldbox{padding:22px 18px calc(18px + env(safe-area-inset-bottom))}.ldactions{flex-direction:column-reverse}.ldactions button{width:100%}.avatars{gap:6px}}
+@media(max-width:720px){dialog#leagueDialog,dialog#inviteDialog,dialog#manageDialog{margin:auto 0 0;width:100%;max-width:none;border-radius:20px 20px 0 0}.ldbox{padding:22px 18px calc(18px + env(safe-area-inset-bottom))}.ldactions{flex-direction:column-reverse}.ldactions button{width:100%}.avatars{gap:6px}}
 .ldactions{flex-direction:row-reverse;justify-content:flex-start}
 
 .pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.pill.xp{background:var(--lime);color:var(--green)}
@@ -82,3 +82,7 @@ dialog#leagueDialog::backdrop,dialog#inviteDialog::backdrop{background:rgba(23,4
 .admpager{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px}.admpager button:disabled{opacity:.4}
 @media(max-width:900px){.admbar{grid-template-columns:1fr 1fr}.admbar .admq{grid-column:1/-1}}
 @media(max-width:720px){.admtbl td:empty{display:none}.admcounts{grid-template-columns:1fr 1fr}.admtbl thead{display:none}.admtbl,.admtbl tbody{display:block}.admtbl tr{display:block;padding:12px 0;border-bottom:1px solid var(--line)}.admtbl td{display:flex;justify-content:space-between;gap:14px;padding:3px 0;border:0;text-align:right}.admtbl td::before{content:attr(data-l);color:var(--muted);font-size:13px;text-align:left;flex:none}}
+
+.mgacts{display:grid;gap:10px;margin:16px 0 8px}.mgacts button{width:100%;text-align:left}
+button.danger{color:var(--red);border-color:var(--red)}button.danger:disabled{opacity:.4}
+.audit li{display:block;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;overflow-wrap:anywhere}.audit .when{display:block;font-size:12px;color:var(--muted)}

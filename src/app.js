@@ -387,11 +387,11 @@ function openLeague(){show('league');refreshStandings()}
 // Rolul vine de pe server (profiles.role); aici doar ascundem intrarea. Autorizarea o face serverul (is_admin()).
 const isAdmin=()=>!!(auth&&profile&&profile.role==='admin');
 function syncAdminNav(){$('navAdmin').hidden=!isAdmin()||['login','register','quiz','admin'].includes(currentView)}
-const adm={q:'',status:'all',role:'all',sort:'created',dir:'desc',page:0,size:25};let admSeq=0,admTimer=0;
+const adm={q:'',status:'all',role:'all',sort:'created',dir:'desc',page:0,size:25};let admSeq=0,admTimer=0,admRows=new Map();
 const admDate=(x,t)=>x?new Date(x).toLocaleString('ro-RO',t?{dateStyle:'short',timeStyle:'short'}:{dateStyle:'medium'}):'—';
 function admDeny(){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}$('admCounts').innerHTML='';$('admCount').textContent='';$('admPager').innerHTML='';$('admList').innerHTML='<p>Nu ai acces la această zonă.</p>';syncAdminNav()}
 function admRow(u){const nm=[u.first_name,u.last_name].filter(Boolean).join(' ');
-return'<tr><td data-l="Nume"><b>'+(nm?escape(nm):'<span class="muted">—</span>')+'</b>'+(u.display_name?'<span class="small muted"> · '+escape(u.display_name)+'</span>':'')+'</td><td data-l="Email" class="admem">'+escape(u.email||'')+'</td><td data-l="Rol"><span class="pill r-'+u.role+'">'+(u.role==='admin'?'Administrator':'Utilizator')+'</span></td><td data-l="Stare"><span class="pill st-'+u.status+'">'+(u.status==='active'?'Activ':u.status==='invited'?'Invitat':'Dezactivat')+'</span></td><td data-l="Înregistrat">'+admDate(u.created_at)+'</td><td data-l="Ultima autentificare">'+(u.status==='invited'?'invitat la '+admDate(u.invited_at):admDate(u.last_sign_in_at,1))+'</td><td data-l="Acțiuni">'+(u.status==='invited'?'<div class="admact"><button type="button" data-act="resend" data-id="'+escape(u.user_id)+'">Retrimite</button><button type="button" data-act="revoke" data-id="'+escape(u.user_id)+'" data-email="'+escape(u.email||'')+'">Anulează</button></div>':'')+'</td></tr>'}
+return'<tr><td data-l="Nume"><b>'+(nm?escape(nm):'<span class="muted">—</span>')+'</b>'+(u.display_name?'<span class="small muted"> · '+escape(u.display_name)+'</span>':'')+'</td><td data-l="Email" class="admem">'+escape(u.email||'')+'</td><td data-l="Rol"><span class="pill r-'+u.role+'">'+(u.role==='admin'?'Administrator':'Utilizator')+'</span></td><td data-l="Stare"><span class="pill st-'+u.status+'">'+(u.status==='active'?'Activ':u.status==='invited'?'Invitat':'Dezactivat')+'</span></td><td data-l="Înregistrat">'+admDate(u.created_at)+'</td><td data-l="Ultima autentificare">'+(u.status==='invited'?'invitat la '+admDate(u.invited_at):admDate(u.last_sign_in_at,1))+'</td><td data-l="Acțiuni">'+(u.status!=='invited'?'<div class="admact"><button type="button" data-act="manage" data-id="'+escape(u.user_id)+'">Gestionează</button></div>':'<div class="admact"><button type="button" data-act="resend" data-id="'+escape(u.user_id)+'">Retrimite</button><button type="button" data-act="revoke" data-id="'+escape(u.user_id)+'" data-email="'+escape(u.email||'')+'">Anulează</button></div>')+'</td></tr>'}
 async function loadAdmin(){
 const seq=++admSeq;
 try{
@@ -401,6 +401,7 @@ if(r.status===401||r.status===403){admDeny();return}
 if(!r.ok)throw new Error('http');
 const j=await r.json();
 if(seq!==admSeq)return;
+admRows=new Map(j.rows.map(u=>[u.user_id,u]));
 if(!j.rows.length&&j.total>0&&adm.page>0){adm.page=Math.ceil(j.total/adm.size)-1;loadAdmin();return}
 const c=j.counts;
 $('adminMeta').textContent='Pagină vizibilă doar administratorilor.';
@@ -412,7 +413,7 @@ $('admPager').innerHTML=pages>1?'<button type="button" class="quiet back" data-p
 catch{if(seq===admSeq)$('admList').innerHTML='<p class="error">Nu am putut încărca utilizatorii. Verifică conexiunea și încearcă din nou.</p>'}}
 function openAdmin(){
 if(!isAdmin()){show('home');return}
-show('admin');$('adminMeta').textContent='';admSay('',true);
+show('admin');$('adminMeta').textContent='';admSay('',true);auditRefresh();
 $('admQ').value=adm.q;$('admStatus').value=adm.status;$('admRole').value=adm.role;$('admSort').value=adm.sort;$('admDir').textContent=adm.dir==='asc'?'↑ Crescător':'↓ Descrescător';
 $('admList').innerHTML='<p class="muted">Se încarcă…</p>';loadAdmin()}
 const admReload=()=>{adm.page=0;loadAdmin()};
@@ -422,7 +423,7 @@ $('admSort').onchange=e=>{adm.sort=e.target.value;admReload()};
 $('admDir').onclick=()=>{adm.dir=adm.dir==='asc'?'desc':'asc';$('admDir').textContent=adm.dir==='asc'?'↑ Crescător':'↓ Descrescător';admReload()};
 $('admPager').onclick=e=>{const b=e.target.closest('[data-pg]');if(!b||b.disabled)return;adm.page=Math.max(0,adm.page+Number(b.dataset.pg));loadAdmin();$('admQ').scrollIntoView({block:'start'})};
 // Invitații: trimiterea emailului se face în Edge Function „admin-invite” (cheia de serviciu rămâne pe server).
-const INV_ERR={email:'Adresa de email nu este validă.',exists:'Există deja un cont cu acest email.',pending:'Acest email are deja o invitație în așteptare. Folosește „Retrimite” din listă.',rate:'Ai trimis prea multe invitații într-o oră. Încearcă mai târziu.',not_pending:'Invitația nu mai este în așteptare.',forbidden:'Nu ai acces la această acțiune.',auth:'Sesiunea a expirat. Intră din nou în cont.'};
+const INV_ERR={email:'Adresa de email nu este validă.',exists:'Există deja un cont cu acest email.',pending:'Acest email are deja o invitație în așteptare. Folosește „Retrimite” din listă.',rate:'Ai trimis prea multe invitații într-o oră. Încearcă mai târziu.',not_pending:'Invitația nu mai este în așteptare.',last_admin:'Nu poți elimina sau bloca ultimul administrator activ.',self:'Nu poți face asta pe propriul cont.',confirm_mismatch:'Emailul scris nu corespunde.',not_found:'Contul nu mai există.',is_pending:'Contul este încă invitat: folosește „Retrimite” sau „Anulează”.',forbidden:'Nu ai acces la această acțiune.',auth:'Sesiunea a expirat. Intră din nou în cont.'};
 async function invCall(body){
 try{const r=await api('/functions/v1/admin-invite',{method:'POST',body});const j=await r.json().catch(()=>({}));
 if(r.ok)return{ok:true};
@@ -446,11 +447,65 @@ $('invOk').textContent='Invitație trimisă la '+email+'.';$('invOk').hidden=fal
 $('admList').onclick=async e=>{
 const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
 const act=b.dataset.act;
+if(act==='manage'){openManage(b.dataset.id);return}
 if(act==='revoke'&&!confirm('Anulezi invitația pentru '+b.dataset.email+'? Contul invitat va fi șters.'))return;
 b.disabled=true;admSay('',true);
 const r=await invCall({action:act,user_id:b.dataset.id});
 if(r.ok)admSay(act==='resend'?'Invitația a fost retrimisă.':'Invitația a fost anulată.',true);else admSay(r.msg,false);
-if(r.ok||r.code==='not_pending')loadAdmin();else b.disabled=false};
+if(r.ok||r.code==='not_pending')loadAdmin();else b.disabled=false;auditRefresh()};
+// ---------- Gestionarea conturilor (rol, dezactivare, resetare de parolă, ștergere) și jurnalul de activitate
+let mgUser=null;
+const mgName=u=>[u.first_name,u.last_name].filter(Boolean).join(' ')||u.email;
+const isMe=u=>!!(auth&&u.user_id===auth.user.id);
+function openManage(id){
+const u=admRows.get(id);if(!u)return;mgUser=u;
+$('mgTitle').textContent=mgName(u);
+$('mgMeta').textContent=u.email+' · '+(u.role==='admin'?'Administrator':'Utilizator')+' · '+(u.status==='disabled'?'Dezactivat':'Activ')+(isMe(u)?' · contul tău':'');
+$('mgActs').innerHTML='<button type="button" data-mg="role">'+(u.role==='admin'?'Fă-l utilizator obișnuit':'Fă-l administrator')+'</button>'+(isMe(u)?'':'<button type="button" data-mg="toggle">'+(u.status==='disabled'?'Reactivează contul':'Dezactivează contul')+'</button>')+'<button type="button" data-mg="reset">Trimite email de resetare a parolei</button>'+(isMe(u)?'':'<button type="button" class="danger" data-mg="del">Șterge contul…</button>');
+$('mgDelete').hidden=true;$('mgErr').hidden=true;$('mgDelInput').value='';$('mgDelGo').disabled=true;
+$('manageDialog').showModal()}
+const MG_OK={set_role:'Rolul a fost schimbat.',disable:'Contul a fost dezactivat.',enable:'Contul a fost reactivat.',reset_password:'Emailul de resetare a parolei a fost trimis.',delete:'Contul a fost șters.'};
+async function mgCall(body){
+const u=mgUser;$('mgErr').hidden=true;
+$('manageDialog').querySelectorAll('button').forEach(b=>b.disabled=true);
+const r=await invCall({...body,user_id:u.user_id});
+$('manageDialog').querySelectorAll('#mgActs button,#mgClose,#mgDelCancel').forEach(b=>b.disabled=false);$('mgDelGo').disabled=$('mgDelInput').value.trim().toLowerCase()!==u.email.toLowerCase();
+if(!r.ok){$('mgErr').textContent=r.msg;$('mgErr').hidden=false;if(r.code==='not_found'||r.code==='is_pending')loadAdmin();return}
+$('manageDialog').close();
+if(isMe(u)&&body.action==='set_role'&&body.role==='user'){profile=Object.assign({},profile,{role:'user'});try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}show('home');return}
+admSay(MG_OK[body.action]||'Gata.',true);loadAdmin();auditRefresh()}
+$('mgActs').onclick=e=>{const b=e.target.closest('[data-mg]');if(!b||b.disabled||!mgUser)return;const u=mgUser,n=mgName(u);
+switch(b.dataset.mg){
+case'role':{const to=u.role==='admin'?'user':'admin';
+if(confirm(to==='admin'?'Faci din '+n+' administrator? Va putea vedea toți utilizatorii și invita alte persoane.':'Scoți rolul de administrator pentru '+n+'?'))mgCall({action:'set_role',role:to});break}
+case'toggle':{const off=u.status!=='disabled';
+if(confirm(off?'Dezactivezi contul lui '+n+'? Nu se va mai putea autentifica (o sesiune deja deschisă poate funcționa încă cel mult o oră); datele rămân.':'Reactivezi contul lui '+n+'?'))mgCall({action:off?'disable':'enable'});break}
+case'reset':if(confirm('Trimiți un email de resetare a parolei către '+u.email+'?'))mgCall({action:'reset_password'});break;
+case'del':$('mgDelEmail').textContent=u.email;$('mgDelete').hidden=false;$('mgDelInput').focus();break}};
+$('mgDelInput').oninput=()=>{$('mgDelGo').disabled=!mgUser||$('mgDelInput').value.trim().toLowerCase()!==mgUser.email.toLowerCase()};
+$('mgDelCancel').onclick=()=>{$('mgDelete').hidden=true;$('mgDelInput').value=''};
+$('mgDelGo').onclick=()=>{if(mgUser)mgCall({action:'delete',confirm_email:$('mgDelInput').value})};
+$('mgClose').onclick=()=>$('manageDialog').close();
+$('manageDialog').addEventListener('click',e=>{if(e.target===$('manageDialog'))$('manageDialog').close()});
+
+const AUD={invite:'a invitat',resend:'a retrimis invitația către',revoke:'a anulat invitația pentru',disable:'a dezactivat contul lui',enable:'a reactivat contul lui',set_role:'a schimbat rolul lui',reset_password:'a trimis resetare de parolă către',delete:'a șters contul lui'};
+const ROLE_RO={admin:'Administrator',user:'Utilizator'};
+let audRows=[],audTotal=0,audSeq=0;
+function audHtml(){
+if(!audRows.length)return'<p class="muted">Încă nu există activitate.</p>';
+return'<ol class="hist audit">'+audRows.map(a=>{const d=a.details||{};
+const extra=a.action==='set_role'?' ('+(ROLE_RO[d.from]||d.from)+' → '+(ROLE_RO[d.to]||d.to)+')':a.action==='invite'&&d.role==='admin'?' (ca administrator)':'';
+return'<li><span class="when">'+admDate(a.at,1)+'</span>'+escape(a.admin_email||'un administrator șters')+' '+(AUD[a.action]||escape(a.action))+' <b>'+escape(a.target_email)+'</b>'+escape(extra)+'</li>'}).join('')+'</ol>'+(audRows.length<audTotal?'<div class="tools"><button type="button" class="quiet back" id="audMore">Mai multe</button></div>':'')}
+async function loadAudit(more){
+const seq=++audSeq,off=more?audRows.length:0;
+try{const r=await api('/rest/v1/rpc/admin_audit_list',{method:'POST',body:{p_limit:25,p_offset:off}});
+if(seq!==audSeq)return;
+if(!r.ok)throw new Error('http');
+const j=await r.json();audTotal=j.total;audRows=more?audRows.concat(j.rows):j.rows;$('admAudit').innerHTML=audHtml()}
+catch{if(seq===audSeq)$('admAudit').innerHTML='<p class="error">Nu am putut încărca jurnalul.</p>'}}
+const auditRefresh=()=>{if($('admAuditBox').open)loadAudit(false)};
+$('admAuditBox').addEventListener('toggle',()=>{if($('admAuditBox').open)loadAudit(false)});
+$('admAudit').onclick=e=>{if(e.target.closest('#audMore'))loadAudit(true)};
 $('navAdmin').onclick=openAdmin;$('adminBack').onclick=()=>show('home');
 $('leagueBack').onclick=()=>show('home');$('leagueRefresh').onclick=refreshStandings;
 $('leagueBody').onclick=e=>{if(e.target.closest('[data-league=join]'))openLeagueDialog('register')};
