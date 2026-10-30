@@ -692,14 +692,16 @@ function readAuthHash(){
 const raw=location.hash.replace(/^#/,'');if(!raw)return null;
 const p=new URLSearchParams(raw);
 if(!p.get('access_token')&&!p.get('error'))return null;
-try{window.history.replaceState(null,'',location.pathname+location.search)}catch{}
+try{window.history.replaceState(null,'',basePath()+location.search)}catch{}
 if(p.get('error'))return{error:p.get('error_code')||p.get('error')};
 const type=p.get('type');
 return p.get('access_token')&&(type==='invite'||type==='recovery')?{type,token:p.get('access_token'),refresh:p.get('refresh_token'),exp:Number(p.get('expires_in'))||3600}:null}
 // Linkurile din email cu ?token_hash=…&type=… nu consumă jetonul la deschidere: scanerele de email (care doar deschid linkul) nu îl pot folosi,
 // jetonul se verifică abia când persoana apasă „Continuă”.
 function readTokenQuery(){const p=new URLSearchParams(location.search),th=p.get('token_hash'),type=p.get('type');return th&&(type==='invite'||type==='recovery')?{gate:true,th,type}:null}
-function cleanQuery(){try{window.history.replaceState(null,'',location.pathname)}catch{}}
+// Site URL din Supabase se termină cu „/”, deci linkul poate ajunge pe „//”; adresa curățată trebuie să rămână o cale validă.
+const basePath=()=>'/'+location.pathname.replace(/^\/+/,'');
+function cleanQuery(){try{window.history.replaceState(null,'',basePath())}catch{}}
 function showRegGate(link){
 $('userMenu').hidden=true;show('register');
 const inv=link.type==='invite';
