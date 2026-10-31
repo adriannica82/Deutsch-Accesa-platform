@@ -136,6 +136,17 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 .sesres{display:grid;justify-items:end;gap:1px;flex:none}.history li .sesres b{white-space:nowrap}
 .sesxp{color:var(--green);font-weight:700;white-space:nowrap}.seschev{color:var(--muted);font-size:20px;line-height:1;flex:none}
 
+.infolink{padding:6px 12px;font-size:13px;min-height:36px;white-space:nowrap;flex:none}
+.mstats .stlink{background:none;border:0;border-radius:8px;padding:2px 4px;margin:-2px -4px;text-align:left;font-weight:inherit;color:inherit;cursor:pointer}.mstats .stlink:hover:not(:disabled),.mstats .stlink:focus-visible{background:#edf3ed}.mstats .stlink:hover span{text-decoration:underline}
+.gdlead{font-size:20px;line-height:1.4;letter-spacing:-.3px;margin:10px 0 12px}
+.ladder{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:14px 0}
+.rung{display:grid;gap:3px;justify-items:center;text-align:center;border-radius:12px;padding:10px 4px}.rung .rn{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;border:2px solid currentColor}.rung b{font-size:13px}.rung .rc{font-size:20px;font-weight:800;letter-spacing:-.5px;line-height:1.2}.rung .rd{font-size:12px;opacity:.85}
+.rung.learn{background:#fbecd9;color:#8b4a19}.rung.mid{background:#e8f0d4;color:#4d6a1f}.rung.done{background:var(--lime);color:var(--green)}.rung.done .rn{background:var(--green);color:#fff;border-color:var(--green)}
+.timeline{background:#edf3ed;border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.5}
+.gdstate{padding:14px 0;border-top:1px solid var(--line);scroll-margin-top:16px}.gdstate:first-of-type{border-top:0}.gdstate p{margin:8px 0 0}.gdstate.flash{animation:admflash 2.6s ease-out}
+.gdlist{margin:12px 0;padding-left:20px;display:grid;gap:8px}
+@media(max-width:720px){.ladder{grid-template-columns:repeat(3,minmax(0,1fr))}.gdlead{font-size:18px}}
+
 </style>
 </head><body>
 <header><button type="button" class="brand" id="brandHome" aria-label="Deutsch · antrenament, pagina principală">Deutsch<span> / antrenament</span></button><div class="usermenu" id="userMenu" hidden><button type="button" class="chip" id="userChip" aria-haspopup="menu" aria-expanded="false" aria-controls="userPanel"><span class="chipav" id="chipAv" aria-hidden="true"></span><span class="chipdot" id="chipDot" aria-hidden="true"></span><span class="chipname" id="chipName"></span><span class="chipcar" aria-hidden="true">▾</span></button><div class="menuscrim" id="menuScrim" hidden></div><div class="menupanel" id="userPanel" role="menu" aria-label="Meniul utilizatorului" hidden><div class="mhead"><b id="mhName"></b><span class="small muted" id="mhEmail"></span><span class="pill" id="mhRole" hidden>Administrator</span><span class="small muted" id="syncState"></span></div><button type="button" role="menuitem" id="miAccount">Datele mele</button><button type="button" role="menuitem" id="miAdmin" hidden>Administrare</button><button type="button" role="menuitem" id="miLogout">Ieși</button></div></div></header>
@@ -151,7 +162,7 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 <div class="controls"><div class="field" style="grid-column:1/-1"><label for="todayCount">Număr de întrebări</label><select id="todayCount"><option value="10">10 · sesiune scurtă</option><option value="20" selected>20 · antrenament</option><option value="30">30 · sesiune lungă</option></select></div></div>
 <button id="todayStart" class="primary allwidth">Începe repetiția →</button><p class="small muted guide" id="todayInfo"></p></div>
 <div class="card" id="leagueCard" hidden></div></div>
-<aside class="card"><div class="label">PROGRESUL TĂU</div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” pentru a-l păstra.</p><div class="tools"><button type="button" class="quiet back" id="exportP">Exportă (.md)</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back" id="resetP">Resetează</button></div><input type="file" id="importFile" accept=".md,.markdown,text/markdown,.json,application/json" hidden>
+<aside class="card"><div class="row" style="flex-wrap:nowrap"><div class="label">PROGRESUL TĂU</div><button type="button" class="quiet back infolink" data-guide="">ⓘ Cum se calculează</button></div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” pentru a-l păstra.</p><div class="tools"><button type="button" class="quiet back" id="exportP">Exportă (.md)</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back" id="resetP">Resetează</button></div><input type="file" id="importFile" accept=".md,.markdown,text/markdown,.json,application/json" hidden>
 <div class="mini"><div class="label">TIMP DE EXERSARE</div><div id="timeStats"></div></div>
 <div class="mini"><div class="label">SESIUNI RECENTE</div><ul class="history" id="history"></ul></div>
 <p class="small muted" style="margin-top:12px" id="storeNote">Progresul se salvează doar în acest browser. Exportă-l ca să-l muți pe alt dispozitiv.</p></aside>
@@ -171,7 +182,7 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 <div class="field"><label for="count">Număr de întrebări</label><select id="count"><option value="10">10 · sesiune scurtă</option><option value="20" selected>20 · antrenament</option><option value="all">Toate întrebările selectate</option></select></div>
 <div class="field"><label for="feedbackMode">Când vezi corectarea?</label><select id="feedbackMode"><option value="practice">Imediat · antrenament</option><option value="exam">La final · test</option></select></div></div>
 <label class="checkbox"><input type="checkbox" id="shuffle" checked> Amestecă întrebările (doar pentru „Toate întrebările”)</label><button id="start" class="primary allwidth">Începe testul →</button><p class="small muted guide" id="poolInfo"></p></div>
-<aside class="card"><div class="label">PROGRESUL TEMEI</div><div id="topicStats"></div><div class="mini"><div class="label">ULTIMA SESIUNE</div><p class="small muted" id="lastResult" style="margin-top:8px"></p></div><div class="tools"><button type="button" class="quiet back" id="topicStudy">Fișa de recapitulare →</button></div></aside></div>
+<aside class="card"><div class="row" style="flex-wrap:nowrap"><div class="label">PROGRESUL TEMEI</div><button type="button" class="quiet back infolink" data-guide="">ⓘ Cum se calculează</button></div><div id="topicStats"></div><div class="mini"><div class="label">ULTIMA SESIUNE</div><p class="small muted" id="lastResult" style="margin-top:8px"></p></div><div class="tools"><button type="button" class="quiet back" id="topicStudy">Fișa de recapitulare →</button></div></aside></div>
 <div id="tGuide"></div>
 </section>
 
@@ -201,6 +212,17 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 <section id="session" hidden><div class="row"><div><div class="label" id="sesLabel">SESIUNE</div><h1 style="font-size:36px" id="sesTitle"></h1></div><button id="sesBack" class="primary">← Înapoi</button></div>
 <div class="card"><div class="score" id="sesScore"></div><div class="stats" id="sesStats"></div><div class="mini"><div class="label">PUNCTE XP</div><div id="sesXp" style="margin-top:8px"></div></div></div>
 <details class="card" open><summary id="sesReviewTitle">Corectarea răspunsurilor</summary><div id="sesReview"></div></details></section>
+<section id="guide" hidden><div class="row"><div><div class="label">GHID</div><h1 style="font-size:36px">Cum se calculează progresul</h1></div><button id="guideBack" class="primary">← Înapoi</button></div>
+<div class="card"><div class="label">PE SCURT</div><p class="gdlead">O întrebare devine <b>Stăpânită</b> după <b>4 răspunsuri corecte la rând</b>, date la intervale tot mai mari. Un răspuns greșit sau „Nu știu” o trimite înapoi la început.</p><p id="gdShort" class="muted" style="margin-bottom:0"></p><p class="small muted" id="gdScope" style="margin-top:10px"></p><div class="tools"><button type="button" class="quiet back" id="gdScopeBtn" hidden></button></div></div>
+<div class="card"><div class="label">SCARA DE ÎNVĂȚARE</div><p class="muted">Fiecare întrebare urcă sau coboară pe o scară cu 6 trepte. Cu cât e mai sus, cu atât o revezi mai rar. Sub fiecare treaptă vezi câte întrebări ale tale sunt acolo acum.</p><div class="ladder" id="gdLadder"></div><div class="timeline"><b>Cel mai scurt drum spre „Stăpânit”:</b> ziua 0 (primul răspuns corect, treapta 1) → ziua 1 (treapta 2) → ziua 4 (treapta 3) → ziua 11 (treapta 4, stăpânită). Deci cel puțin 11 zile, dacă răspunzi corect de fiecare dată exact când ți se cere.</div></div>
+<div class="card"><div class="label">CELE 4 STĂRI</div>
+<div class="gdstate" id="gd-new"><div class="row"><span class="pill p-new">Nou</span><b id="gdc-new"></b></div><p>Încă nu ai răspuns la ea. Apare în „Repetiția de azi” după întrebările scadente.</p></div>
+<div class="gdstate" id="gd-learn"><div class="row"><span class="pill p-learn">În învățare</span><b id="gdc-learn"></b></div><p>Treptele 0 și 1: ai greșit-o de curând sau ai răspuns corect o singură dată. O revezi imediat (treapta 0) sau după o zi (treapta 1).</p></div>
+<div class="gdstate" id="gd-mid"><div class="row"><span class="pill p-mid">Consolidare</span><b id="gdc-mid"></b></div><p>Treptele 2 și 3: 2 sau 3 răspunsuri corecte la rând. O revezi după 3, respectiv 7 zile.</p></div>
+<div class="gdstate" id="gd-done"><div class="row"><span class="pill p-done">Stăpânit</span><b id="gdc-done"></b></div><p>Treptele 4 și 5: cel puțin 4 răspunsuri corecte la rând. O mai revezi după 14, apoi după 30 de zile, ca să nu se uite. Dacă o greșești, coboară la treapta 0 și o iei de la capăt.</p></div></div>
+<div class="card"><div class="label">REGULILE</div><ul class="gdlist"><li><b>Răspuns corect:</b> urci o treaptă (maximum 5) și revii după intervalul noii trepte.</li><li><b>Răspuns greșit sau „Nu știu”:</b> cobori la treapta 0.</li><li><b>Tema cu două părți</b> (de exemplu prepoziția și cazul): răspunsul e corect doar dacă ambele părți sunt corecte.</li><li><b>„Alege” sau „Scrie”:</b> modul de exercițiu nu contează; fiecare răspuns corect urcă aceeași scară.</li><li><b>„De repetat”</b> înseamnă o întrebare văzută deja, a cărei dată de revedere a trecut.</li></ul>
+<div class="notice"><b>Atenție:</b> aplicația numără orice răspuns corect, chiar dacă întrebarea nu era scadentă. În „Toate întrebările” și „Doar punctele slabe”, 4 răspunsuri corecte în aceeași zi duc o întrebare la „Stăpânit”, fără pauzele de 1, 3 și 7 zile. Același lucru se întâmplă în „Repetiția de azi” când nu mai ai nimic scadent și primești cele mai apropiate repetări. Pentru memorare pe termen lung, repetă zilnic ce e scadent și noutățile, în loc să parcurgi aceleași întrebări de mai multe ori într-o zi.</div></div>
+<div class="card"><button id="gdStart" class="primary">Începe repetiția de azi →</button></div></section>
 <section id="results" hidden><div class="card"><div class="label">SESIUNE ÎNCHEIATĂ</div><h1 style="font-size:36px">Ce ai reținut?</h1><div class="score" id="score"></div><p id="resultMessage"></p><div class="stats" id="breakdown"></div><div class="mini"><div class="label">TIMP DE EXERSARE</div><div class="stats" id="timeResult" style="margin-top:12px"></div></div><div class="mini" id="xpBlock" hidden><div class="label">PUNCTE XP</div><div id="xpResult" style="margin-top:8px"></div></div><div class="actions"><button id="retry" class="primary">Repetă greșelile</button><button id="newTest">Configurează alt test</button><button id="resultsHome" class="quiet">Toate temele</button><button id="resultStudy" class="quiet">Recapitulează lista</button></div><p class="small muted guide" id="resultNote"></p></div><details class="card" open><summary id="reviewTitle">Corectarea răspunsurilor</summary><div id="reviewList"></div></details></section>
 
 <section id="study" hidden><div class="row"><div><div class="label">FIȘĂ DE RECAPITULARE</div><h1 style="font-size:36px" id="studyTitle"></h1></div><button id="studyBack" class="primary">← Înapoi</button></div><p class="muted" id="studyIntro"></p><div id="studyGuide"></div><div class="card"><div class="controls" style="margin-top:0"><div class="field"><label for="search">Caută în listă</label><input type="search" id="search" placeholder="Ex.: mit, a mulțumi, fahren…"></div><div class="field" id="studyFilterField"><label for="studyFilter" id="studyFilterLabel">Filtrează</label><select id="studyFilter"></select></div></div><p class="small muted" id="studyCount"></p><div class="tablewrap"><table class="verbs"><thead><tr><th scope="col">Element</th><th scope="col">Sens</th><th scope="col">Exemplu</th><th scope="col">Progres</th></tr></thead><tbody id="verbTable"></tbody></table></div></div></section>
@@ -245,7 +267,7 @@ const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const LEVELS={A1:1,A2:2,B1:3,B2:4,C1:5,C2:6},levelKey=l=>{const r=(String(l).match(/[ABC][12]/g)||[]).map(x=>LEVELS[x]);return r.length?[Math.min(...r),Math.max(...r)]:[99,99]};
 const topics=CONTENT.topics.slice().sort((a,b)=>{const x=levelKey(a.level),y=levelKey(b.level);return x[0]-y[0]||x[1]-y[1]||a.order-b.order}),topicById=Object.create(null),byId=Object.create(null),allItems=[];
 topics.forEach(t=>{topicById[t.id]=t;t.qs=t.items.map(it=>{const q={...it,alt:it.alt||[],group:it.group||'',gid:t.id+'/'+it.id,topic:t};byId[q.gid]=q;allItems.push(q);return q})});
-const VIEWS=['login','register','home','topic','quiz','results','session','study','league','account','admin'];
+const VIEWS=['login','register','home','topic','quiz','results','session','guide','study','league','account','admin'];
 let state={active:false},currentView='home',studyReturn='home',cur=null,builtFor='',studyTopic=null,progress=Object.create(null),history=[],storageOK=true;
 
 // ---------- Progres salvat local ----------
@@ -260,7 +282,7 @@ const statusLabel={new:'Nou',learn:'În învățare',mid:'Consolidare',done:'St�
 const nextText=p=>p.due<=Date.now()+1000?'la următoarea sesiune':'peste '+daysRo(Math.max(1,Math.round((p.due-Date.now())/DAY)));
 const counts=qs=>{const c={new:0,learn:0,mid:0,done:0};qs.forEach(q=>c[status(P(q))]++);return c};
 const bar=(c,n)=>'<div class="stack" role="img" aria-label="'+['learn','mid','done'].map(k=>statusLabel[k]+': '+c[k]).join(', ')+'">'+['done','mid','learn'].map(k=>'<i class="s-'+k+'" style="width:'+(c[k]/n*100)+'%"></i>').join('')+'</div>';
-const statsHtml=qs=>{const c=counts(qs);return bar(c,qs.length)+'<div class="mstats">'+['new','learn','mid','done'].map(k=>'<div><b>'+c[k]+'</b><span>'+statusLabel[k]+'</span></div>').join('')+'</div>'};
+const statsHtml=qs=>{const c=counts(qs);return bar(c,qs.length)+'<div class="mstats">'+['new','learn','mid','done'].map(k=>'<button type="button" class="stlink" data-guide="'+k+'" aria-label="'+statusLabel[k]+': '+c[k]+'. Vezi cum se calculează"><b>'+c[k]+'</b><span>'+statusLabel[k]+'</span></button>').join('')+'</div>'};
 const groupPill=g=>'<span class="pill '+(g==='Dativ'?'dat':g==='Akkusativ'?'akk':'')+'">'+escape(g)+'</span>';
 const modeLabel=(t,m)=>m==='choice'?'Alege '+t.answerNoun:m==='write'?'Scrie '+t.answerNoun:'Scrie '+t.answerNoun+' + alege '+t.extra.label.toLowerCase();
 const guideDetails=(t,open)=>t.guideHtml?'<details class="card prep-guide"'+(open?' open':'')+'><summary>'+escape(t.guideTitle)+'</summary>'+t.guideHtml+'</details>':'';
@@ -612,6 +634,27 @@ body.innerHTML=(ms.length===1&&me?soloHtml(me):'')+rankRows(ms)+(ms.length===1?'
 renderHistory();
 $('leagueHowBody').innerHTML='<ul class="xplist"><li>Răspuns corect: <b>10</b> puncte de bază la o întrebare nouă, <b>15</b> la una scadentă, <b>5</b> la o reluare înainte de scadență, <b>+5</b> dacă ai greșit-o data trecută.</li><li>La „scrie” punctele se înmulțesc cu <b>1,5</b>, la „scrie + caz” cu <b>2</b>.</li><li>Primele 400 de puncte pe zi contează întregi, restul doar 25%.</li><li>Apoi se înmulțesc cu <b>multiplicatorul temei</b>: '+[...new Set(topics.map(t=>t.level+' ×'+fmtMult(t.xp)))].join(' · ')+'.</li><li>Bonusuri: <b>+20 XP</b> pentru o sesiune cu minimum 10 întrebări și minimum 60% corecte, <b>+10 XP</b> pentru prima sesiune a zilei.</li><li>Săptămâna începe luni și se încheie duminică (ora României). Clasamentul se actualizează după fiecare sesiune terminată.</li></ul>'}
 function openLeague(){show('league');refreshStandings()}
+// ---------- Ghid: cum se calculează progresul (stările și scara de învățare)
+let guideReturn='home',guideAll=false;
+function openGuide(state){
+guideReturn=['home','topic'].includes(currentView)?currentView:'home';guideAll=false;
+show('guide');renderGuide();
+const el=state?$('gd-'+state):null;
+if(el){el.scrollIntoView({block:'start'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),2700)}}
+function renderGuide(){
+const topicScope=guideReturn==='topic'&&cur&&!guideAll?cur:null,qs=topicScope?topicScope.qs:allItems,c=counts(qs),due=qs.filter(isDue).length;
+const nq=n=>countRo(n,['întrebare','întrebări']);
+$('gdShort').innerHTML='Pentru '+(topicScope?'tema „'+escape(topicScope.title)+'”':'toate temele')+': <b>'+c.done+'</b> stăpânite · <b>'+c.mid+'</b> în consolidare · <b>'+c.learn+'</b> în învățare · <b>'+c.new+'</b> noi · '+due+' de repetat acum.';
+$('gdScope').textContent=topicScope?'Cifrele sunt doar pentru această temă.':'Cifrele sunt pentru toate temele.';
+const b=$('gdScopeBtn');b.hidden=guideReturn!=='topic'||!cur;b.textContent=topicScope?'Vezi pentru toate temele':'Vezi doar pentru tema „'+(cur?cur.title:'')+'”';
+const days=['imediat','1 zi','3 zile','7 zile','14 zile','30 de zile'],cls=['learn','learn','mid','mid','done','done'];
+$('gdLadder').innerHTML=days.map((d,i)=>{const l=qs.filter(q=>P(q)&&P(q).box===i),du=l.filter(isDue).length;return '<div class="rung '+cls[i]+'"><span class="rn">'+i+'</span><b>'+d+'</b><span class="rc">'+l.length+'</span><span class="rd">'+(l.length===1?'întrebare':'întrebări')+(du?' · '+du+' de repetat':'')+'</span></div>'}).join('');
+$('gdc-new').textContent=nq(c.new);$('gdc-learn').textContent=nq(c.learn);$('gdc-mid').textContent=nq(c.mid);$('gdc-done').textContent=nq(c.done)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-guide]');if(!b)return;e.preventDefault();openGuide(b.dataset.guide||'')});
+$('gdScopeBtn').onclick=()=>{guideAll=!guideAll;renderGuide()};
+$('guideBack').onclick=()=>show(guideReturn);
+$('gdStart').onclick=()=>{show('home');$('todayStart').click()};
+
 // ---------- Sesiuni recente: ultimele 5, cu XP, deschise într-un ecran propriu
 const sessXp=new Map();let sessXpBusy=false,sesOpenId='';
 function sessRowHtml(h){

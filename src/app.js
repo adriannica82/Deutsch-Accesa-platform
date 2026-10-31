@@ -17,7 +17,7 @@ const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const LEVELS={A1:1,A2:2,B1:3,B2:4,C1:5,C2:6},levelKey=l=>{const r=(String(l).match(/[ABC][12]/g)||[]).map(x=>LEVELS[x]);return r.length?[Math.min(...r),Math.max(...r)]:[99,99]};
 const topics=CONTENT.topics.slice().sort((a,b)=>{const x=levelKey(a.level),y=levelKey(b.level);return x[0]-y[0]||x[1]-y[1]||a.order-b.order}),topicById=Object.create(null),byId=Object.create(null),allItems=[];
 topics.forEach(t=>{topicById[t.id]=t;t.qs=t.items.map(it=>{const q={...it,alt:it.alt||[],group:it.group||'',gid:t.id+'/'+it.id,topic:t};byId[q.gid]=q;allItems.push(q);return q})});
-const VIEWS=['login','register','home','topic','quiz','results','session','study','league','account','admin'];
+const VIEWS=['login','register','home','topic','quiz','results','session','guide','study','league','account','admin'];
 let state={active:false},currentView='home',studyReturn='home',cur=null,builtFor='',studyTopic=null,progress=Object.create(null),history=[],storageOK=true;
 
 // ---------- Progres salvat local ----------
@@ -32,7 +32,7 @@ const statusLabel={new:'Nou',learn:'În învățare',mid:'Consolidare',done:'St�
 const nextText=p=>p.due<=Date.now()+1000?'la următoarea sesiune':'peste '+daysRo(Math.max(1,Math.round((p.due-Date.now())/DAY)));
 const counts=qs=>{const c={new:0,learn:0,mid:0,done:0};qs.forEach(q=>c[status(P(q))]++);return c};
 const bar=(c,n)=>'<div class="stack" role="img" aria-label="'+['learn','mid','done'].map(k=>statusLabel[k]+': '+c[k]).join(', ')+'">'+['done','mid','learn'].map(k=>'<i class="s-'+k+'" style="width:'+(c[k]/n*100)+'%"></i>').join('')+'</div>';
-const statsHtml=qs=>{const c=counts(qs);return bar(c,qs.length)+'<div class="mstats">'+['new','learn','mid','done'].map(k=>'<div><b>'+c[k]+'</b><span>'+statusLabel[k]+'</span></div>').join('')+'</div>'};
+const statsHtml=qs=>{const c=counts(qs);return bar(c,qs.length)+'<div class="mstats">'+['new','learn','mid','done'].map(k=>'<button type="button" class="stlink" data-guide="'+k+'" aria-label="'+statusLabel[k]+': '+c[k]+'. Vezi cum se calculează"><b>'+c[k]+'</b><span>'+statusLabel[k]+'</span></button>').join('')+'</div>'};
 const groupPill=g=>'<span class="pill '+(g==='Dativ'?'dat':g==='Akkusativ'?'akk':'')+'">'+escape(g)+'</span>';
 const modeLabel=(t,m)=>m==='choice'?'Alege '+t.answerNoun:m==='write'?'Scrie '+t.answerNoun:'Scrie '+t.answerNoun+' + alege '+t.extra.label.toLowerCase();
 const guideDetails=(t,open)=>t.guideHtml?'<details class="card prep-guide"'+(open?' open':'')+'><summary>'+escape(t.guideTitle)+'</summary>'+t.guideHtml+'</details>':'';
@@ -384,6 +384,27 @@ body.innerHTML=(ms.length===1&&me?soloHtml(me):'')+rankRows(ms)+(ms.length===1?'
 renderHistory();
 $('leagueHowBody').innerHTML='<ul class="xplist"><li>Răspuns corect: <b>10</b> puncte de bază la o întrebare nouă, <b>15</b> la una scadentă, <b>5</b> la o reluare înainte de scadență, <b>+5</b> dacă ai greșit-o data trecută.</li><li>La „scrie” punctele se înmulțesc cu <b>1,5</b>, la „scrie + caz” cu <b>2</b>.</li><li>Primele 400 de puncte pe zi contează întregi, restul doar 25%.</li><li>Apoi se înmulțesc cu <b>multiplicatorul temei</b>: '+[...new Set(topics.map(t=>t.level+' ×'+fmtMult(t.xp)))].join(' · ')+'.</li><li>Bonusuri: <b>+20 XP</b> pentru o sesiune cu minimum 10 întrebări și minimum 60% corecte, <b>+10 XP</b> pentru prima sesiune a zilei.</li><li>Săptămâna începe luni și se încheie duminică (ora României). Clasamentul se actualizează după fiecare sesiune terminată.</li></ul>'}
 function openLeague(){show('league');refreshStandings()}
+// ---------- Ghid: cum se calculează progresul (stările și scara de învățare)
+let guideReturn='home',guideAll=false;
+function openGuide(state){
+guideReturn=['home','topic'].includes(currentView)?currentView:'home';guideAll=false;
+show('guide');renderGuide();
+const el=state?$('gd-'+state):null;
+if(el){el.scrollIntoView({block:'start'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),2700)}}
+function renderGuide(){
+const topicScope=guideReturn==='topic'&&cur&&!guideAll?cur:null,qs=topicScope?topicScope.qs:allItems,c=counts(qs),due=qs.filter(isDue).length;
+const nq=n=>countRo(n,['întrebare','întrebări']);
+$('gdShort').innerHTML='Pentru '+(topicScope?'tema „'+escape(topicScope.title)+'”':'toate temele')+': <b>'+c.done+'</b> stăpânite · <b>'+c.mid+'</b> în consolidare · <b>'+c.learn+'</b> în învățare · <b>'+c.new+'</b> noi · '+due+' de repetat acum.';
+$('gdScope').textContent=topicScope?'Cifrele sunt doar pentru această temă.':'Cifrele sunt pentru toate temele.';
+const b=$('gdScopeBtn');b.hidden=guideReturn!=='topic'||!cur;b.textContent=topicScope?'Vezi pentru toate temele':'Vezi doar pentru tema „'+(cur?cur.title:'')+'”';
+const days=['imediat','1 zi','3 zile','7 zile','14 zile','30 de zile'],cls=['learn','learn','mid','mid','done','done'];
+$('gdLadder').innerHTML=days.map((d,i)=>{const l=qs.filter(q=>P(q)&&P(q).box===i),du=l.filter(isDue).length;return '<div class="rung '+cls[i]+'"><span class="rn">'+i+'</span><b>'+d+'</b><span class="rc">'+l.length+'</span><span class="rd">'+(l.length===1?'întrebare':'întrebări')+(du?' · '+du+' de repetat':'')+'</span></div>'}).join('');
+$('gdc-new').textContent=nq(c.new);$('gdc-learn').textContent=nq(c.learn);$('gdc-mid').textContent=nq(c.mid);$('gdc-done').textContent=nq(c.done)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-guide]');if(!b)return;e.preventDefault();openGuide(b.dataset.guide||'')});
+$('gdScopeBtn').onclick=()=>{guideAll=!guideAll;renderGuide()};
+$('guideBack').onclick=()=>show(guideReturn);
+$('gdStart').onclick=()=>{show('home');$('todayStart').click()};
+
 // ---------- Sesiuni recente: ultimele 5, cu XP, deschise într-un ecran propriu
 const sessXp=new Map();let sessXpBusy=false,sesOpenId='';
 function sessRowHtml(h){

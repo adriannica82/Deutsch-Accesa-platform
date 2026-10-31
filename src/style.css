@@ -126,3 +126,14 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 .sesmain{flex:1;min-width:0;display:grid;gap:1px}.history li .sesmain b{white-space:normal;flex:initial;overflow-wrap:anywhere;font-size:14px}
 .sesres{display:grid;justify-items:end;gap:1px;flex:none}.history li .sesres b{white-space:nowrap}
 .sesxp{color:var(--green);font-weight:700;white-space:nowrap}.seschev{color:var(--muted);font-size:20px;line-height:1;flex:none}
+
+.infolink{padding:6px 12px;font-size:13px;min-height:36px;white-space:nowrap;flex:none}
+.mstats .stlink{background:none;border:0;border-radius:8px;padding:2px 4px;margin:-2px -4px;text-align:left;font-weight:inherit;color:inherit;cursor:pointer}.mstats .stlink:hover:not(:disabled),.mstats .stlink:focus-visible{background:#edf3ed}.mstats .stlink:hover span{text-decoration:underline}
+.gdlead{font-size:20px;line-height:1.4;letter-spacing:-.3px;margin:10px 0 12px}
+.ladder{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:14px 0}
+.rung{display:grid;gap:3px;justify-items:center;text-align:center;border-radius:12px;padding:10px 4px}.rung .rn{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;border:2px solid currentColor}.rung b{font-size:13px}.rung .rc{font-size:20px;font-weight:800;letter-spacing:-.5px;line-height:1.2}.rung .rd{font-size:12px;opacity:.85}
+.rung.learn{background:#fbecd9;color:#8b4a19}.rung.mid{background:#e8f0d4;color:#4d6a1f}.rung.done{background:var(--lime);color:var(--green)}.rung.done .rn{background:var(--green);color:#fff;border-color:var(--green)}
+.timeline{background:#edf3ed;border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.5}
+.gdstate{padding:14px 0;border-top:1px solid var(--line);scroll-margin-top:16px}.gdstate:first-of-type{border-top:0}.gdstate p{margin:8px 0 0}.gdstate.flash{animation:admflash 2.6s ease-out}
+.gdlist{margin:12px 0;padding-left:20px;display:grid;gap:8px}
+@media(max-width:720px){.ladder{grid-template-columns:repeat(3,minmax(0,1fr))}.gdlead{font-size:18px}}
