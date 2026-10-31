@@ -118,3 +118,11 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 .admago{display:block}
 @media(max-width:720px){.admago{display:inline;margin-left:8px}}
 .admtbl td.admem{min-width:170px}
+
+.history li{display:block;padding:0}
+.history li .sesrow{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:8px 6px;margin:0 -6px;border:0;border-radius:10px;background:transparent;color:var(--ink);font-size:13px;font-weight:400;text-align:left}
+.history li button.sesrow{cursor:pointer;width:calc(100% + 12px)}.history li button.sesrow:hover:not(:disabled),.history li button.sesrow:focus-visible{background:#edf3ed}
+.history li .plain{cursor:default}
+.sesmain{flex:1;min-width:0;display:grid;gap:1px}.history li .sesmain b{white-space:normal;flex:initial;overflow-wrap:anywhere;font-size:14px}
+.sesres{display:grid;justify-items:end;gap:1px;flex:none}.history li .sesres b{white-space:nowrap}
+.sesxp{color:var(--green);font-weight:700;white-space:nowrap}.seschev{color:var(--muted);font-size:20px;line-height:1;flex:none}
