@@ -132,3 +132,8 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
 - **Fișiere modificate:** `content/artikel-genus.json` (rezumat, grupe, ghid cu rândul pentru cuvintele compuse, 300 de întrebări noi); regenerat `deutsch.html` și `supabase/topic_levels.sql` (neschimbat: aceeași temă, același nivel și multiplicator, deci nu e nevoie de rulare în Supabase).
 - **Verificare:** build fără erori (500 + 166 de întrebări la cele două teme); filtrul pe grupe afișează cele 32 de grupe (cu cele 4 noi) plus „Toate”; un test din grupa „Cuvinte compuse” arată cuvântul, traducerea, trei variante de răspuns și explicația „Substantivele compuse iau articolul ultimului component: der Kühlschrank → der Schrank.”; fără caractere cu sedilă în texte.
 - **De verificat de tine:** genul și pluralul cuvintelor noi sunt din cunoștințe lingvistice generale, nu comparate cuvânt cu cuvânt cu lista oficială Goethe; dacă observi o greșeală sau o traducere nepotrivită, scrie-o în `bug record.md`. Cuvinte cu două genuri sau variante regionale (de exemplu der/das Joghurt, die/das Cola, der/die See) au fost lăsate deoparte intenționat.
+
+## 11. Administrare: „Ultima activitate” (2026-10-31)
+
+- **Cerere:** în Administrare să se vadă nu doar ultima autentificare, ci și când a fost activ ultima dată fiecare utilizator (un cont cu multe puncte noi apărea cu ultima autentificare din 28.10).
+- **Status:** implementat. Cauza: sesiunile rămân deschise prin reînnoirea jetonului, deci „ultima autentificare” nu se schimbă la folosire. Coloana nouă **„Ultima activitate”** arată cea mai recentă dintre ultimul răspuns, ultima sesiune de test și reînnoirea sesiunii, cu „acum 5 min” / „acum 3 h” / „ieri”, plus sortare după ea. Detalii în `admin dashboard requirements.md`.

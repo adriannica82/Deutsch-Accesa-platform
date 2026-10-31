@@ -115,3 +115,6 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 .invdone:not([hidden]){animation:invpop .25s ease-out}@keyframes invpop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .admtbl tr.flash{animation:admflash 2.6s ease-out}@keyframes admflash{0%,35%{background:#fff3c8}100%{background:transparent}}
 @media(prefers-reduced-motion:reduce){.invc,.invt{animation:none;stroke-dashoffset:0}.invdone:not([hidden]),.admtbl tr.flash{animation:none}.admtbl tr.flash{background:#fff3c8}}
+.admago{display:block}
+@media(max-width:720px){.admago{display:inline;margin-left:8px}}
+.admtbl td.admem{min-width:170px}

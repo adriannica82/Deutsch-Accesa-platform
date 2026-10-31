@@ -682,7 +682,13 @@ begin
            end as status,
            u.created_at,
            u.invited_at,
-           u.last_sign_in_at
+           u.last_sign_in_at,
+           greatest(
+             (select max(s.updated_at) from auth.sessions s where s.user_id = u.id),
+             (select max(a.answered_at) from public.answers a where a.user_id = u.id),
+             (select max(x.started_at) from public.sessions x where x.user_id = u.id),
+             u.last_sign_in_at
+           ) as last_active_at
     from auth.users u
     left join public.profiles p on p.user_id = u.id
     where u.deleted_at is null
@@ -706,8 +712,10 @@ begin
       case when p_sort = 'status' and not v_asc then status end desc,
       case when p_sort = 'last_sign_in' and v_asc     then last_sign_in_at end asc nulls last,
       case when p_sort = 'last_sign_in' and not v_asc then last_sign_in_at end desc nulls last,
-      case when p_sort not in ('name', 'email', 'role', 'status', 'last_sign_in') and v_asc     then created_at end asc,
-      case when p_sort not in ('name', 'email', 'role', 'status', 'last_sign_in') and not v_asc then created_at end desc,
+      case when p_sort = 'last_active' and v_asc     then last_active_at end asc nulls last,
+      case when p_sort = 'last_active' and not v_asc then last_active_at end desc nulls last,
+      case when p_sort not in ('name', 'email', 'role', 'status', 'last_sign_in', 'last_active') and v_asc     then created_at end asc,
+      case when p_sort not in ('name', 'email', 'role', 'status', 'last_sign_in', 'last_active') and not v_asc then created_at end desc,
       email
     limit v_limit offset v_offset
   )
@@ -895,3 +903,10 @@ drop trigger if exists profiles_keep_first_name on public.profiles;
 create trigger profiles_keep_first_name
   before update on public.profiles
   for each row execute function public.profiles_keep_first_name();
+
+-- ======================================================================
+-- 12. Administrare: „ultima activitate” (migrarea admin_last_active_at)
+--     admin_list_users (secțiunea 8, actualizată în loc) întoarce acum și last_active_at =
+--     cea mai recentă dintre: reînnoirea sesiunii de autentificare, ultimul răspuns, ultima sesiune de test, ultima autentificare;
+--     și acceptă sortarea „last_active”.
+-- ======================================================================
