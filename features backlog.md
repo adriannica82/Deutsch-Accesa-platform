@@ -166,3 +166,14 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
 - **Limite:** gradul de siguranță și excepțiile sunt din cunoștințe lingvistice generale, nu verificate cuvânt cu cuvânt într-o gramatică; regulile cu mai puține exemple în test (alcool, mărci, culori, -ist, -ett) nu au întrebări proprii, fiind doar de citit.
 - **Fișiere:** `content/artikel-genus.json` (`guideTitle`, `guideHtml`), `src/style.css`, `src/app.js` (un singur handler de click pentru terminații și butoanele de articol); regenerat `deutsch.html`. Fără modificări pe server.
 - **Verificare (în browser):** pe desktop trei coloane, 21 de reguli și 21 de detalii, atingerea unei reguli arată doar detaliul ei; pe 375 px o singură coloană, comutarea der/die/das funcționează, fără defilare orizontală; fără erori în consolă. Neîncercat pe iPhone real.
+
+## 15. Propoziție-exemplu în feedback (2026-11-01)
+
+- **Cerere:** la răspuns să apară și o propoziție care arată cum se folosește cuvântul, doar în forma cerută în test (de ex. pentru „verbringen → Partizip II” propoziția cu *verbracht*).
+- **Status:** implementat. Feedback-ul (după răspuns) și corectarea de la final / sesiunile deschise arată acum **„Exemplu:”** cu o propoziție germană și **traducerea ei în română**, înaintea explicației.
+- **Unde:** doar la temele ale căror întrebări nu sunt deja propoziții: **„Der, die sau das?” (500 + 166 de substantive)** și **„Verbe cu forme neregulate” (409 întrebări)**. La celelalte teme enunțul este deja o propoziție completă (se vede cu răspunsul îngroșat și traducerea), deci nu s-a adăugat nimic.
+- **Forma cerută:** la „Partizip II” propoziția conține participiul; la „Perfekt cu persoană” exact persoana cerută (de ex. *ich habe … angeboten*); la „haben sau sein?” un Perfekt cu auxiliarul corect; la substantive articolul și substantivul din întrebare (de ex. *die Zeitung*, la masculin în nominativ).
+- **Cum e păstrat:** câmpuri noi opționale `ex` și `exRo` pe întrebare; `build.py` cere ca ele să meargă împreună și, pentru temele cu `"requireExample": true`, la fiecare întrebare. Validarea automată a verificat pentru toate cele 1075 de propoziții că apare forma cerută (cu 5 excepții scrise de mână unde persoana cerută nu are sens natural, ex. *wir haben betragen*).
+- **Fișiere:** `content/artikel-genus.json`, `content/artikel-genus-b1.json`, `content/verbe-neregulate-perfekt.json`, `src/app.js` (feedback și `reviewHtml`), `build.py`, `README.md`; regenerat `deutsch.html`. Fără modificări pe server.
+- **Verificare (în browser):** feedback cu exemplu la „verbracht” și la „die Zeitung” (răspuns corect și greșit), fără exemplu la tema modalelor, exemplul apare și în corectarea de la final.
+- **De verificat de tine:** propozițiile și traducerile sunt scrise de mine, nu verificate de un vorbitor nativ; dacă vezi una nenaturală, scrie-mi identificatorul sau forma și o corectez.

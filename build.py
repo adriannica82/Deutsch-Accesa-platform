@@ -120,7 +120,11 @@ def validate(topics):
             elif "choice" in modes:
                 if len({canon(p) for p in pool} - answers) < 2:
                     err(where, "modul cu alegere cere „pool” cu cel puțin 2 variante greșite sau „options” pe întrebare")
-            for k in ("ro", "explain", "gloss", "hint"):
+            if bool(it.get("ex")) != bool(it.get("exRo")):
+                err(where, "„ex” (propoziție germană) și „exRo” (traducerea ei) merg împreună")
+            if t.get("requireExample") and not it.get("ex"):
+                err(where, "tema cere o propoziție-exemplu: lipsește „ex” și „exRo”")
+            for k in ("ro", "exRo", "explain", "gloss", "hint"):
                 if any(c in str(it.get(k, "")) for c in BAD_DIACRITICS):
                     warnings.append(f"[{where}] „{k}” folosește ş/ţ cu sedilă; în română se scrie ș/ț")
     return errors, warnings

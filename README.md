@@ -21,6 +21,8 @@ python3 build.py --check  # doar validează
 ```
 
 Fiecare întrebare trebuie să aibă traducere (`ro`) și explicație (`explain`) în română; validarea se oprește dacă lipsesc.
+
+O întrebare poate avea și o propoziție-exemplu, `ex` (în germană, cu forma cerută în test) și `exRo` (traducerea ei); apar în feedback după răspuns. O temă cu `"requireExample": true` cere exemplul la fiecare întrebare (folosit la temele ale căror întrebări nu sunt propoziții: „Der, die sau das?” și „Verbe cu forme neregulate”).
 Editează conținutul în `content/` și `src/`, nu în `deutsch.html` (fișier generat).
 Progresul se salvează în `localStorage`, doar în browserul folosit.
 
