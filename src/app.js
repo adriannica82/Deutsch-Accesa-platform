@@ -814,22 +814,23 @@ reg.user=await ur.json();
 const pr=await fetch(CFG.url+'/rest/v1/profiles?select=first_name,last_name&user_id=eq.'+encodeURIComponent(reg.user.id),{headers:H});
 const prof=pr.ok?((await pr.json())[0]||{}):{};
 reg.needNames=!prof.first_name;
-$('regEmail').value=reg.user.email||'';$('regFirst').value=prof.first_name||'';$('regLast').value=prof.last_name||'';$('regPass').value='';$('regShow').checked=false;$('regPass').type='password';
+$('regEmail').value=reg.user.email||'';$('regFirst').value=prof.first_name||'';$('regLast').value=prof.last_name||'';$('regPass').value=$('regPass2').value='';$('regShow').checked=false;$('regPass').type=$('regPass2').type='password';
 $('regNames').hidden=!reg.needNames;
 const invite=reg.type==='invite'&&reg.needNames;
 $('regLabel').textContent=invite?'ÎNREGISTRARE':'PAROLĂ NOUĂ';$('regTitle').textContent=invite?'Finalizează înregistrarea':'Alege o parolă nouă';
 $('regIntro').textContent=invite?'Ai fost invitat în platformă. Completează datele de mai jos ca să-ți activezi contul.':'Alege parola cu care vei intra în cont.';
 $('regBtn').disabled=false;(reg.needNames?$('regFirst'):$('regPass')).focus()}
 catch{reg=null;regFail(LINK_DEAD)}}
-$('regShow').onchange=()=>{$('regPass').type=$('regShow').checked?'text':'password'};
+$('regShow').onchange=()=>{$('regPass').type=$('regPass2').type=$('regShow').checked?'text':'password'};
 $('regForm').onsubmit=async e=>{e.preventDefault();
 if(!reg)return;
 const err=m=>{$('regErr').textContent=m;$('regErr').hidden=false};
-const first=$('regFirst').value.trim().replace(/\s+/g,' '),last=$('regLast').value.trim().replace(/\s+/g,' '),pw=$('regPass').value;
+const first=$('regFirst').value.trim().replace(/\s+/g,' '),last=$('regLast').value.trim().replace(/\s+/g,' '),pw=$('regPass').value,pw2=$('regPass2').value;
 $('regErr').hidden=true;
 if(reg.needNames&&!first){err('Completează prenumele.');$('regFirst').focus();return}
 if(reg.needNames&&!last){err('Completează numele.');$('regLast').focus();return}
 if(pw.length<8){err('Parola trebuie să aibă cel puțin 8 caractere.');$('regPass').focus();return}
+if(pw!==pw2){err('Cele două parole nu coincid.');$('regPass2').focus();return}
 $('regBtn').disabled=true;
 const H={apikey:CFG.key,Authorization:'Bearer '+reg.token,'Content-Type':'application/json'};
 try{
@@ -840,7 +841,7 @@ if(reg.needNames){
 const pr=await fetch(CFG.url+'/rest/v1/profiles?on_conflict=user_id',{method:'POST',headers:{...H,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([{user_id:reg.user.id,first_name:first,last_name:last}])});
 if(!pr.ok){err('Parola a fost salvată, dar numele nu. Apasă din nou „Finalizează”.');$('regBtn').disabled=false;return}}
 setAuth({access_token:reg.token,refresh_token:reg.refresh,expires_in:reg.exp,user:{id:reg.user.id,email:reg.user.email}});
-reg=null;$('regPass').value='';afterLogin()}
+reg=null;$('regPass').value=$('regPass2').value='';afterLogin()}
 catch{err('Nu am putut contacta serverul. Verifică conexiunea și încearcă din nou.');$('regBtn').disabled=false}};
 
 // Fiecare ecran are propria intrare în istoricul browserului, ca să nu ieși din aplicație la „înapoi”.

@@ -196,3 +196,11 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
 - **Fișiere:** `content/artikel-genus-b1.json` (rezumat, grupe, ghid, 334 întrebări), `deutsch.html` regenerat. Fără modificări pe server (`supabase/topic_levels.sql` neschimbat: nivelul și multiplicatorul rămân).
 - **Verificare (în browser):** 500 de întrebări în temă, 25 de grupe în filtru, fișa are 15 tipare, o întrebare din grupa nouă arată exemplul și explicația corecte.
 - **De verificat de tine:** genul, pluralul și traducerile cuvintelor noi sunt din cunoștințe lingvistice generale, nu comparate cu o listă oficială Goethe/Telc B1; unele cuvinte (de ex. „der Zoll”, „die Brust”) au mai multe sensuri sau plural neobișnuit. Dacă vezi o greșeală, spune-mi cuvântul.
+
+## 18. Înscriere cu invitație: parola introdusă de două ori (2026-11-01)
+
+- **Cerere:** la înscrierea cu invitație, utilizatorul invitat să introducă parola nou setată de două ori, ca să se evite greșelile de tastare.
+- **Status:** implementat. Ecranul „Finalizează înregistrarea” are acum câmpul **„Repetă parola”** sub „Parola”. Dacă cele două parole diferă, apare „Cele două parole nu coincid.”, cursorul trece pe câmpul de repetare și nu se trimite nimic către server. Verificarea de minim 8 caractere rămâne pe primul câmp. „Arată parola” afișează ambele câmpuri; după finalizare ambele se golesc.
+- **Același ecran servește și linkul de „Resetează parola”** (titlul „Alege o parolă nouă”), deci și acolo parola se introduce de două ori. Formularul din „Datele mele” avea deja două câmpuri.
+- **Fișiere:** `src/template.html`, `src/app.js`; regenerat `deutsch.html`. Fără modificări pe server.
+- **Verificare (în browser, la 375 px, cu server simulat):** parole diferite → eroare, zero cereri trimise; al doilea câmp gol → aceeași eroare; parole identice → trimite parola și profilul (prenume și nume); ambele câmpuri se golesc; fără defilare orizontală. Neîncercat cu un link real de invitație.
