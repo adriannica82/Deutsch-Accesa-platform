@@ -177,3 +177,11 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
 - **Fișiere:** `content/artikel-genus.json`, `content/artikel-genus-b1.json`, `content/verbe-neregulate-perfekt.json`, `src/app.js` (feedback și `reviewHtml`), `build.py`, `README.md`; regenerat `deutsch.html`. Fără modificări pe server.
 - **Verificare (în browser):** feedback cu exemplu la „verbracht” și la „die Zeitung” (răspuns corect și greșit), fără exemplu la tema modalelor, exemplul apare și în corectarea de la final.
 - **De verificat de tine:** propozițiile și traducerile sunt scrise de mine, nu verificate de un vorbitor nativ; dacă vezi una nenaturală, scrie-mi identificatorul sau forma și o corectez.
+
+## 16. Fișa genului B1 în același layout ca A1–A2 (2026-11-01)
+
+- **Cerere:** ghidul „Genul substantivelor · tipare B1” (tabel) să aibă același layout ca fișa A1–A2.
+- **Status:** implementat. Ghidul temei „Der, die sau das? (B1)” („Fișa genului · tipare B1”) are acum trei coloane DER / DIE / DAS, cu **10 tipare** (der 3, die 4, das 3), exemple cu traducere în română, excepții și indicatorul ●●● / ●●○; aceleași culori, aceeași atingere pentru detalii și același comutator der/die/das pe telefon (stilurile și scriptul sunt comune, nu s-a modificat cod).
+- **Conținut (din grupele temei B1):** der: -ist/-ent/-ant/-at (cu nota -en: den Patienten), -er (persoane și aparate), din rădăcina unui verb; die: -ung/-heit/-keit/-schaft, -ion/-tät, -ik/-ei/-ie, -enz/-anz; das: -ment/-um, -nis, Ge-. Cuvintele compuse rămân într-o casetă sub fișă. Grupele pe teme („Media și tehnologie”, „Sănătate și corp”, „Mediu și societate”, „Muncă și bani”) nu au regulă de terminație și nu apar în fișă, ca la A1–A2.
+- **Fișier:** `content/artikel-genus-b1.json` (`guideTitle`, `guideHtml`); regenerat `deutsch.html`.
+- **Verificare (în browser):** 10 tipare și 10 detalii, atingerea unui tipar arată doar detaliul lui, fără defilare orizontală. Neîncercat pe iPhone real.
