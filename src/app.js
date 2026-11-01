@@ -873,3 +873,13 @@ finally{navSilent=false}});
 // ---------- Inițializare ----------
 if(!CLOUD){loadProgress();show('home')}
 else{const link=readAuthHash()||readTokenQuery();if(link)startRegister(link);else{try{auth=JSON.parse(localStorage.getItem(AKEY))}catch{auth=null}if(auth&&auth.user&&auth.user.id&&auth.refresh_token)afterLogin();else{auth=null;showLogin()}}}
+
+// Fișa genului (ghidul temei „Der, die sau das?”): atingerea unei terminații deschide detaliul ei; pe telefon se alege articolul sus.
+document.addEventListener('click',e=>{
+  const c=e.target.closest('.gschip,.gsseg button');if(!c)return;
+  const g=c.closest('.gs'),id=c.dataset.gs||c.dataset.art+'-0',art=id.split('-')[0];
+  g.dataset.act=art;
+  g.querySelectorAll('.gschip').forEach(x=>{const on=x.dataset.gs===id;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
+  g.querySelectorAll('.gsseg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.art===art));
+  g.querySelectorAll('.gsdet').forEach(d=>{d.hidden=d.dataset.gsd!==id});
+});
