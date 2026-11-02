@@ -107,3 +107,22 @@ Evidențierea cere să știm **celula** fiecărei întrebări. Date existente ș
 | Un `gen` greșit evidențiază celula greșită și învață greșit. | Deducere automată din explicație, verificare manuală la cele 19 incerte, `build.py` verifică celula. |
 | Mesajul de după răspuns devine lung pe telefon. | Doar partea relevantă a fișei, nu toată; blocul sub „Următoarea →”. |
 | Marcajele din `guideHtml` se pierd la regenerarea fișelor. | Generatoarele fișelor se actualizează și `build.py` verifică prezența celulelor. |
+
+## 11. Etapa 2: terminația verbului în tabelele de conjugare (implementat 2026-11-02)
+
+Aceleași reguli ca la etapa 1 (doar după răspuns, bloc „Din fișă”, mod examen cu „Vezi în fișă”, sesiuni mixte). Ce se evidențiază:
+
+| Temă (întrebări cu bloc) | Tabelul | Evidențiat |
+|---|---|---|
+| Verbe modale (56 din 64) | tabelul de conjugare | celula formei (de ex. „kannst”), **rândul cu terminațiile** (-st; „möchten” are rând propriu: -est) și coloana persoanei |
+| Präteritum: sein, haben, modale (60) | tabelul de conjugare | forma, rândul cu terminațiile („haben și modale”: -te, -test… sau „sein”: —, -st…) și coloana |
+| Prezentul verbelor neregulate (31) | tabelul „Schimbare” (a → ä, e → i, e → ie) pentru verbele cu schimbare de vocală; tabelul neregulatelor pentru sein, haben, werden, modale, wissen | pentru schimbarea de vocală: rândul tipului, coloana persoanei și **terminația** (-st, -t); pentru neregulate: forma |
+| Verbe reflexive (50 din 60) | tabelul pronumelor (Akkusativ / Dativ) | celula pronumelui (de ex. „mir”) pe rândul cazului și coloana persoanei |
+| Indikativ Perfekt, auxiliarul (20 din 70) | haben / sein | forma auxiliarului pe persoană |
+
+- **Linia-rezumat** arată forma și terminația: „können · ihr → konntet · terminația -tet”, „sein · ich → war · fără terminație”.
+- **Fără bloc:** întrebările fără persoană („alege infinitivul” la modale, „Acum sau înainte?” nu, acelea au persoană, „Cu prepoziție” la reflexive, propozițiile întregi la Perfekt, participiul).
+- **Date:** câmpul `pers` pe 217 întrebări (`ich`, `du`, `er`, `wir`, `ihr`, `sie`; „er” = er / sie / es, „sie” = sie / Sie plural); persoana se deduce din explicație sau etichetă, iar la 14 întrebări (subiect substantiv sau „man”) a fost stabilită manual. Rândul din tabel se găsește după `group` (schimbare de vocală, caz) sau după forma răspunsului.
+- **Fișe:** s-au adăugat rânduri „Terminație” în tabelele modalelor, Präteritum-ului și schimbării de vocală, o notă despre „musst” / „liest” și rândurile dürfen, wollen, sollen, mögen în tabelul neregulatelor din „Prezentul verbelor neregulate” (lipseau, deși apăreau în întrebări).
+- **Telefon:** tabelul de conjugare are 7 coloane; se derulează orizontal automat până la celula corectă, iar prima coloană rămâne fixă.
+- **Nu intră:** „Perfekt: participiul” (tabelul lui descrie tipuri de verbe, nu terminații pe persoană), „Verbe neregulate · Perfekt” și celelalte teme.

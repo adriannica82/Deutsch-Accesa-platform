@@ -50,35 +50,51 @@ def canon(s):
     return re.sub(r"\s+", " ", s)
 
 
-GUIDE_HIGHLIGHT = {"prep-article", "adjective", "prep"}
+GUIDE_HIGHLIGHT = {"prep-article", "adjective", "prep", "conj"}
+PERSONS = {"ich", "du", "er", "wir", "ihr", "sie"}
 GENDERS = {"m", "n", "f", "pl"}
 
 
 class GuideMarks(HTMLParser):
     """Adună din guideHtml marcajele folosite de blocul „Din fișă” din test:
-    data-prep (prepoziții) și data-cell (celulele tabelelor, cu textul lor, pe tipul de tabel data-t)."""
+    data-prep (prepoziții), data-cell (celulele tabelelor, cu textul lor, pe tipul de tabel data-t)
+    și rândurile tabelelor de conjugare (tr data-row), cu celulele lor pe persoane."""
 
     def __init__(self):
         super().__init__()
-        self.preps, self.cells, self._table, self._cell = set(), {}, "", None
+        self.preps, self.cells, self.rows = set(), {}, {}
+        self._table, self._row, self._cell = "", None, None
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
         if tag == "table":
             self._table = a.get("data-t", "")
+        if tag == "tr":
+            self._row = a.get("data-row")
         if "data-prep" in a:
             self.preps.add(a["data-prep"])
         if tag == "td" and "data-cell" in a:
-            self._cell = (self._table, a["data-cell"])
-            self.cells[self._cell] = ""
+            if self._row is not None:
+                self._cell = (self._table, self._row, a["data-cell"])
+                self.rows.setdefault((self._table, self._row), {})[a["data-cell"]] = ""
+            else:
+                self._cell = (self._table, a["data-cell"])
+                self.cells[self._cell] = ""
 
     def handle_endtag(self, tag):
         if tag == "td":
             self._cell = None
+        if tag == "tr":
+            self._row = None
 
     def handle_data(self, data):
-        if self._cell is not None:
-            self.cells[self._cell] += data
+        c = self._cell
+        if c is None:
+            return
+        if len(c) == 3:
+            self.rows[(c[0], c[1])][c[2]] += data
+        else:
+            self.cells[c] += data
 
 
 def check_guide_highlight(t, it, marks, where, err):
@@ -87,6 +103,29 @@ def check_guide_highlight(t, it, marks, where, err):
     if kind == "prep":
         if it.get("answer") not in marks.preps:
             err(where, f"prepoziția „{it.get('answer')}” nu este marcată (data-prep) în fișa temei")
+        return
+    if kind == "conj":
+        pers = it.get("pers")
+        if pers is None:
+            return  # întrebarea nu are persoană (de ex. alege infinitivul): fără bloc
+        if pers not in PERSONS:
+            err(where, f"„pers” trebuie să fie unul din {sorted(PERSONS)}")
+            return
+        by_group = [(k, c) for k, c in marks.rows.items() if k[1] == it.get("group")]
+        if by_group:
+            (table, _), cells = by_group[0]
+            if table == "pattern":
+                if pers not in cells:
+                    err(where, f"tabelul „{table}” nu are coloana „{pers}”")
+                return
+        else:
+            by_group = [(k, c) for k, c in marks.rows.items() if k[0] != "pattern" and canon(c.get(pers, "")) == canon(it["answer"])]
+            if len(by_group) != 1:
+                err(where, f"răspunsul „{it['answer']}” la persoana „{pers}” trebuie să apară în exact un rând al fișei (apare în {len(by_group)})")
+                return
+            cells = by_group[0][1]
+        if canon(cells.get(pers, "")) != canon(it["answer"]):
+            err(where, f"persoana „{pers}” duce la „{cells.get(pers, '').strip()}”, dar răspunsul este „{it['answer']}”")
         return
     if kind == "prep-article":
         if not any(w.lower() in marks.preps for w in it.get("label", "").split()):

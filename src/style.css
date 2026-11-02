@@ -151,3 +151,4 @@ button.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;paddi
 [data-prep].hl{padding:2px 7px;outline-offset:0;margin:0 2px;display:inline-block;line-height:1.35}
 .hlblock th:first-child,.hlblock td:first-child{min-width:0;width:27%}.hlblock th{overflow-wrap:anywhere}@media(max-width:720px){.hlblock{padding:14px 12px}.hlblock th,.hlblock td{padding:9px 4px;font-size:14px}.hlblock th{font-size:10.5px;letter-spacing:.1px}.hlblock .prep-group{padding:14px}}
 .hlcap b[lang]{white-space:nowrap}
+.endrow td{background:#f1f6f2;font-size:13px}.endrow td:first-child{font-weight:700}.hlblock td:first-child,.hlblock th:first-child{position:sticky;left:0;background:#fafbf8;z-index:1}.hlblock .endrow td:first-child{background:#f1f6f2}.hlblock td.hlh:first-child,.hlblock th.hlh:first-child{background:#fff4d6}.hlblock td.hl{white-space:nowrap}
