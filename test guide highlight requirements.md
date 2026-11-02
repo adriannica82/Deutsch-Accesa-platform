@@ -1,6 +1,6 @@
 # Fișa de ghidaj în test, cu evidențierea răspunsului corect · cerințe
 
-- **Stare:** definit împreună cu clientul (2026-11-02); cele trei decizii de bază sunt **confirmate** (secțiunea 2). **Neimplementat.** Întrebările rămase (secțiunea 8) au recomandări; fără răspuns se aplică recomandările.
+- **Stare:** **implementat** (2026-11-02): fazele 1, 2 și 3 (etapa 1, cele 4 teme, inclusiv recapitularea de la mod examen și sesiunile mixte), cu recomandările de la secțiunea 8 aplicate. Etapa 2 (verbele) nu este făcută. Detalii de implementare și verificare: `features backlog.md`, secțiunea 20.
 - **Legat de:** `features backlog.md`, feature 20; fișele din `content/*.json` (`guideHtml`), ecranul de test din `src/app.js` (`check`, `reviewHtml`).
 - **Despre ce este vorba:** acum fișa de ghidaj a unei teme (de ex. „Prepoziții cu caz fix · articolele”) se vede doar pe pagina temei și pe ecranul „Fișă de recapitulare”. În test nu se vede. Funcția nouă o aduce în test, **după răspuns**, cu **celula corectă din tabel evidențiată**.
 

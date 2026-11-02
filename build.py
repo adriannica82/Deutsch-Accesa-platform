@@ -18,6 +18,7 @@ import json
 import os
 import re
 import sys
+from html.parser import HTMLParser
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 MODES = {"choice", "write", "both"}
@@ -47,6 +48,70 @@ def canon(s):
         s = s.replace(a, b)
     s = re.sub(r"[.,!?;:„“”\"]", "", s)
     return re.sub(r"\s+", " ", s)
+
+
+GUIDE_HIGHLIGHT = {"prep-article", "adjective", "prep"}
+GENDERS = {"m", "n", "f", "pl"}
+
+
+class GuideMarks(HTMLParser):
+    """Adună din guideHtml marcajele folosite de blocul „Din fișă” din test:
+    data-prep (prepoziții) și data-cell (celulele tabelelor, cu textul lor, pe tipul de tabel data-t)."""
+
+    def __init__(self):
+        super().__init__()
+        self.preps, self.cells, self._table, self._cell = set(), {}, "", None
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == "table":
+            self._table = a.get("data-t", "")
+        if "data-prep" in a:
+            self.preps.add(a["data-prep"])
+        if tag == "td" and "data-cell" in a:
+            self._cell = (self._table, a["data-cell"])
+            self.cells[self._cell] = ""
+
+    def handle_endtag(self, tag):
+        if tag == "td":
+            self._cell = None
+
+    def handle_data(self, data):
+        if self._cell is not None:
+            self.cells[self._cell] += data
+
+
+def check_guide_highlight(t, it, marks, where, err):
+    """Fiecare întrebare dintr-o temă cu guideHighlight trebuie să aibă celula/prepoziția ei în fișă."""
+    kind = t["guideHighlight"]
+    if kind == "prep":
+        if it.get("answer") not in marks.preps:
+            err(where, f"prepoziția „{it.get('answer')}” nu este marcată (data-prep) în fișa temei")
+        return
+    if kind == "prep-article":
+        if not any(w.lower() in marks.preps for w in it.get("label", "").split()):
+            err(where, "nicio prepoziție din „label” nu este marcată (data-prep) în fișa temei")
+        gen = it.get("gen")
+        case = {"Akkusativ": "akk", "Dativ": "dat"}.get(it.get("extra"))
+        if gen not in GENDERS or not case:
+            err(where, "„gen” (m, n, f, pl) și „extra” (Akkusativ/Dativ) sunt obligatorii pentru evidențierea din fișă")
+            return
+        text = marks.cells.get(("", f"{case}-{gen}"))
+        if text is None:
+            err(where, f"fișa nu are celula {case}-{gen}")
+        elif canon(text).split(" ")[0] != canon(it["answer"]):
+            err(where, f"„gen” {gen} duce la celula „{text.strip()}”, dar răspunsul este „{it['answer']}”")
+        return
+    # adjective
+    art, case, gen = it.get("art"), it.get("caz"), it.get("gen")
+    if art not in ("def", "ndef", "non") or case not in ("nom", "akk", "dat") or gen not in GENDERS:
+        err(where, "„art” (def/ndef/non), „caz” (nom/akk/dat) și „gen” (m, n, f, pl) sunt obligatorii pentru evidențierea din fișă")
+        return
+    text = marks.cells.get((art, f"{case}-{gen}"))
+    if text is None:
+        err(where, f"fișa nu are celula {art} {case}-{gen}")
+    elif not canon(it["answer"]).endswith(canon(text).lstrip("-")):
+        err(where, f"celula {art} {case}-{gen} are terminația „{text.strip()}”, dar răspunsul este „{it['answer']}”")
 
 
 def validate(topics):
@@ -90,6 +155,15 @@ def validate(topics):
             err(tid, "nu are întrebări")
         seen = set()
         pool = t.get("pool") or []
+        marks = None
+        if t.get("guideHighlight") is not None:
+            if t["guideHighlight"] not in GUIDE_HIGHLIGHT:
+                err(tid, f"„guideHighlight” trebuie să fie unul din {sorted(GUIDE_HIGHLIGHT)}")
+            elif not t.get("guideHtml"):
+                err(tid, "„guideHighlight” cere o fișă („guideHtml”)")
+            else:
+                marks = GuideMarks()
+                marks.feed(t["guideHtml"])
         for it in items:
             iid = it.get("id", "?")
             where = f"{tid}/{iid}"
@@ -120,6 +194,8 @@ def validate(topics):
             elif "choice" in modes:
                 if len({canon(p) for p in pool} - answers) < 2:
                     err(where, "modul cu alegere cere „pool” cu cel puțin 2 variante greșite sau „options” pe întrebare")
+            if marks is not None:
+                check_guide_highlight(t, it, marks, where, err)
             if bool(it.get("ex")) != bool(it.get("exRo")):
                 err(where, "„ex” (propoziție germană) și „exRo” (traducerea ei) merg împreună")
             if t.get("requireExample") and not it.get("ex"):
