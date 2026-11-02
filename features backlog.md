@@ -204,3 +204,20 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
 - **Același ecran servește și linkul de „Resetează parola”** (titlul „Alege o parolă nouă”), deci și acolo parola se introduce de două ori. Formularul din „Datele mele” avea deja două câmpuri.
 - **Fișiere:** `src/template.html`, `src/app.js`; regenerat `deutsch.html`. Fără modificări pe server.
 - **Verificare (în browser, la 375 px, cu server simulat):** parole diferite → eroare, zero cereri trimise; al doilea câmp gol → aceeași eroare; parole identice → trimite parola și profilul (prenume și nume); ambele câmpuri se golesc; fără defilare orizontală. Neîncercat cu un link real de invitație.
+
+## 19. Email în fiecare luni la 09:00 (CET) cu rezultatele ligii (2026-11-02)
+
+- **Cerere:** în fiecare luni dimineața la 09:00 AM (CET), un email către toți participanții la competiție, cu rezultatele și un mesaj de felicitări.
+- **Status:** **construit și desfășurat; trimiterea reală așteaptă cheia Brevo** (vezi „Ce trebuie să faci tu”). Fără cheie, jobul rulează dar nu trimite nimic și nu scrie nimic în jurnal.
+- **Cum funcționează:**
+  - Două joburi `pg_cron` (luni 07:00 și 08:00 UTC) cheamă Edge Function-ul **`league-weekly-email`**. Funcția trimite doar dacă în Berlin este luni, ora 9, deci urmează automat ora de iarnă/vară (09:00 CET = 08:00 UTC iarna; 09:00 CEST = 07:00 UTC vara). Interpretarea „CET” = ora Europei Centrale (Berlin); la ora României este 10:00.
+  - Înainte de trimitere funcția sincronizează liga (`league_sync`), deci săptămâna de luni dimineața este sigur închisă chiar dacă nu a deschis nimeni aplicația.
+  - **Destinatari:** toți cei înscriși acum în ligă care au rezultat în săptămâna închisă (conturi confirmate și neblocate). Cine s-a înscris în săptămâna curentă primește emailul abia lunea următoare.
+  - **Conținut (în română):** titlu și mesaj de felicitare după rezultat (promovat, ai rămas, coborât, sub 50 XP), XP-ul săptămânii, locul în grupă, podiumul grupei (nume, avatar, XP, aceleași date pe care grupa le vede în aplicație), buton către platformă și nota „te poți retrage din ligă din aplicație ca să nu mai primești emailul”.
+  - **Fără duplicate:** tabelul `league_email_log` ține minte cui i s-a trimis ce săptămână; un eșec se reîncearcă la următoarea rulare, un succes nu se repetă.
+  - **Securitate:** funcția cere antetul `x-cron-secret`, verificat cu un secret din Vault (creat de migrare); fără el răspunde 401. Funcțiile SQL noi sunt accesibile doar cheii de serviciu.
+- **Moduri ale funcției** (apel POST cu secretul): `dry` (nu trimite, arată numărul de destinatari și un exemplu), `test` (trimite un singur mesaj de probă la adresa dată), `send` (implicit; `force: true` ocolește verificarea orei, pentru o trimitere manuală).
+- **Fișiere:** `supabase/functions/league-weekly-email/index.ts` (desfășurată, fără verificare JWT, se autentifică singură), `supabase/schema.sql` secțiunea 13 (migrarea `league_weekly_email`).
+- **Verificare:** migrarea aplicată, joburile apar în `cron.job`; apel `dry` prin `pg_net`: răspuns 200, săptămâna 26 oct – 1 nov închisă, 2 destinatari, mesaj corect randat (nume, XP, locul 2/2, podium). **Neîncercat:** trimiterea reală a emailului (nu există încă cheie).
+- **Ce trebuie să faci tu:** (1) în Brevo creează o **cheie API** (diferită de cheia SMTP: Brevo → SMTP & API → API Keys) și verifică expeditorul; (2) în Supabase → Edge Functions → Secrets adaugă `BREVO_API_KEY`, `MAIL_FROM` (adresa expeditorului validată în Brevo) și opțional `MAIL_FROM_NAME`; (3) spune-mi, ca să fac un email de probă către tine înainte de prima trimitere către toți.
+- **Prima trimitere:** săptămâna 26 oct – 1 nov s-a închis azi; emailul ei nu a plecat la 09:00 (nu există cheie). După ce pui cheile, îl pot trimite manual (`force`) dacă vrei, sau prima trimitere automată este lunea viitoare, 2026-11-09, la 09:00.

@@ -910,3 +910,75 @@ create trigger profiles_keep_first_name
 --     cea mai recentă dintre: reînnoirea sesiunii de autentificare, ultimul răspuns, ultima sesiune de test, ultima autentificare;
 --     și acceptă sortarea „last_active”.
 -- ======================================================================
+
+-- ======================================================================
+-- 13. Email săptămânal cu rezultatele ligii (migrarea league_weekly_email)
+--     Luni 09:00, ora Europei Centrale (Europe/Berlin), job-ul pg_cron cheamă Edge Function „league-weekly-email”.
+--     Cronul rulează în UTC, deci există două intrări (07:00 și 08:00 UTC); funcția trimite doar când ora din Berlin este 9.
+-- ======================================================================
+
+create extension if not exists pg_cron;
+create extension if not exists pg_net;
+
+-- Jurnal: un rând pe (săptămână, utilizator); garantează că nimeni nu primește de două ori același email.
+create table if not exists public.league_email_log (
+  week_start date not null,
+  user_id uuid not null references auth.users on delete cascade,
+  status text not null check (status in ('sent', 'failed')),
+  error text,
+  sent_at timestamptz not null default now(),
+  primary key (week_start, user_id)
+);
+alter table public.league_email_log enable row level security;
+revoke all on public.league_email_log from anon, authenticated;
+
+-- Secretul cu care cronul se identifică în fața funcției (stocat în Vault, nu în cod).
+do $$ begin
+  if not exists (select 1 from vault.secrets where name = 'league_mail_cron') then
+    perform vault.create_secret(encode(extensions.gen_random_bytes(24), 'hex'), 'league_mail_cron');
+  end if;
+end $$;
+
+create or replace function public.league_mail_auth(p_secret text) returns boolean
+language sql stable security definer set search_path = ''
+as $$ select exists (select 1 from vault.decrypted_secrets where name = 'league_mail_cron' and decrypted_secret = p_secret); $$;
+
+-- Destinatarii și rezultatele ultimei săptămâni închise (sau ale săptămânii cerute), fără cei care au primit deja emailul.
+-- Sincronizează întâi liga, ca săptămâna de luni dimineața să fie sigur închisă.
+create or replace function public.league_mail_batch(p_week date default null) returns json
+language plpgsql security definer set search_path to 'public', 'pg_temp'
+as $function$
+declare
+  v_week date;
+begin
+  perform public.league_sync();
+  v_week := coalesce(p_week, (select max(week_start) from public.league_weeks));
+  if v_week is null then return json_build_object('week_start', null, 'rows', '[]'::json); end if;
+  return json_build_object('week_start', v_week, 'rows', coalesce((
+    select json_agg(json_build_object(
+      'user_id', r.user_id, 'email', u.email, 'name', p.display_name, 'first_name', p.first_name,
+      'tier', r.tier, 'place', r.place, 'size', r.group_size, 'xp', r.xp, 'outcome', r.outcome, 'new_tier', r.new_tier,
+      'podium', (select coalesce(json_agg(json_build_object('place', r2.place, 'name', p2.display_name, 'avatar', p2.avatar, 'xp', r2.xp) order by r2.place), '[]'::json)
+                 from public.league_results r2 join public.profiles p2 on p2.user_id = r2.user_id
+                 where r2.week_start = r.week_start and r2.tier = r.tier and r2.division = r.division and r2.place <= 3 and r2.xp > 0)
+    ) order by r.user_id)
+    from public.league_results r
+    join public.profiles p on p.user_id = r.user_id and p.league_registered
+    join auth.users u on u.id = r.user_id
+    where r.week_start = v_week
+      and u.email is not null and u.confirmed_at is not null and (u.banned_until is null or u.banned_until < now())
+      and not exists (select 1 from public.league_email_log l where l.week_start = r.week_start and l.user_id = r.user_id and l.status = 'sent')
+  ), '[]'::json));
+end $function$;
+
+revoke all on function public.league_mail_auth(text), public.league_mail_batch(date) from public, anon, authenticated;
+
+-- Jobul: luni la 07:00 și 08:00 UTC; funcția de email verifică ora din Berlin (09:00 iarna = 08:00 UTC, vara = 07:00 UTC).
+select cron.unschedule(jobname) from cron.job where jobname in ('league-weekly-email-utc07', 'league-weekly-email-utc08');
+select cron.schedule(n, '0 ' || h || ' * * 1', $job$
+  select net.http_post(
+    url := 'https://owwptchabeucxzegxdrs.supabase.co/functions/v1/league-weekly-email',
+    headers := jsonb_build_object('Content-Type', 'application/json',
+      'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'league_mail_cron')),
+    body := '{"mode":"send"}'::jsonb)
+$job$) from (values ('league-weekly-email-utc07', '7'), ('league-weekly-email-utc08', '8')) v(n, h);
