@@ -75,8 +75,12 @@ async function sendMail(to: string, toName: string | null, subject: string, html
       subject, htmlContent: html,
     }),
   });
-  return res.ok ? null : "brevo " + res.status + " " + (await res.text()).slice(0, 200);
+  const text = await res.text();
+  if (!res.ok) return "brevo " + res.status + " " + text.slice(0, 200);
+  lastMessageId = text.slice(0, 200);
+  return null;
 }
+let lastMessageId = "";
 
 // Ora din Berlin acum: ziua săptămânii și ora (se ține cont automat de ora de vară)
 function berlinNow(): { weekday: string; hour: number } {
@@ -122,7 +126,7 @@ Deno.serve(async (req) => {
       podium: [{ place: 1, name: "Ana", avatar: "🦊", xp: 410 }, { place: 2, name: "Exemplu", avatar: "🐼", xp: 240 }, { place: 3, name: "Dan", avatar: "🦉", xp: 190 }] };
     const m = render(r, weekStart);
     const err = await sendMail(to, null, "[PROBĂ] " + m.subject, m.html);
-    return err ? reply(502, { error: err }) : reply(200, { sent: 1, to });
+    return err ? reply(502, { error: err }) : reply(200, { sent: 1, to, from: Deno.env.get("MAIL_FROM"), brevo: lastMessageId });
   }
 
   // send: pe rând, cu înregistrare în jurnal; un eșec nu oprește ceilalți
