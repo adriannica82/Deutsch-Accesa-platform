@@ -65,7 +65,7 @@ export function render(r: Row, weekStart: string): { subject: string; html: stri
 
 async function sendMail(to: string, toName: string | null, subject: string, html: string): Promise<string | null> {
   const key = Deno.env.get("BREVO_API_KEY"), from = Deno.env.get("MAIL_FROM");
-  if (!key || !from) return "config";
+  if (!key || !from) return "config:" + (!key ? " BREVO_API_KEY" : "") + (!from ? " MAIL_FROM" : "") + " lipsește";
   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: { "api-key": key, "Content-Type": "application/json", accept: "application/json" },
@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
   for (const r of rows) {
     const m = render(r, weekStart);
     const err = await sendMail(r.email, r.name, m.subject, m.html);
-    if (err === "config") return reply(500, { error: "config", note: "BREVO_API_KEY / MAIL_FROM lipsesc", sent, failed });
+    if (err?.startsWith("config")) return reply(500, { error: err, sent, failed });
     await service.from("league_email_log").upsert(
       { week_start: weekStart, user_id: r.user_id, status: err ? "failed" : "sent", error: err, sent_at: new Date().toISOString() },
       { onConflict: "week_start,user_id" });
