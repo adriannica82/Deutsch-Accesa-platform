@@ -121,7 +121,7 @@ Aceleași reguli ca la etapa 1 (doar după răspuns, bloc „Din fișă”, mod 
 | Indikativ Perfekt, auxiliarul (20 din 70) | haben / sein | forma auxiliarului pe persoană |
 
 - **Linia-rezumat** arată forma și terminația: „können · ihr → konntet · terminația -tet”, „sein · ich → war · fără terminație”.
-- **Fără bloc:** întrebările fără persoană („alege infinitivul” la modale, „Acum sau înainte?” nu, acelea au persoană, „Cu prepoziție” la reflexive, propozițiile întregi la Perfekt, participiul).
+- **Fără bloc (68 de întrebări):** cele fără persoană: „alege infinitivul” la modale (8), „Cu prepoziție” la reflexive (10) și propozițiile întregi sau ordinea cuvintelor la Indikativ Perfekt (50).
 - **Date:** câmpul `pers` pe 217 întrebări (`ich`, `du`, `er`, `wir`, `ihr`, `sie`; „er” = er / sie / es, „sie” = sie / Sie plural); persoana se deduce din explicație sau etichetă, iar la 14 întrebări (subiect substantiv sau „man”) a fost stabilită manual. Rândul din tabel se găsește după `group` (schimbare de vocală, caz) sau după forma răspunsului.
 - **Fișe:** s-au adăugat rânduri „Terminație” în tabelele modalelor, Präteritum-ului și schimbării de vocală, o notă despre „musst” / „liest” și rândurile dürfen, wollen, sollen, mögen în tabelul neregulatelor din „Prezentul verbelor neregulate” (lipseau, deși apăreau în întrebări).
 - **Telefon:** tabelul de conjugare are 7 coloane; se derulează orizontal automat până la celula corectă, iar prima coloană rămâne fixă.
