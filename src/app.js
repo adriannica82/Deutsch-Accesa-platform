@@ -45,6 +45,8 @@ const root=document.createElement('div');root.innerHTML=t.guideHtml;const parts=
 root.querySelectorAll('[data-prep]').forEach(e=>{P[e.dataset.prep]=e});
 const word=k==='prep'?q.answer:(q.label||'').split(' ').map(w=>w.toLowerCase()).find(w=>P[w]),pe=word&&P[word];
 if(pe){pe.classList.add('hl');parts.push(pe.closest('.prep-group')||pe.closest('p'))}
+const ve=k==='prep'?root.querySelector('[data-v="'+q.id+'"]'):null;
+if(ve){ve.classList.add('hl');ve.insertAdjacentHTML('beforeend','<span class="sr-only"> (verbul din întrebare)</span>');cap='<b lang="de" class="wrap">'+escape(q.label)+'</b> + <b>'+escape(q.extra||q.group)+'</b>'}
 const cell=k==='prep-article'?root.querySelector('td[data-cell="'+(q.extra==='Akkusativ'?'akk':'dat')+'-'+q.gen+'"]'):k==='adjective'?root.querySelector('table[data-t="'+q.art+'"] td[data-cell="'+q.caz+'-'+q.gen+'"]'):null;
 if(cell){const tb=cell.closest('table'),row=tb.querySelector('td[data-row="'+cell.dataset.cell.split('-')[0]+'"]'),col=tb.querySelector('th[data-col="'+q.gen+'"]');
 cap='<b>'+escape((k==='adjective'?tb.querySelector('th').textContent+' · ':'')+row.textContent+' · '+col.textContent)+'</b> → <b lang="de">'+escape(cell.textContent.trim())+'</b>';

@@ -63,7 +63,7 @@ class GuideMarks(HTMLParser):
 
     def __init__(self):
         super().__init__()
-        self.preps, self.cells, self.rows, self.verbs, self.ge, self.aux = set(), {}, {}, {}, set(), set()
+        self.preps, self.cells, self.rows, self.verbs, self.ge, self.aux, self.vall = set(), {}, {}, {}, set(), set(), set()
         self._table, self._row, self._cell, self._verb = "", None, None, None
 
     def handle_starttag(self, tag, attrs):
@@ -74,6 +74,8 @@ class GuideMarks(HTMLParser):
             self._row = a.get("data-row")
         if "data-prep" in a:
             self.preps.add(a["data-prep"])
+        if "data-v" in a:
+            self.vall.add(a["data-v"])
         if "data-ge" in a:
             self.ge.add(a["data-ge"])
         if "data-aux" in a:
@@ -115,6 +117,8 @@ def check_guide_highlight(t, it, marks, where, err):
     if kind == "prep":
         if it.get("answer") not in marks.preps:
             err(where, f"prepoziția „{it.get('answer')}” nu este marcată (data-prep) în fișa temei")
+        if marks.vall and it.get("id") not in marks.vall:
+            err(where, "verbul întrebării nu este marcat (data-v = id) în fișa temei")
         return
     if kind == "conj":
         pers = it.get("pers")
