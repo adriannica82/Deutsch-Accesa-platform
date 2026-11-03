@@ -255,3 +255,12 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
 - **Ales (2026-11-03):** identificatorul aplicației `deutsch-recapp` (D4); prefixul bundle ID-ului (de ex. `ro.`) și regula Capacitor / Android privind cratima sunt de stabilit, vezi nota din document.
 - **De decis (cu recomandare în document, secțiunea 5):** publicul, contul Apple (persoană fizică sau organizație), prefixul bundle ID-ului, notificările, actualizarea conținutului, iPad și mod întunecat, locul butonului, Android în același proiect.
 
+## 22. Epic: „Călătoria ta de învățare”, recomandări de repetare și bară de necesar pe categorie (2026-11-03)
+
+- **Cerere:** „learning journey prin recomandări legat de ce anume trebuie să repete; pentru fiecare categorie o bară care să indice nivelul de exercițiu zilnic necesar. Are sens în bunele practici de consolidare?”
+- **Status:** **definit, neimplementat.** Document complet: `learning journey requirements.md` (răspuns pedagogic, ce există acum, concept, formule, cerințe LJ-1…LJ-14, interfață, decizii D1–D10 cu recomandări, faze, riscuri, criterii de acceptare).
+- **Răspunsul scurt:** da, are sens, dar bara trebuie să arate **necesarul de azi** (ce a ajuns la scadență, cu restanțele separat), nu o normă zilnică fixă pe categorie. Motive: repetarea spațiată pune repetările la momentul potrivit, repetarea înainte de scadență aduce puțin, normele fixe duc la supraexersare sau la sentimentul de eșec, iar necesarul real variază de la o zi la alta. Utilizatorul alege doar **capacitatea** zilnică (în minute, implicit 15), iar planul amestecă categoriile în proporție cu necesarul lor (interleaving), cu cel mult 30% conținut nou.
+- **Ce există deja și se refolosește:** scara 0–1–3–7–14–30 de zile, scadențele (`isDue`), selecția „Puncte slabe”, timpul activ pe sesiune (pentru minutele estimate), XP-ul (15 la o întrebare scadentă față de 10 la una nouă, deci recomandarea e aliniată cu liga).
+- **Faze:** 1 = plan de azi și bare pe categorii, calculate local (fără server); 2 = minute după viteza proprie, recomandarea categoriei noi, recuperare după absențe, obiectivul în profil; 3 = prognoza pe 7 zile și harta pe niveluri; 4 = reamintire în aplicația iPhone și rezumat în e-mailul săptămânal.
+- **De decis (cu recomandare în document, secțiunea 9):** ce arată bara (necesar sau retenție estimată), capacitatea în minute, plafonul de conținut nou, pragul pentru categoria nouă, tratarea restanțelor, stocarea obiectivului pe server, harta pe niveluri, numele din aplicație.
+
