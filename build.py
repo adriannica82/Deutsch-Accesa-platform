@@ -50,7 +50,7 @@ def canon(s):
     return re.sub(r"\s+", " ", s)
 
 
-GUIDE_HIGHLIGHT = {"prep-article", "adjective", "prep", "conj"}
+GUIDE_HIGHLIGHT = {"prep-article", "adjective", "prep", "conj", "partizip"}
 PERSONS = {"ich", "du", "er", "wir", "ihr", "sie"}
 GENDERS = {"m", "n", "f", "pl"}
 
@@ -58,12 +58,13 @@ GENDERS = {"m", "n", "f", "pl"}
 class GuideMarks(HTMLParser):
     """Adună din guideHtml marcajele folosite de blocul „Din fișă” din test:
     data-prep (prepoziții), data-cell (celulele tabelelor, cu textul lor, pe tipul de tabel data-t)
-    și rândurile tabelelor de conjugare (tr data-row), cu celulele lor pe persoane."""
+    rândurile tabelelor de conjugare (tr data-row), cu celulele lor pe persoane, verbele din tabelele de tipare
+    (span data-v, pe rândul lor) și paragrafele data-ge (poziția lui ge-) și data-aux (haben / sein)."""
 
     def __init__(self):
         super().__init__()
-        self.preps, self.cells, self.rows = set(), {}, {}
-        self._table, self._row, self._cell = "", None, None
+        self.preps, self.cells, self.rows, self.verbs, self.ge, self.aux = set(), {}, {}, {}, set(), set()
+        self._table, self._row, self._cell, self._verb = "", None, None, None
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -73,6 +74,13 @@ class GuideMarks(HTMLParser):
             self._row = a.get("data-row")
         if "data-prep" in a:
             self.preps.add(a["data-prep"])
+        if "data-ge" in a:
+            self.ge.add(a["data-ge"])
+        if "data-aux" in a:
+            self.aux.add(a["data-aux"])
+        if tag == "span" and "data-v" in a and self._row is not None:
+            self._verb = (self._table, self._row, a["data-v"])
+            self.verbs.setdefault((self._table, self._row), {})[a["data-v"]] = ""
         if tag == "td" and "data-cell" in a:
             if self._row is not None:
                 self._cell = (self._table, self._row, a["data-cell"])
@@ -82,12 +90,16 @@ class GuideMarks(HTMLParser):
                 self.cells[self._cell] = ""
 
     def handle_endtag(self, tag):
+        if tag == "span":
+            self._verb = None
         if tag == "td":
             self._cell = None
         if tag == "tr":
             self._row = None
 
     def handle_data(self, data):
+        if self._verb is not None:
+            self.verbs[self._verb[:2]][self._verb[2]] += data
         c = self._cell
         if c is None:
             return
@@ -126,6 +138,39 @@ def check_guide_highlight(t, it, marks, where, err):
             cells = by_group[0][1]
         if canon(cells.get(pers, "")) != canon(it["answer"]):
             err(where, f"persoana „{pers}” duce la „{cells.get(pers, '').strip()}”, dar răspunsul este „{it['answer']}”")
+        return
+    if kind == "partizip":
+        vk = it.get("key") or it.get("id")
+        pat = it.get("pat")
+        rows = {r: v for (tb, r), v in marks.verbs.items() if tb == "pat"}
+        if pat not in rows:
+            err(where, f"„pat” (rândul din tabelul de tipare) trebuie să fie unul din {sorted(rows)}")
+            return
+        where_v = [r for r, v in rows.items() if vk in v]
+        if where_v != [pat]:
+            err(where, f"verbul „{vk}” trebuie să apară în exact un rând al tabelului, cel din „pat” ({pat}); apare în {where_v}")
+            return
+        text = rows[pat][vk].split()
+        participle = it["answer"].split()[-1]
+        if it["answer"] not in ("haben", "sein") and (not text or canon(text[-1]) != canon(participle)):
+            err(where, f"fișa dă pentru „{vk}” participiul „{text[-1] if text else ''}”, dar răspunsul se termină în „{participle}”")
+        aux = it.get("aux")
+        if marks.aux:
+            if aux not in marks.aux:
+                err(where, f"„aux” (haben / sein) lipsește sau nu are paragraf data-aux în fișă; fișa are {sorted(marks.aux)}")
+            elif ("ist" in text) != (aux == "sein"):
+                err(where, f"„aux” este {aux}, dar în fișă verbul „{vk}” {'are' if 'ist' in text else 'nu are'} „ist”")
+            if it["answer"] in ("haben", "sein") and it["answer"] != aux:
+                err(where, f"răspunsul „{it['answer']}” nu se potrivește cu „aux” ({aux})")
+        if marks.ge and it.get("ge") not in marks.ge:
+            err(where, f"„ge” trebuie să fie unul din {sorted(marks.ge)}")
+        pers = it.get("pers")
+        if pers is not None:
+            conj = marks.rows.get(("conj", aux))
+            if pers not in PERSONS or not conj:
+                err(where, f"„pers” trebuie să fie unul din {sorted(PERSONS)}, iar fișa trebuie să aibă tabelul de conjugare pentru {aux}")
+            elif canon(conj.get(pers, "")) != canon(it["answer"].split()[0]):
+                err(where, f"persoana „{pers}” duce la „{conj.get(pers, '').strip()}”, dar răspunsul începe cu „{it['answer'].split()[0]}”")
         return
     if kind == "prep-article":
         if not any(w.lower() in marks.preps for w in it.get("label", "").split()):

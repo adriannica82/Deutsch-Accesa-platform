@@ -55,8 +55,16 @@ if(hit){const{tb,r,pat}=hit,cell=r.querySelector('td[data-cell="'+q.pers+'"]'),c
 const et=ec?ec.textContent.trim():'',endTxt=et?(et==='—'?'fără terminație':'terminația '+et):'',formTxt=pat?'':cell.textContent.trim();
 cap='<b>'+escape(r.dataset.row+' · '+col.textContent.trim())+'</b> → '+(formTxt?'<b lang="de">'+escape(formTxt)+'</b>':'')+(formTxt&&endTxt?' · ':'')+(endTxt?'<b lang="de">'+escape(endTxt)+'</b>':'');
 if(!pat)mark(cell);if(ec)mark(ec);r.firstElementChild.classList.add('hlh');col.classList.add('hlh');parts.push(tb.closest('.tablewrap')||tb)}}
+if(k==='partizip'){const vk=q.key||q.id,row=root.querySelector('table[data-t="pat"] tr[data-row="'+q.pat+'"]'),v=row&&row.querySelector('[data-v="'+vk+'"]');
+if(v){const tb=row.closest('table'),wr=tb.closest('.tablewrap'),vt=v.textContent.trim(),lab=row.firstElementChild;
+cap='<b>'+escape((lab.querySelector('b')||lab).textContent.trim())+'</b> → <b lang="de" class="wrap">'+escape(vt)+'</b>';
+row.classList.add('hlrow');lab.classList.add('hlh');v.classList.add('hl');v.insertAdjacentHTML('beforeend','<span class="sr-only"> (verbul din întrebare)</span>');
+if(tb.hasAttribute('data-trim')){const c=wr.cloneNode(true);c.querySelectorAll('tbody tr:not(.hlrow)').forEach(r=>r.remove());parts.push(c.outerHTML)}else parts.push(wr);
+const cj=q.pers&&root.querySelector('table[data-t="conj"]'),cr=cj&&cj.querySelector('tr[data-row="'+q.aux+'"]'),cc=cr&&cr.querySelector('td[data-cell="'+q.pers+'"]'),ch=cj&&cj.querySelector('th[data-col="'+q.pers+'"]');
+if(cc){const ct=cc.textContent.trim();cc.classList.add('hl');cc.insertAdjacentHTML('beforeend','<span class="sr-only"> (răspunsul corect)</span>');cr.firstElementChild.classList.add('hlh');ch.classList.add('hlh');cap+=' · <b>'+escape(ch.textContent.trim())+'</b> → <b lang="de">'+escape(ct)+'</b>';parts.push(cj.closest('.tablewrap'))}
+[['ge',q.ge],['aux',q.aux]].forEach(([a,val])=>{const e=val&&root.querySelector('[data-'+a+'="'+val+'"]');if(e){e.classList.add('hlp');parts.push(e)}})}}
 if(!parts.length)return '';
-return '<div class="hlblock"><div class="label">Din fișă · '+escape(t.guideTitle)+'</div>'+(cap?'<p class="hlcap">'+cap+'</p>':'')+parts.map(p=>p.outerHTML).join('')+(compact?'':'<details><summary>Toată fișa</summary>'+root.innerHTML+'</details>')+'</div>'}
+return '<div class="hlblock"><div class="label">Din fișă · '+escape(t.guideTitle)+'</div>'+(cap?'<p class="hlcap">'+cap+'</p>':'')+parts.map(p=>typeof p==='string'?p:p.outerHTML).join('')+(compact?'':'<details><summary>Toată fișa</summary>'+root.innerHTML+'</details>')+'</div>'}
 
 // ---------- Navigare ----------
 function show(id){VIEWS.forEach(x=>$(x).hidden=x!==id);currentView=id;closeUserMenu();syncUserMenu();if(id==='home')renderHome();if(id==='topic')renderTopic();if(id==='league')renderLeague();if(id==='account')renderAccount();if(id!=='login')pushView(id);window.scrollTo(0,0)}

@@ -125,4 +125,22 @@ Aceleași reguli ca la etapa 1 (doar după răspuns, bloc „Din fișă”, mod 
 - **Date:** câmpul `pers` pe 217 întrebări (`ich`, `du`, `er`, `wir`, `ihr`, `sie`; „er” = er / sie / es, „sie” = sie / Sie plural); persoana se deduce din explicație sau etichetă, iar la 14 întrebări (subiect substantiv sau „man”) a fost stabilită manual. Rândul din tabel se găsește după `group` (schimbare de vocală, caz) sau după forma răspunsului.
 - **Fișe:** s-au adăugat rânduri „Terminație” în tabelele modalelor, Präteritum-ului și schimbării de vocală, o notă despre „musst” / „liest” și rândurile dürfen, wollen, sollen, mögen în tabelul neregulatelor din „Prezentul verbelor neregulate” (lipseau, deși apăreau în întrebări).
 - **Telefon:** tabelul de conjugare are 7 coloane; se derulează orizontal automat până la celula corectă, iar prima coloană rămâne fixă.
-- **Nu intră:** „Perfekt: participiul” (tabelul lui descrie tipuri de verbe, nu terminații pe persoană), „Verbe neregulate · Perfekt” și celelalte teme.
+- **Nu intră în etapa 2:** „Perfekt: participiul” și „Verbe neregulate · Perfekt” (au tabele de tipare, nu de terminații pe persoană); au intrat în etapa 3 (secțiunea 12).
+
+## 12. Etapa 3: verbele în Partizip II (implementat 2026-11-03)
+
+Aceleași reguli ca la etapele 1 și 2 (doar după răspuns, bloc „Din fișă”, „Vezi în fișă” la mod examen, sesiuni mixte). Cerere: „continuă cu adăugarea detaliilor în răspuns cu verbele în Partizip II”.
+
+| Temă (întrebări cu bloc) | Tabelul | Evidențiat |
+|---|---|---|
+| Perfekt: participiul (38 din 38) | tipuri de verb (regulat, neregulat, separabil, inseparabil, -ieren) | rândul tipului, verbul („fahren → ist gefahren”) și paragraful despre auxiliar (sein / haben) |
+| Verbe neregulate · Perfekt, „Partizip II” (177) | tipare de vocale + rândul „mixt (-t)” | rândul tiparului (doar el, cu verbele vecine), verbul cu cele trei forme, paragraful despre ge- (simple / separabile / inseparabile) și paragraful despre auxiliar |
+| Verbe neregulate · Perfekt, „Perfekt cu persoană” (177) | la fel + tabelul haben / sein | în plus **celula auxiliarului** pe coloana persoanei (de ex. „er → ist”) |
+| Verbe neregulate · Perfekt, „haben sau sein?” (55) | la fel | verbul (cu „ist” sau fără) și paragraful despre auxiliar |
+
+- **Linia-rezumat:** „ie – o – o → fliegen – flog – ist geflogen”; la „cu persoană”: „… · er / sie / es → ist”.
+- **Fișe:** „Verbe neregulate · Perfekt” are acum tabelul cu **toate cele 177 de verbe**, în 26 de tipare de vocale (infinitiv – Präteritum – Partizip II) plus rândul „mixt (-t)”; verbele cu prefix (anbieten, verbieten…) stau în tiparul verbului de bază; „ist” marchează sein. Se adaugă tabelul haben / sein pe persoane și paragrafe separate pentru ge- și pentru haben / sein. În „Perfekt: participiul”, coloana „Exemple” conține toate cele 38 de verbe.
+- **Date:** `pat` (rândul tiparului), `ge` (`simple` / `sep` / `insep`), `aux` (`haben` / `sein`) pe 447 de întrebări; `pers` pe cele 177 „cu persoană” (din etichetă). Verbul se caută după `key` (la „Perfekt: participiul” după `id`). Marcaje în fișă: `table[data-t="pat"]` (cu `data-trim` când blocul arată doar rândul tiparului), `tr[data-row]`, `span[data-v]`, `[data-ge]`, `[data-aux]`.
+- **Verificări în build:** verbul apare în exact un rând (cel din `pat`); participiul din fișă este cel din răspuns; „ist” în fișă ⇔ `aux` = sein; `aux` și `ge` au paragraf în fișă; la „cu persoană” forma auxiliarului pe persoană este prima parte a răspunsului.
+- **Verificat:** 8 stricări de test oprite cu mesaj clar; în browser, 447 din 447 de întrebări au rândul și verbul evidențiate (plus celula auxiliarului la cele 177 cu persoană); fără defilare orizontală a paginii pe 375 px; mod examen verificat. **Neîncercat:** pe un iPhone real și cu cont conectat.
+- **Nu intră:** propozițiile întregi din Indikativ Perfekt (50), Perfekt-ul din „Verbe separabile” (18).
