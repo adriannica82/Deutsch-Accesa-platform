@@ -47,10 +47,41 @@ final class DialogForwarder: NSObject, WKUIDelegate {
 
 class MainViewController: CAPBridgeViewController {
     private var dialogForwarder: DialogForwarder?
+    private var startedUpdateCheck = false
+
+    /// Folosește versiunea web descărcată (LiveUpdate), dacă există una validă; altfel copia din pachet.
+    override func instanceDescriptor() -> InstanceDescriptor {
+        let descriptor = super.instanceDescriptor()
+        if let dir = LiveUpdate.activeDirectory() {
+            descriptor.appLocation = dir
+        }
+        return descriptor
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         dialogForwarder = DialogForwarder(original: webView?.uiDelegate, presenter: self)
         webView?.uiDelegate = dialogForwarder
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        guard !startedUpdateCheck else { return }
+        startedUpdateCheck = true
+        if LiveUpdate.runningLive { scheduleHealthCheck() }
+        Task { await LiveUpdate.checkForUpdate() }
+    }
+
+    /// După 12 secunde, o versiune descărcată care nu a setat `window.__deutschReady` este respinsă și se revine la copia din pachet.
+    private func scheduleHealthCheck() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 12) { [weak self] in
+            guard let self = self, let webView = self.webView else { return }
+            webView.evaluateJavaScript("window.__deutschReady === true") { result, _ in
+                if (result as? Bool) == true { return }
+                NSLog("[LiveUpdate] versiunea %d nu a pornit; se revine la copia din pachet", LiveUpdate.runningVersion)
+                LiveUpdate.rejectRunningVersion()
+                if let path = LiveUpdate.bundledDir?.path { self.setServerBasePath(path: path) }
+            }
+        }
     }
 }

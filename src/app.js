@@ -920,3 +920,8 @@ document.addEventListener('click',e=>{
 
 // Aplicația iOS (Capacitor): fără bara cu săgeți și „✓” de deasupra tastaturii; în browser nu face nimic.
 try{const C=window.Capacitor,K=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Keyboard;if(K&&K.setAccessoryBarVisible)K.setAccessoryBarVisible({isVisible:false})}catch{}
+
+// Versiunea aplicației (din version.json, publicat lângă deutsch.html) sub subsol; fără rețea sau fără fișier nu se afișează nimic.
+fetch('version.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{if(v&&v.built){const f=$('appVer'),d=new Date(v.built);if(f&&!isNaN(d))f.textContent='Versiunea '+d.toLocaleString('ro-RO',{dateStyle:'short',timeStyle:'short'})}}).catch(()=>{});
+// Semnal pentru învelișul iOS: pagina a pornit. Dacă o versiune descărcată nu ajunge aici, învelișul revine la copia din pachet (IOS-2.9).
+window.__deutschReady=true;

@@ -1,4 +1,4 @@
-// Pregătește directorul web al aplicației iOS: rulează build.py (dacă nu e --no-build) și copiază deutsch.html ca www/index.html.
+// Pregătește directorul web al aplicației iOS: rulează build.py (dacă nu e --no-build) și copiază deutsch.html ca www/index.html, plus version.json (versiunea din pachet, pentru actualizarea automată).
 import { spawnSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -18,4 +18,5 @@ if (!process.argv.includes('--no-build')) {
 
 mkdirSync(www, { recursive: true });
 copyFileSync(resolve(root, 'deutsch.html'), resolve(www, 'index.html'));
+copyFileSync(resolve(root, 'version.json'), resolve(www, 'version.json'));
 console.log(`www/index.html actualizat din deutsch.html (${Math.round(statSync(resolve(www, 'index.html')).size / 1024)} KB)`);

@@ -13,7 +13,9 @@ Rulare:   python3 build.py          validează conținutul și scrie deutsch.htm
 Fiecare întrebare trebuie să aibă traducere (ro) și explicație (explain) în română;
 validarea se oprește dacă lipsesc.
 """
+import datetime
 import glob
+import hashlib
 import json
 import os
 import re
@@ -350,6 +352,34 @@ def main():
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"Scris: deutsch.html ({os.path.getsize(out) // 1024} KB)")
+    write_version(out)
+
+
+# Versiunea cea mai veche a învelișului nativ (CFBundleVersion din ios-app) care poate rula această versiune web.
+# Se mărește doar când interfața cere funcții native noi (plugin, permisiune); vezi „ios app requirements.md”, IOS-2.9.
+MIN_NATIVE = 1
+
+
+def write_version(html_path):
+    """version.json lângă deutsch.html: aplicația iOS îl citește la pornire și descarcă deutsch.html dacă versiunea e mai nouă.
+    „version” (secunde Unix) se schimbă doar când se schimbă conținutul, deci rularea repetată a build-ului nu produce versiuni noi."""
+    data = open(html_path, "rb").read()
+    digest = hashlib.sha256(data).hexdigest()
+    path = os.path.join(ROOT, "version.json")
+    prev = {}
+    if os.path.exists(path):
+        try:
+            prev = json.load(open(path, encoding="utf-8"))
+        except ValueError:
+            prev = {}
+    if prev.get("sha256") == digest and prev.get("minNative") == MIN_NATIVE and isinstance(prev.get("version"), int):
+        return
+    now = datetime.datetime.now(datetime.timezone.utc)
+    info = {"version": int(now.timestamp()), "built": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "sha256": digest, "size": len(data), "minNative": MIN_NATIVE}
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(info, f, indent=1)
+        f.write("\n")
+    print(f"Scris: version.json (versiunea {info['version']})")
 
 
 if __name__ == "__main__":
