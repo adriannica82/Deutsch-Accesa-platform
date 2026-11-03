@@ -1191,5 +1191,8 @@ document.addEventListener('click',e=>{
   g.querySelectorAll('.gsdet').forEach(d=>{d.hidden=d.dataset.gsd!==id});
 });
 
+// Aplicația iOS (Capacitor): fără bara cu săgeți și „✓” de deasupra tastaturii; în browser nu face nimic.
+try{const C=window.Capacitor,K=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Keyboard;if(K&&K.setAccessoryBarVisible)K.setAccessoryBarVisible({isVisible:false})}catch{}
+
 </script>
 </body></html>

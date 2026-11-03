@@ -917,3 +917,6 @@ document.addEventListener('click',e=>{
   g.querySelectorAll('.gsseg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.art===art));
   g.querySelectorAll('.gsdet').forEach(d=>{d.hidden=d.dataset.gsd!==id});
 });
+
+// Aplicația iOS (Capacitor): fără bara cu săgeți și „✓” de deasupra tastaturii; în browser nu face nimic.
+try{const C=window.Capacitor,K=C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Keyboard;if(K&&K.setAccessoryBarVisible)K.setAccessoryBarVisible({isVisible:false})}catch{}
