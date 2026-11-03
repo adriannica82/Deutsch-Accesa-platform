@@ -1,6 +1,6 @@
 # Aplicația iOS (iPhone) a platformei · cerințe și backlog
 
-**Status:** definit (2026-11-03); **implementare începută 2026-11-03** (secțiunea 12). **Decizie revizuită (2026-11-03): prima versiune se distribuie ca `.ipa` Ad Hoc descărcat din aplicația web; TestFlight și App Store se amână** (D3). Ales: identificator `deutsch-recapp` (D4, prefixul bundle ID-ului rămâne de stabilit). Rămân de hotărât D1 (în Ad Hoc: cerc restrâns, maximum aproximativ 100 de iPhone-uri), D2 și prefixul înainte de IOS-0.2.
+**Status:** definit (2026-11-03); **implementare începută 2026-11-03** (secțiunea 12). **Pentru acum, instalare prin cablu cu Apple ID gratuit** (secțiunea 13); canalul Ad Hoc așteaptă un cont plătit. **Decizie revizuită (2026-11-03): prima versiune se distribuie ca `.ipa` Ad Hoc descărcat din aplicația web; TestFlight și App Store se amână** (D3). Ales: identificator `deutsch-recapp` (D4, prefixul bundle ID-ului rămâne de stabilit). Rămân de hotărât D1 (în Ad Hoc: cerc restrâns, maximum aproximativ 100 de iPhone-uri), D2 și prefixul înainte de IOS-0.2.
 
 ## 1. Cererea clientului (cuvintele lui, 2026-11-03)
 
@@ -249,4 +249,23 @@ Prioritate: **M** = obligatoriu pentru faza indicată, **S** = recomandat, **C**
 - **Concluzie:** autentificarea, scrierea sesiunilor, răspunsurilor, progresului și XP-ului (calculat pe server) și clasamentul funcționează din aplicația nativă la fel ca din web. Nu s-au făcut modificări de cod pentru acest pas.
 - **Neverificat:** pe iPhone real; trimiterea răspunsurilor dintr-o sesiune făcută fără rețea (se pune în coadă în aplicația web; nu a fost încercată în aplicația nativă); contul unui alt utilizator.
 - **Curățenie:** testele mele din simulator au creat 5 sesiuni goale pe contul de administrator (fără răspunsuri); au fost șterse la cererea utilizatorului. De acum nu mai pornesc sesiuni pe un cont autentificat fără acord.
+
+## 13. Instalare prin cablu fără cont plătit
+
+### Instalare pe iPhone prin cablu, fără cont plătit (decis 2026-11-03)
+
+Utilizatorul nu vrea să plătească acum cei 99 USD/an; aplicația se instalează pe **propriul iPhone, prin cablu**, cu un Apple ID gratuit („Personal Team”). Canalul Ad Hoc (IOS-5.5, IOS-6) și TestFlight / App Store rămân amânate până la un cont plătit.
+
+**Limite ale semnării gratuite** (de verificat la momentul testării; regulile Apple pot varia): aplicația expiră după **7 zile** de la instalare și nu mai pornește până o reinstalezi din Xcode, tot prin cablu; aplicații active pe același telefon sunt limitate (de ordinul a 3); număr limitat de identificatori noi pe săptămână; fără funcții care cer cont plătit (notificări push, domenii asociate: aplicația nu le folosește încă). **Actualizarea automată (IOS-2.9) aduce interfața și întrebările noi, dar nu prelungește semnarea.** Progresul rămâne în cont și în aplicație la reinstalare peste cea veche.
+
+**Pașii (o singură dată):**
+1. Conectează iPhone-ul la Mac cu cablul, deblochează-l și apasă „Trust” / „Încredere” pe telefon.
+2. În Xcode: *Settings → Accounts → +* și adaugă Apple ID-ul tău (cel gratuit merge). Parola o introduci doar tu.
+3. Deschide proiectul: `open ios-app/ios/App/App.xcodeproj`. Selectează ținta **App**, apoi *Signing & Capabilities*, bifează „Automatically manage signing” și alege la **Team** opțiunea „<numele tău> (Personal Team)”.
+4. Dacă Xcode spune că identificatorul `ro.deutschrecapp` nu e disponibil, schimbă-l în câmpul „Bundle Identifier” (de exemplu `ro.deutschrecapp.adrian`).
+5. Selectează iPhone-ul tău ca destinație (sus, lângă butonul ▶) și apasă **Run (▶)**. Prima dată Xcode poate cere activarea modului dezvoltator.
+6. Pe iPhone: *Setări → Confidențialitate și securitate → Mod dezvoltator → activat* (cere repornirea telefonului). Apoi *Setări → General → VPN și gestionarea dispozitivului →* alege Apple ID-ul tău și apasă „Trust” / „Încredere”.
+7. Apasă din nou ▶ în Xcode, dacă prima rulare s-a oprit; aplicația „Deutsch RecApp” apare pe ecranul de start.
+
+**Reînnoire (la fiecare 7 zile sau când pictograma nu mai pornește):** conectează telefonul și apasă ▶ în Xcode (sau cere ajutorul asistentului: `xcodebuild … -destination 'platform=iOS,id=<UDID>' -allowProvisioningUpdates` și `xcrun devicectl device install app`).
 

@@ -43,6 +43,8 @@ npm run sync   # rulează build.py, copiază deutsch.html ca www/index.html și 
 npm run open   # deschide proiectul în Xcode
 ```
 
+**Instalare pe iPhone prin cablu (fără cont Apple plătit):** pașii și limitele (aplicația expiră după 7 zile) sunt în `ios app requirements.md`, secțiunea 13.
+
 **Actualizare automată:** `build.py` scrie și `version.json` (versiune, mărime, SHA-256, `minNative`). Comite-l și publică-l împreună cu `deutsch.html`: aplicația iPhone îl citește la pornire și descarcă versiunea nouă, pe care o folosește de la pornirea următoare (cu revenire la copia din pachet dacă pagina nu pornește). Mărește `MIN_NATIVE` în `build.py` doar când interfața cere funcții native noi. Detalii: `ios app requirements.md`, secțiunea 12.
 
 Identificatorul `ro.deutschrecapp` și numele „Deutsch RecApp” sunt provizorii. `ios-app/` nu se publică pe Vercel (`.vercelignore`).
