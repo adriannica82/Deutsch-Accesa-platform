@@ -1,6 +1,6 @@
 # „Călătoria ta de învățare” · recomandări de repetare și bară de efort pe categorie · cerințe
 
-**Status:** definit (2026-11-03), neimplementat. **Deciziile D11–D16 (remindere) sunt confirmate de utilizator (2026-11-03);** D1–D10 sunt recomandări, încă neconfirmate explicit, și se confirmă înainte de prima sarcină (secțiunea 9).
+**Status:** definit (2026-11-03); **faza 1 implementată și verificată în browser (2026-11-03)**, vezi secțiunea 13. **Deciziile D11–D16 (remindere) sunt confirmate de utilizator (2026-11-03);** D1–D10 sunt recomandări, încă neconfirmate explicit, și se confirmă înainte de prima sarcină (secțiunea 9).
 
 ## 1. Cererea clientului (cuvintele lui, 2026-11-03)
 
@@ -195,3 +195,26 @@ Rata de activare a permisiunii, rata de atingere a notificării, sesiuni începu
 5. Capacitatea zilnică se poate schimba și se păstrează la repornire.
 6. Nicio modificare de server în faza 1; rezultatele sunt aceleași la reîncărcare.
 7. 375 px și aplicația iPhone: fără defilare orizontală; contrast și text alternativ verificate.
+
+## 13. Faza 1: stare implementare (2026-11-03)
+
+**Confirmare:** utilizatorul a spus „Da, începe faza 1” după ce a văzut recomandările D1–D16; D1–D10 sunt deci aplicate așa cum sunt scrise în secțiunea 9.
+
+**Ce s-a făcut** (LJ-1, LJ-2, LJ-3, LJ-4 local, LJ-5, LJ-6, LJ-11, LJ-12 parțial):
+
+- **Cardul „Planul tău de azi”** pe pagina principală, înaintea cardului vechi, care se numește acum **„Sesiune liberă”** („Amestec din toate temele”; butonul „Începe sesiunea liberă”). Titlul arată întrebările și minutele („~47 de întrebări · ~15 min”), sub el motivul („47 scadente (12 restante). Încă 30 scadente rămân pentru mâine.”), apoi selectorul **Timp pe zi** (10 / 15 / 20 / 30 de minute, implicit 15; păstrat local în `deutsch-lj-cap-v1`, separat pe cont) și butonul **Începe planul de azi**.
+- **Lista „Ce repeți, în ordinea priorității”:** primele 5 categorii, cu „Vezi toate cele 15 categorii”. Fiecare rând: titlu, nivelul, o bară segmentată (restante în portocaliu, scadente în verde; bara plină când necesarul egalează jumătate din capacitatea zilnică în întrebări), și textul „**12 scadente** · 12 restante · 6 slabe · ~4 min”, „**La zi** · următoarea repetare mâine” sau „**Nouă** · N întrebări · începe →”. Bara are `aria-hidden`, iar butonul are o etichetă cu cifrele.
+- **Acțiuni:** un rând cu scadente pornește o sesiune doar cu scadentele acelei teme (cel mult cât încape în capacitate, restantele întâi); „La zi” și „Nouă” deschid pagina temei.
+- **Planul** (funcția `ljPlan`): scadentele, **restantele întâi** (cea mai veche prima), apoi cutia cea mai mică; cel mult **40%** dintr-o categorie cât timp mai există altele cu scadente (dacă rămâne loc după ce celelalte s-au epuizat, plafonul nu se mai aplică); apoi cel mult **30%** întrebări noi, din **prima categorie începută care mai are întrebări noi**, altfel din prima categorie în ordinea nivelurilor; planul final se amestecă. Capacitatea în întrebări = timp pe zi / timp mediu pe întrebare (mediana din ultimele 10 sesiuni cu durată, între 8 și 60 s, implicit 20 s).
+- **Priorități** (funcția `ljRank`): categorii cu restanțe (cea mai veche restanță prima) → cu scadente (mai multe slabe, apoi mai multe scadente) → la zi (următoarea repetare cea mai apropiată) → noi; la egalitate, ordinea nivelurilor.
+- **Ghidul „Cum se calculează”** are acum și blocul „Cum se calculează planul de azi” (scadent, restant, slabă, timp pe zi, ordinea, întrebări noi, rămase pentru mâine, priorități), deschis din cardul planului.
+- **Fără server:** totul se calculează în aplicație din `progress` și istoric; fără modificări în Supabase.
+
+**Verificat în browser:** 21 de asertări pe date sintetice (cont nou, 100 de scadente într-o categorie și 3 în alta, trei categorii cu plafonul de 40%, restanțele care intră toate, totul la zi, ordinea priorităților, timpul mediu cu limitele 8–60 s) trec; interfața: schimbarea capacității (se păstrează), „Vezi toate”, un rând de necesar care pornește sesiunea corectă (toate întrebările din tema respectivă și scadente), „La zi” care deschide tema, „Începe planul de azi” cu un amestec de categorii și cel mult capacitatea, cont nou și „Ești la zi”; link spre ghid; la 375 px fără defilare orizontală.
+
+**Diferențe față de text / alegeri făcute:** (1) categoria nouă din plan nu aplică încă pragul de 60% din LJ-8, ci „prima începută cu întrebări noi” (pragul vine în faza 2); (2) la o capacitate mare și puține scadente, planul conține doar 30% întrebări noi, restul se face din „Sesiunea liberă”; (3) în plan, la valori egale ale cutiei și scadenței, ordinea între categorii urmează ordinea nivelurilor; cu date reale scadențele diferă, deci amestecul rezultă din ele și din plafonul de 40%.
+
+**Neverificat:** pe iPhone real (aplicația nativă primește modificarea prin actualizarea automată, la a doua pornire după publicare); cu un cont conectat și date reale; efectul asupra obiceiurilor (măsurătorile din secțiunea 10 se fac după câteva săptămâni de utilizare).
+
+**Rămâne pentru fazele următoare:** minute estimate pe categorie cu viteza proprie la nivel de categorie, pragul pentru categoria nouă, „Recuperare” după absențe, obiectivul în profil (faza 2); prognoza pe 7 zile și harta pe niveluri (faza 3); remindere (faza 2b); e-mailuri (faza 4).
+
