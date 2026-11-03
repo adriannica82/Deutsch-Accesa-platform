@@ -1,6 +1,6 @@
 # „Călătoria ta de învățare” · recomandări de repetare și bară de efort pe categorie · cerințe
 
-**Status:** definit (2026-11-03), neimplementat. Documentul cere decizii (secțiunea 9) înainte de prima sarcină.
+**Status:** definit (2026-11-03), neimplementat. **Deciziile D11–D16 (remindere) sunt confirmate de utilizator (2026-11-03);** D1–D10 sunt recomandări, încă neconfirmate explicit, și se confirmă înainte de prima sarcină (secțiunea 9).
 
 ## 1. Cererea clientului (cuvintele lui, 2026-11-03)
 
@@ -153,12 +153,12 @@ Rata de activare a permisiunii, rata de atingere a notificării, sesiuni începu
 | D8 | Obiectivul zilnic se stochează pe server (profil)? | **Faza 2**, pentru sincronizare între dispozitive; local în faza 1 |
 | D9 | „Călătoria” include și o hartă pe niveluri (A1 → B1) cu etape și jaloane? | **Faza 3**; fără blocare, doar recomandare |
 | D10 | Nume în aplicație: „Călătoria ta”, „Planul tău” sau „Ce repeți azi”? | „**Planul tău de azi**” pentru card și „**Călătoria ta**” pentru pagina cu harta și prognoza, ca să nu promitem o hartă din prima zi |
-| D11 | Primul canal de remindere | **Notificări locale în aplicația iPhone**, apoi cardul din aplicație; e-mailul zilnic doar opțional |
-| D12 | Ora implicită a reminderului | **Ora obișnuită de exersare** din ultimele 14 zile, altfel 19:00 |
-| D13 | Când se cere permisiunea | **După a doua sesiune terminată**, cu ecran explicativ înainte |
-| D14 | Adaptare la ignorare | **Da**: 3 neatinse → la 2 zile → săptămânal; revine zilnic după o sesiune |
-| D15 | Liga în remindere | **Categorie separată**, implicit oprită |
-| D16 | E-mail zilnic | **Nu în prima versiune;** opțional în faza 4, doar cu consimțământ |
+| D11 | Primul canal de remindere | **Decis (2026-11-03):** **Notificări locale în aplicația iPhone**, apoi cardul din aplicație; e-mailul zilnic doar opțional |
+| D12 | Ora implicită a reminderului | **Decis (2026-11-03):** **Ora obișnuită de exersare** din ultimele 14 zile, altfel 19:00 |
+| D13 | Când se cere permisiunea | **Decis (2026-11-03):** **După a doua sesiune terminată**, cu ecran explicativ înainte |
+| D14 | Adaptare la ignorare | **Decis (2026-11-03):** **Da**: 3 neatinse → la 2 zile → săptămânal; revine zilnic după o sesiune |
+| D15 | Liga în remindere | **Decis (2026-11-03):** **Categorie separată**, implicit oprită |
+| D16 | E-mail zilnic | **Decis (2026-11-03):** **Nu în prima versiune;** opțional în faza 4, doar cu consimțământ |
 
 ## 10. Faze propuse
 
