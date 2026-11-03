@@ -1,6 +1,6 @@
 # Aplicația iOS (iPhone) a platformei · cerințe și backlog
 
-**Status:** definit (2026-11-03), neimplementat. Decis: **D3 = TestFlight, apoi App Store** (2026-11-03). Rămân de hotărât D1, D2 și D4 înainte de IOS-0.2; restul au recomandări (secțiunea 5).
+**Status:** definit (2026-11-03), neimplementat. Decis: **D3 = TestFlight, apoi App Store** (2026-11-03). Ales: identificator `deutsch-recapp` (D4, prefixul bundle ID-ului rămâne de stabilit). Rămân de hotărât D1, D2 și prefixul înainte de IOS-0.2; restul au recomandări (secțiunea 5).
 
 ## 1. Cererea clientului (cuvintele lui, 2026-11-03)
 
@@ -42,12 +42,17 @@
 | D1 | Cine e publicul? (grup mic / public larg) | Public larg, prin TestFlight apoi App Store; un cerc mic poate folosi și PWA |
 | D2 | Contul Apple Developer: persoană fizică sau organizație? | **Persoană fizică** (rapid, numele tău apare ca vânzător). Un cont de organizație cere entitate juridică și număr D-U-N-S; nu folosi numele Accesa fără acordul companiei |
 | D3 | Canal: TestFlight → App Store, sau `.ipa` Ad Hoc? | **Decis (2026-11-03): TestFlight, apoi App Store.** Varianta Ad Hoc (IOS-6.3–6.4) rămâne în afara planului, doar la cerere explicită |
-| D4 | Numele aplicației și identificatorul (bundle ID, de ex. `ro.deutschplatform.app`) | Numele „Deutsch” este generic; verifică disponibilitatea în App Store Connect înainte de a-l fixa. Bundle ID-ul nu mai poate fi schimbat după publicare |
+| D4 | Numele aplicației și identificatorul (bundle ID) | **Ales (2026-11-03): identificatorul `deutsch-recapp`.** Bundle ID-ul complet cere în practică formă „domeniu inversat”; propunere: `ro.deutsch-recapp` dacă domeniul este `deutsch-recapp.ro`, altfel prefixul domeniului ales (vezi nota de mai jos). Numele afișat sub pictogramă rămâne separat (de ex. „Deutsch RecApp”) și trebuie să fie liber în App Store Connect. Bundle ID-ul nu mai poate fi schimbat după publicare |
 | D5 | Notificări: acum sau mai târziu? | Locale (reamintire zilnică) în faza 1; push (rezultatele ligii) în faza 3 |
 | D6 | Cum se actualizează întrebările? | Prima versiune: conținut în pachet, cu o versiune nouă la fiecare serie de modificări. Ulterior: conținutul (JSON) se poate descărca de pe server, iar codul rămâne în pachet (Apple permite date noi, nu cod care schimbă funcțiile aplicației) |
 | D7 | Modul întunecat și iPad? | Prima versiune: doar iPhone, doar portret, aspect luminos (ca acum). Modul întunecat și iPad devin sarcini separate |
 | D8 | Linkul de descărcare pe site: unde apare? | Pe iPhone/Safari: banner discret; pe desktop: cod QR; în aplicația nativă: ascuns |
 | D9 | Android în același proiect? | Da, ca fază separată (cost mic, cu același cod) |
+
+**Notă despre identificatorul `deutsch-recapp` (de verificat la IOS-0.4 și IOS-2.1):**
+- Apple acceptă în bundle ID litere, cifre, cratimă și punct, deci `deutsch-recapp` ca segment este permis; liniuța de subliniere nu este.
+- Un bundle ID începe de obicei cu un domeniu inversat (`ro.…`, `com.…`); prefixul trebuie ales împreună cu domeniul propriu (D4 depinde de acel domeniu), pentru că nu se mai schimbă.
+- **Capacitor** validează identificatorul ca pachet Java (litere, cifre, `_`, fără cratimă); pentru Android (D9) cratima ar fi respinsă. Dacă Android rămâne în plan, alternativa este `ro.deutschrecapp` (fără cratimă), iar `deutsch-recapp` rămâne numele proiectului, al depozitului și al adresei. Dacă aplicația rămâne doar iOS, `ro.deutsch-recapp` este în regulă. Se confirmă la crearea proiectului.
 
 ## 6. Backlog
 
@@ -60,7 +65,7 @@ Prioritate: **M** = obligatoriu pentru faza indicată, **S** = recomandat, **C**
 | IOS-0.1 | Hotărăște D1–D9 | M | S | Deciziile sunt în acest document, cu data |
 | IOS-0.2 | Înscriere în Apple Developer Program (D2) | M | S | Cont activ; acces la App Store Connect |
 | IOS-0.3 | Instalează Xcode pe Mac; verifică `xcodebuild -version` și un simulator | M | S | Un proiect gol rulează în simulator |
-| IOS-0.4 | Alege și rezervă numele și bundle ID-ul (D4) | M | S | Aplicația creată în App Store Connect |
+| IOS-0.4 | Fixează numele afișat și bundle ID-ul complet pornind de la `deutsch-recapp` (D4, cu nota din secțiunea 5) și rezervă-le | M | S | Aplicația creată în App Store Connect; numele este liber; bundle ID-ul respectă regulile Apple și Capacitor |
 | IOS-0.5 | Pagină cu **politica de confidențialitate** pe domeniul aplicației web (ce date: e-mail, progres, activitate; unde: Supabase; ștergerea contului) | M | S | Adresă publică, în română și engleză |
 | IOS-0.6 | Pagină de **suport** (e-mail de contact) | M | S | Adresă publică |
 
