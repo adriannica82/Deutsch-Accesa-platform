@@ -1,6 +1,6 @@
 # Aplicația iOS (iPhone) a platformei · cerințe și backlog
 
-**Status:** definit (2026-11-03), neimplementat. Documentul nu schimbă aplicația; cere câteva decizii (secțiunea 5) înainte de prima sarcină din backlog.
+**Status:** definit (2026-11-03), neimplementat. Decis: **D3 = TestFlight, apoi App Store** (2026-11-03). Rămân de hotărât D1, D2 și D4 înainte de IOS-0.2; restul au recomandări (secțiunea 5).
 
 ## 1. Cererea clientului (cuvintele lui, 2026-11-03)
 
@@ -41,7 +41,7 @@
 |---|---|---|
 | D1 | Cine e publicul? (grup mic / public larg) | Public larg, prin TestFlight apoi App Store; un cerc mic poate folosi și PWA |
 | D2 | Contul Apple Developer: persoană fizică sau organizație? | **Persoană fizică** (rapid, numele tău apare ca vânzător). Un cont de organizație cere entitate juridică și număr D-U-N-S; nu folosi numele Accesa fără acordul companiei |
-| D3 | Canal: TestFlight → App Store, sau `.ipa` Ad Hoc? | TestFlight → App Store (secțiunea 3) |
+| D3 | Canal: TestFlight → App Store, sau `.ipa` Ad Hoc? | **Decis (2026-11-03): TestFlight, apoi App Store.** Varianta Ad Hoc (IOS-6.3–6.4) rămâne în afara planului, doar la cerere explicită |
 | D4 | Numele aplicației și identificatorul (bundle ID, de ex. `ro.deutschplatform.app`) | Numele „Deutsch” este generic; verifică disponibilitatea în App Store Connect înainte de a-l fixa. Bundle ID-ul nu mai poate fi schimbat după publicare |
 | D5 | Notificări: acum sau mai târziu? | Locale (reamintire zilnică) în faza 1; push (rezultatele ligii) în faza 3 |
 | D6 | Cum se actualizează întrebările? | Prima versiune: conținut în pachet, cu o versiune nouă la fiecare serie de modificări. Ulterior: conținutul (JSON) se poate descărca de pe server, iar codul rămâne în pachet (Apple permite date noi, nu cod care schimbă funcțiile aplicației) |
