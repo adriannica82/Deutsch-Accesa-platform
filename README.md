@@ -32,6 +32,19 @@ Timpul de exersare se măsoară ca timp **activ** din teste (se oprește după 9
 
 Butonul **Exportă (.md)** din „Progresul tău” descarcă un raport Markdown (rezumat, pe teme, sesiuni recente, puncte slabe) care conține la sfârșit și datele complete; **Importă** citește acest fișier (și, pentru compatibilitate, vechiul `.json`).
 
+## Aplicația iOS (în lucru)
+
+Aplicația iPhone este un înveliș nativ Capacitor în jurul lui `deutsch.html`, în `ios-app/` (planul și starea: `ios app requirements.md`). Cerințe: Xcode (cu licența acceptată) și Node 22. Nu e nevoie de CocoaPods (Swift Package Manager).
+
+```bash
+cd ios-app
+npm install
+npm run sync   # rulează build.py, copiază deutsch.html ca www/index.html și face cap sync
+npm run open   # deschide proiectul în Xcode
+```
+
+Identificatorul `ro.deutschrecapp` și numele „Deutsch RecApp” sunt provizorii. `ios-app/` nu se publică pe Vercel (`.vercelignore`).
+
 ## Publicare (Vercel)
 
 Proiectul este static: preset „Other”, fără build command, directorul rădăcină `./`. `vercel.json` trimite adresa `/` către `deutsch.html`.

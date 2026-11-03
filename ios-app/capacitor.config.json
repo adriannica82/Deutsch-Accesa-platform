@@ -1,0 +1,9 @@
+{
+  "appId": "ro.deutschrecapp",
+  "appName": "Deutsch RecApp",
+  "webDir": "www",
+  "backgroundColor": "#f5f4ee",
+  "ios": {
+    "backgroundColor": "#f5f4ee"
+  }
+}

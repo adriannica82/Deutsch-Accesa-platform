@@ -1,6 +1,6 @@
 # Aplicația iOS (iPhone) a platformei · cerințe și backlog
 
-**Status:** definit (2026-11-03), neimplementat. **Decizie revizuită (2026-11-03): prima versiune se distribuie ca `.ipa` Ad Hoc descărcat din aplicația web; TestFlight și App Store se amână** (D3). Ales: identificator `deutsch-recapp` (D4, prefixul bundle ID-ului rămâne de stabilit). Rămân de hotărât D1 (în Ad Hoc: cerc restrâns, maximum aproximativ 100 de iPhone-uri), D2 și prefixul înainte de IOS-0.2.
+**Status:** definit (2026-11-03); **implementare începută 2026-11-03** (secțiunea 12). **Decizie revizuită (2026-11-03): prima versiune se distribuie ca `.ipa` Ad Hoc descărcat din aplicația web; TestFlight și App Store se amână** (D3). Ales: identificator `deutsch-recapp` (D4, prefixul bundle ID-ului rămâne de stabilit). Rămân de hotărât D1 (în Ad Hoc: cerc restrâns, maximum aproximativ 100 de iPhone-uri), D2 și prefixul înainte de IOS-0.2.
 
 ## 1. Cererea clientului (cuvintele lui, 2026-11-03)
 
@@ -64,7 +64,7 @@ Prioritate: **M** = obligatoriu pentru faza indicată, **S** = recomandat, **C**
 |---|---|---|---|---|
 | IOS-0.1 | Hotărăște D1–D9 | M | S | Deciziile sunt în acest document, cu data |
 | IOS-0.2 | Înscriere în Apple Developer Program (D2); **necesară de la IOS-5.5 (export Ad Hoc), nu înainte de IOS-2** | M | S | Cont activ; acces la App Store Connect |
-| IOS-0.3 | Instalează Xcode pe Mac; verifică `xcodebuild -version` și un simulator | M | S | Un proiect gol rulează în simulator |
+| IOS-0.3 | Instalează Xcode pe Mac; verifică `xcodebuild -version` și un simulator | M | S | Un proiect gol rulează în simulator | **(făcut 2026-11-03: Xcode 27.2, licență acceptată, runtime iOS 27.2 Simulator instalat)**
 | IOS-0.4 | Fixează numele afișat și bundle ID-ul complet pornind de la `deutsch-recapp` (D4, cu nota din secțiunea 5) și rezervă-le | M | S | Aplicația creată în App Store Connect; numele este liber; bundle ID-ul respectă regulile Apple și Capacitor |
 | IOS-0.5 | Pagină cu **politica de confidențialitate** pe domeniul aplicației web (ce date: e-mail, progres, activitate; unde: Supabase; ștergerea contului) | M | S | Adresă publică, în română și engleză |
 | IOS-0.6 | Pagină de **suport** (e-mail de contact) | M | S | Adresă publică |
@@ -83,8 +83,8 @@ Prioritate: **M** = obligatoriu pentru faza indicată, **S** = recomandat, **C**
 
 | ID | Sarcină | Prio | Dim. | Acceptare |
 |---|---|---|---|---|
-| IOS-2.1 | Proiect Capacitor în depozit (directorul `ios/`, `package.json`, `capacitor.config`), numai pentru iPhone, doar portret | M | M | Aplicația pornește în simulator și arată ecranul de start |
-| IOS-2.2 | Pas de construcție: `python3 build.py` → copiază `deutsch.html` ca `index.html` în directorul web → `npx cap sync ios` | M | S | O singură comandă documentată produce aplicația actualizată |
+| IOS-2.1 | Proiect Capacitor în depozit (directorul `ios/`, `package.json`, `capacitor.config`), numai pentru iPhone, doar portret | M | M | Aplicația pornește în simulator și arată ecranul de start | **(făcut 2026-11-03: `ios-app/`, Capacitor 8, Swift Package Manager, fără CocoaPods)**
+| IOS-2.2 | Pas de construcție: `python3 build.py` → copiază `deutsch.html` ca `index.html` în directorul web → `npx cap sync ios` | M | S | O singură comandă documentată produce aplicația actualizată | **(făcut 2026-11-03: `cd ios-app && npm run sync`)**
 | IOS-2.3 | Supabase din origine nativă: autentificare, sincronizarea progresului, liga și datele contului funcționează în simulator și pe un iPhone real | M | M | Înscriere cu invitație, autentificare, răspuns la întrebări, sincronizare și clasament verificate |
 | IOS-2.4 | **Linkuri profunde** (Universal Links): confirmarea e-mailului, resetarea parolei și invitațiile deschid aplicația; fișier `apple-app-site-association` pe domeniul web; adresele din Supabase Auth actualizate | M | M | Un link din e-mail deschide aplicația instalată; fără aplicație, deschide site-ul |
 | IOS-2.5 | Stocare: copie a progresului în Preferences și revenire dacă `localStorage` e gol | S | M | După ștergerea artificială a `localStorage`, progresul revine (cont conectat sau nu) |
@@ -212,3 +212,13 @@ Prioritate: **M** = obligatoriu pentru faza indicată, **S** = recomandat, **C**
 - Ad Hoc și instalarea `itms-services`: ghiduri terțe (sursele nu sunt de acord asupra limitei exacte de dispozitive): [Applivery](https://docs.applivery.com/en/app-distribution/platforms/apple/app-signing-types.md), [dev.to](https://dev.to/kaushalrola/how-to-install-ipa-files-over-the-air-ota-4nh2). **De confirmat în documentația Apple înainte de a alege varianta D.**
 - Enterprise Program (doar angajați, minimum 100 de angajați, fără public): [Apple – Enterprise](https://developer.apple.com/programs/enterprise/enroll/).
 - Web Distribution în UE (iOS 17.5+, reguli și taxe, criterii relaxate ulterior): [Apple – Web Distribution](https://developer.apple.com/support/web-distribution-eu), [TechCrunch](https://techcrunch.com/2024/03/12/apple-to-allow-web-distribution-for-ios-apps-in-latest-dma-tweaks/).
+
+## 12. Stare implementare (actualizat 2026-11-03)
+
+- **Făcut:** IOS-0.3 (Xcode 27.2, licență acceptată, runtime iOS 27.2 Simulator), IOS-2.1 (proiect Capacitor 8 în `ios-app/`, cu Swift Package Manager, fără CocoaPods), IOS-2.2 (`npm run sync` = `python3 build.py` + copierea lui `deutsch.html` ca `www/index.html` + `cap sync ios`), IOS-2.8 nu e încă necesar (butonul de descărcare nu există încă).
+- **Configurare provizorie:** `appId` = `ro.deutschrecapp` (fără cratimă, valid și pentru Android; prefixul se fixează definitiv la IOS-0.4, înainte de exportul Ad Hoc), nume afișat „Deutsch RecApp”, doar iPhone (`TARGETED_DEVICE_FAMILY = 1`), doar portret, fundal `#f5f4ee` la pornire, țintă minimă iOS 15.0.
+- **Verificat:** compilare reușită pentru simulator (`xcodebuild … generic/platform=iOS Simulator`); aplicația rulează pe iPhone 18 Pro în simulator și afișează ecranul de autentificare al platformei; Supabase acceptă originea `capacitor://localhost` (răspuns CORS verificat pentru Auth).
+- **Neverificat încă:** autentificare cu un cont real și sincronizarea în aplicația nativă (IOS-2.3), rularea pe un iPhone real, comportamentul tastaturii și al zonelor sigure (IOS-2.7).
+- **Pictograma** este cea implicită Capacitor (IOS-2.6 deschis); `ios-app/ios/App/App/Assets.xcassets`.
+- **Următoarele sarcini:** IOS-2.3 (test cu un cont real), IOS-2.6 (pictogramă și ecran de pornire), IOS-2.7 (zone sigure, tastatură), IOS-2.9 (actualizare automată), apoi, cu contul Apple Developer, IOS-5.1 și IOS-5.5 (export Ad Hoc).
+
