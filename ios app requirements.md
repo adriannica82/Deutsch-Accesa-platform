@@ -269,3 +269,10 @@ Utilizatorul nu vrea să plătească acum cei 99 USD/an; aplicația se instaleaz
 
 **Reînnoire (la fiecare 7 zile sau când pictograma nu mai pornește):** conectează telefonul și apasă ▶ în Xcode (sau cere ajutorul asistentului: `xcodebuild … -destination 'platform=iOS,id=<UDID>' -allowProvisioningUpdates` și `xcrun devicectl device install app`).
 
+### Verificat pe iPhone real (2026-11-03)
+
+- **Instalare prin cablu reușită:** iPhone 17 Pro Max, Xcode 27.2, Apple ID gratuit („Personal Team”). Pașii: activare Mod dezvoltator pe telefon (eroarea „Developer Mode disabled”, cod -28, dispare după activare și repornire), apoi „Trust” pentru dezvoltator în *Setări → General → VPN și gestionarea dispozitivului* (înainte apărea „Untrusted Developer”).
+- **Funcționare normală:** autentificare, teste, XP și clasament în aplicația de pe telefon; sincronizarea verificată în Supabase: două sesiuni noi de 20 de întrebări (14:01–14:10 UTC, „Indikativ Perfekt”, 17 corecte, 105 XP; 14:18–14:20 UTC, „Der, die sau das?”, 11 corecte, 46 XP), cu toate cele 20 de răspunsuri și XP-ul calculat pe server.
+- **Offline:** utilizatorul a confirmat că aplicația funcționează offline așa cum e descris (pagina se încarcă din pachet, testele merg fără internet, răspunsurile se trimit când revine rețeaua, indicatorul arată „Offline”). Baza de date nu arată care dintre cele două sesiuni a fost făcută offline, deci confirmarea vine de la utilizator.
+- **Rămâne neverificat:** reînnoirea după 7 zile (în jurul datei de 10.11.2026); actualizarea automată de pe serverul real pe telefon (testată doar în simulator, cu directoare locale); un al doilea utilizator.
+
