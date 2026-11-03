@@ -173,4 +173,7 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 
 .nrow .pill{white-space:nowrap;flex:none}
 .rightcol{display:flex;flex-direction:column;gap:22px;min-width:0;align-self:start}
+.legend{margin:12px 0 0;line-height:1.5}
+.nextcat{margin-top:16px;padding:14px;border:1px solid var(--line);border-left:4px solid var(--green);border-radius:12px;background:#f3f8ee}
+.nextcat .label{margin-bottom:0}
 

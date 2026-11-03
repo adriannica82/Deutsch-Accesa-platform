@@ -109,45 +109,73 @@ else t+='Fără repetări în aceeași sesiune.';
 $('poolInfo').textContent=t}
 ['filter','count','selection','shuffle'].forEach(id=>$(id).addEventListener('change',updateInfo));
 $('todayCount').addEventListener('change',renderHome);
-// ---------- Planul de azi și necesarul pe categorii (epicul „Călătoria ta”, faza 1) ----------
+// ---------- Planul de azi și necesarul pe categorii (epicul „Călătoria ta”, fazele 1 și 2) ----------
 // Regulile sunt în „learning journey requirements.md”, secțiunea 5. Totul se calculează local, din progres și din istoricul sesiunilor.
-const LJ={caps:[10,15,20,30],capKey:'deutsch-lj-cap-v1',maxShare:.4,newShare:.3,defAvg:20,minAvg:8,maxAvg:60,sessions:10,top:5};
+const LJ={caps:[10,15,20,30],capKey:'deutsch-lj-cap-v1',maxShare:.4,newShare:.3,defAvg:20,minAvg:8,maxAvg:60,sessions:10,topicSessions:2,top:5,stableAt:.6,stableMin:5,backAfter:3};
 let ljAll=false;
-function ljCap(){try{const v=Number(localStorage.getItem(LJ.capKey+sfx()));if(LJ.caps.includes(v))return v}catch{}return 15}
-function ljSetCap(v){try{localStorage.setItem(LJ.capKey+sfx(),String(v))}catch{}}
-// Timpul mediu pe întrebare: mediana din ultimele sesiuni cu durată; între 8 și 60 s, implicit 20 s.
-function ljAvgSec(){const r=history.filter(h=>h.sec>0&&h.n>0).slice(-LJ.sessions).map(h=>h.sec/h.n).sort((a,b)=>a-b);if(!r.length)return LJ.defAvg;const m=r.length%2?r[(r.length-1)/2]:(r[r.length/2-1]+r[r.length/2])/2;return Math.min(LJ.maxAvg,Math.max(LJ.minAvg,Math.round(m)))}
-// Necesarul unei categorii: scadente (din care restante, adică scadente de peste o zi) și slabe (subset al scadentelor).
+// Timpul pe zi: din profil (sincronizat între dispozitive) când ești în cont, altfel local; implicit 15 minute.
+function ljCap(){const pv=auth&&profile?Number(profile.daily_minutes):0;if(LJ.caps.includes(pv))return pv;try{const v=Number(localStorage.getItem(LJ.capKey+sfx()));if(LJ.caps.includes(v))return v}catch{}return 15}
+// După autentificare: dacă profilul nu are încă obiectivul, dar există unul ales local, se trimite în profil; altfel obiectivul din profil se afișează.
+function ljSyncCap(){if(!auth||!profile)return;if(profile.daily_minutes==null){try{const v=Number(localStorage.getItem(LJ.capKey+sfx()));if(LJ.caps.includes(v)&&v!==15)patchProfile({daily_minutes:v})}catch{}}if(currentView==='home')renderPlan()}
+function ljSetCap(v){try{localStorage.setItem(LJ.capKey+sfx(),String(v))}catch{}if(auth)patchProfile({daily_minutes:v})}
+const ljClamp=v=>Math.min(LJ.maxAvg,Math.max(LJ.minAvg,Math.round(v)));
+const ljMedian=r=>{r.sort((a,b)=>a-b);return r.length%2?r[(r.length-1)/2]:(r[r.length/2-1]+r[r.length/2])/2};
+// Timpul mediu pe întrebare: mediana din ultimele sesiuni cu durată (între 8 și 60 s, implicit 20 s). Pentru o categorie se folosesc sesiunile ei, dacă are cel puțin 2; altfel media generală.
+function ljAvgSec(topicId){
+const all=history.filter(h=>h.sec>0&&h.n>0);
+if(topicId){const own=all.filter(h=>h.topic===topicId).slice(-LJ.sessions);if(own.length>=LJ.topicSessions)return ljClamp(ljMedian(own.map(h=>h.sec/h.n)))}
+const r=all.slice(-LJ.sessions).map(h=>h.sec/h.n);return r.length?ljClamp(ljMedian(r)):LJ.defAvg}
+// Necesarul unei categorii: scadente (din care restante, adică scadente de peste o zi), slabe (subset al scadentelor) și câte întrebări începute sunt deja în consolidare sau stăpânite (treapta 2 sau mai sus).
 function ljNeed(t,now){
-let due=0,over=0,weak=0,oldest=Infinity,started=0,next=Infinity,fresh=0;
-for(const q of t.qs){const p=P(q);if(!p){fresh++;continue}started++;if(p.due<=now){due++;if(p.due<=now-DAY){over++;oldest=Math.min(oldest,p.due)}if(p.wrong>0&&p.box<=2)weak++}else next=Math.min(next,p.due)}
-return{t,due,over,weak,oldest,started,fresh,next}}
+let due=0,over=0,weak=0,oldest=Infinity,started=0,next=Infinity,fresh=0,settled=0;
+for(const q of t.qs){const p=P(q);if(!p){fresh++;continue}started++;if(p.box>=2)settled++;if(p.due<=now){due++;if(p.due<=now-DAY){over++;oldest=Math.min(oldest,p.due)}if(p.wrong>0&&p.box<=2)weak++}else next=Math.min(next,p.due)}
+return{t,due,over,weak,oldest,started,fresh,next,settled}}
+// O categorie începută e „stabilă” când cel puțin 60% din întrebările începute sunt în consolidare sau stăpânite (și are cel puțin 5 întrebări începute, sau toate dacă are mai puține).
+const ljStable=n=>n.started>0&&n.started>=Math.min(LJ.stableMin,n.t.qs.length)&&n.settled/n.started>=LJ.stableAt;
+// Ce urmează: la început, prima categorie; cât timp există categorii începute care nu sunt stabile, se recomandă consolidarea celei mai puțin stabile; când toate cele începute sunt stabile, următoarea categorie neînceput, în ordinea nivelurilor.
+function ljNext(needs){
+const st=needs.filter(n=>n.started>0),fresh=needs.find(n=>!n.started);
+if(!st.length)return needs.length?{kind:'start',t:needs[0].t}:null;
+const sum=st.reduce((a,n)=>a+n.started,0),ok=st.reduce((a,n)=>a+n.settled,0),unstable=st.filter(n=>!ljStable(n));
+if(unstable.length){const w=unstable.slice().sort((a,b)=>a.settled/a.started-b.settled/b.started)[0];return{kind:'consolidate',t:w.t,ratio:w.settled/w.started,all:ok/sum}}
+return fresh?{kind:'open',t:fresh.t,all:ok/sum}:null}
 // Prioritatea: întâi categoriile cu restanțe (cea mai veche restanță prima), apoi cele cu scadente (mai multe slabe, apoi mai multe scadente), apoi cele la zi, apoi cele noi.
 function ljRank(list){
 const g=n=>n.over?0:n.due?1:n.started?2:3;
 return list.slice().sort((a,b)=>g(a)-g(b)||(g(a)===0?a.oldest-b.oldest:g(a)===1?b.weak-a.weak||b.due-a.due:g(a)===2?a.next-b.next:0))}
-// Planul de azi: scadentele (restantele întâi, apoi cutia cea mai mică), cu cel mult 40% dintr-o categorie cât timp mai există altele cu necesar; apoi cel mult 30% întrebări noi.
-function ljPlan(now=Date.now(),capMin=ljCap(),avg=ljAvgSec()){
-const C=Math.max(5,Math.floor(capMin*60/avg)),needs=topics.map(t=>ljNeed(t,now)),dueQs=[];
+// Planul de azi: scadentele (restantele întâi, apoi cutia cea mai mică), cu cel mult 40% dintr-o categorie cât timp mai există altele cu scadente, în limita timpului ales (fiecare întrebare costă timpul mediu al categoriei ei); apoi cel mult 30% întrebări noi.
+function ljPlan(now=Date.now(),capMin=ljCap(),avg=ljAvgSec(),avgOf=id=>ljAvgSec(id)){
+const budget=capMin*60,C=Math.max(5,Math.floor(budget/avg)),needs=topics.map(t=>ljNeed(t,now)),dueQs=[],cost=q=>avgOf(q.topic.id);
 for(const t of topics)for(const q of t.qs){const p=P(q);if(p&&p.due<=now)dueQs.push({q,od:p.due<=now-DAY,box:p.box,due:p.due})}
 dueQs.sort((a,b)=>(b.od-a.od)||(a.od?a.due-b.due:a.box-b.box||a.due-b.due));
-const share=Math.ceil(LJ.maxShare*C),cnt=Object.create(null),pick=[],rest=[],withDue=new Set(dueQs.map(d=>d.q.topic.id));
-for(const d of dueQs){const id=d.q.topic.id;if(pick.length>=C||(withDue.size>1&&(cnt[id]||0)>=share)){rest.push(d);continue}cnt[id]=(cnt[id]||0)+1;pick.push(d)}
-for(const d of rest){if(pick.length>=C)break;pick.push(d)}
-const newMax=Math.min(C-pick.length,Math.floor(LJ.newShare*C));let newT=null,newQs=[];
-if(newMax>0){const nt=needs.find(n=>n.started>0&&n.fresh>0)||needs.find(n=>n.fresh>0);if(nt){newT=nt.t;newQs=shuffled(nt.t.qs.filter(q=>!P(q))).slice(0,newMax)}}
+const share=Math.ceil(LJ.maxShare*C),cnt=Object.create(null),pick=[],rest=[],withDue=new Set(dueQs.map(d=>d.q.topic.id));let used=0;
+for(const d of dueQs){const id=d.q.topic.id,c=cost(d.q);if(used+c>budget||pick.length>=2*C||(withDue.size>1&&(cnt[id]||0)>=share)){rest.push(d);continue}cnt[id]=(cnt[id]||0)+1;used+=c;pick.push(d)}
+for(const d of rest){const c=cost(d.q);if(pick.length>=2*C)break;if(used+c>budget)continue;used+=c;pick.push(d)}
+const nx=ljNext(needs);let newT=null,newQs=[];
+if(nx&&(nx.kind==='start'||nx.kind==='open'))newT=nx.t;else{const f=needs.find(n=>n.started>0&&n.fresh>0)||needs.find(n=>n.fresh>0);newT=f?f.t:null}
+if(newT){const c=avgOf(newT.id),k=Math.min(Math.floor(LJ.newShare*C),Math.floor((budget-used)/c));if(k>0){newQs=shuffled(newT.qs.filter(q=>!P(q))).slice(0,k);used+=newQs.length*c}}
 const total=pick.length+newQs.length;
-return{C,avg,capMin,needs,newT,qs:shuffled([...pick.map(d=>d.q),...newQs]),nDue:pick.length,nOver:pick.filter(d=>d.od).length,nNew:newQs.length,dueTotal:dueQs.length,leftover:dueQs.length-pick.length,minutes:total?Math.max(1,Math.round(total*avg/60)):0}}
+return{C,avg,avgOf,capMin,needs,next:nx,newT:newQs.length?newT:null,qs:shuffled([...pick.map(d=>d.q),...newQs]),nDue:pick.length,nOver:pick.filter(d=>d.od).length,nNew:newQs.length,dueTotal:dueQs.length,leftover:dueQs.length-pick.length,minutes:total?Math.max(1,Math.round(used/60)):0,secs:used}}
 const ljMin=(n,avg)=>Math.max(1,Math.round(n*avg/60));
 const ljNextText=(next,now)=>{const d=Math.round((next-now)/DAY);return d<=0?'azi':d===1?'mâine':'peste '+daysRo(d)};
 function ljNeedHtml(n,p,now){
 const c=n.t,full=Math.max(1,.5*p.C),frac=Math.min(1,n.due/full),od=n.due?frac*n.over/n.due:0,du=frac-od;
 let txt;
-if(n.due)txt='<b>'+n.due+(n.due===1?' scadentă':' scadente')+'</b>'+(n.over?' · '+n.over+(n.over===1?' restantă':' restante'):'')+(n.weak?' · '+n.weak+(n.weak===1?' slabă':' slabe'):'')+' · ~'+ljMin(n.due,p.avg)+' min';
+if(n.due)txt='<b>'+n.due+(n.due===1?' scadentă':' scadente')+'</b>'+(n.over?' · '+n.over+(n.over===1?' restantă':' restante'):'')+(n.weak?' · '+n.weak+(n.weak===1?' slabă':' slabe'):'')+' · ~'+ljMin(n.due,p.avgOf(c.id))+' min';
 else if(n.started)txt='<b>La zi</b> · următoarea repetare '+ljNextText(n.next,now);
 else txt='<b>Nouă</b> · '+countRo(n.fresh,['întrebare','întrebări'])+' · începe →';
 const plain=c.title+'. '+txt.replace(/<[^>]+>/g,'');
 return '<li><button type="button" class="need" data-need="'+c.id+'" aria-label="'+escape(plain)+'"><span class="nrow"><b>'+escape(c.title)+'</b><span class="pill">'+escape(c.level)+'</span></span><span class="nbar" aria-hidden="true"><i class="od" style="width:'+(od*100).toFixed(1)+'%"></i><i class="du" style="width:'+(du*100).toFixed(1)+'%"></i></span><span class="ntxt">'+txt+'</span></button></li>'}
+const ljPct=x=>Math.round(x*100)+'%';
+function ljNextHtml(x){
+if(!x)return '';
+const t=x.t,pill=' <span class="pill">'+escape(t.level)+'</span>';
+let msg;
+if(x.kind==='start')msg='Începe cu această categorie: e prima în ordinea nivelurilor.';
+else if(x.kind==='consolidate')msg='Mai întâi consolidează ce ai deschis: la această categorie '+ljPct(x.ratio)+' din întrebările începute sunt stabile (ținta e '+ljPct(LJ.stableAt)+'). Apoi îți recomand o categorie nouă.';
+else msg='Ai consolidat '+ljPct(x.all)+' din ce ai deschis (ținta e '+ljPct(LJ.stableAt)+'): poți deschide o categorie nouă.';
+const head=x.kind==='consolidate'?'DE CONSOLIDAT':'CE URMEAZĂ';
+return '<div class="label">'+head+'</div><p style="margin:8px 0 4px"><b>'+escape(t.title)+'</b>'+pill+'</p><p class="small muted" style="margin:0 0 10px">'+msg+'</p><button type="button" class="quiet back" data-next="'+t.id+'">'+(x.kind==='consolidate'?'Deschide categoria':'Vezi categoria')+' →</button>'}
 function renderPlan(){
 const card=$('planCard');if(!card)return;
 const now=Date.now(),p=ljPlan(now),started=allItems.some(q=>P(q));
@@ -158,18 +186,22 @@ const parts=[];
 if(p.nDue)parts.push('<b>'+p.nDue+(p.nDue===1?' scadentă':' scadente')+'</b>'+(p.nOver?' ('+p.nOver+(p.nOver===1?' restantă':' restante')+')':''));
 if(p.nNew)parts.push('<b>'+p.nNew+(p.nNew===1?' nouă':' noi')+'</b> din „'+escape(p.newT.title)+'”');
 let why=parts.join(' · ');
+const last=history.length?history[history.length-1].t:0;
 if(!started&&n)why='Începi cu primele întrebări din „'+escape(p.newT.title)+'”. Pe măsură ce răspunzi, aici apare ce trebuie repetat și când.';
 else if(!n){const nx=Math.min(...p.needs.map(x=>x.next));why='Nu ai nimic scadent azi.'+(isFinite(nx)?' Următoarea repetare: '+ljNextText(nx,now)+'.':'')}
-if(p.leftover)why+=(why?'. ':'')+'Încă '+p.leftover+(p.leftover===1?' scadentă rămâne':' scadente rămân')+' pentru mâine.';
+else if(last&&now-last>=LJ.backAfter*DAY&&p.dueTotal)why='Bine ai revenit! Începem cu o parte din ce s-a adunat: '+why;
+if(p.leftover){const days=p.nDue?Math.ceil(p.dueTotal/p.nDue):0;why+=(why?'. ':'')+'Încă '+p.leftover+(p.leftover===1?' scadentă rămâne':' scadente rămân')+' pentru mâine'+(days>=2?'; în ritmul de azi, tot ce e scadent acum se termină în ~'+countRo(days,['zi','zile']):'')+'.'}
 $('planWhy').innerHTML=why;
 $('planStart').disabled=!n;
 const ranked=ljRank(p.needs),shown=ljAll?ranked:ranked.slice(0,LJ.top);
 $('needList').innerHTML=shown.map(x=>ljNeedHtml(x,p,now)).join('');
-const more=$('needMore');more.hidden=ranked.length<=LJ.top;more.textContent=ljAll?'Arată doar primele '+LJ.top:'Vezi toate cele '+ranked.length+' categorii'}
+const more=$('needMore');more.hidden=ranked.length<=LJ.top;more.textContent=ljAll?'Arată doar primele '+LJ.top:'Vezi toate cele '+ranked.length+' categorii';
+const nc=$('nextCat'),h=ljNextHtml(started?p.next:null);nc.hidden=!h;nc.innerHTML=h}
 $('planStart').onclick=()=>{const p=ljPlan();if(p.qs.length)begin(p.qs,{mode:'auto',feedbackMode:'practice',topic:null})};
 $('planCap').addEventListener('change',e=>{ljSetCap(Number(e.target.value));renderPlan()});
 $('needMore').onclick=()=>{ljAll=!ljAll;renderPlan()};
-$('needList').addEventListener('click',e=>{const b=e.target.closest('[data-need]');if(!b)return;const t=topicById[b.dataset.need],now=Date.now(),p=ljPlan(now),list=t.qs.map(q=>({q,p:P(q)})).filter(x=>x.p&&x.p.due<=now).sort((a,b)=>(a.p.due<=now-DAY)===(b.p.due<=now-DAY)?a.p.box-b.p.box||a.p.due-b.p.due:a.p.due<=now-DAY?-1:1).slice(0,p.C).map(x=>x.q);
+$('nextCat').addEventListener('click',e=>{const b=e.target.closest('[data-next]');if(b)openTopic(b.dataset.next)});
+$('needList').addEventListener('click',e=>{const b=e.target.closest('[data-need]');if(!b)return;const t=topicById[b.dataset.need],now=Date.now(),p=ljPlan(now),list=t.qs.map(q=>({q,p:P(q)})).filter(x=>x.p&&x.p.due<=now).sort((a,b)=>(a.p.due<=now-DAY)===(b.p.due<=now-DAY)?a.p.box-b.p.box||a.p.due-b.p.due:a.p.due<=now-DAY?-1:1).slice(0,Math.max(5,Math.floor(p.capMin*60/p.avgOf(t.id)))).map(x=>x.q);
 if(list.length)begin(shuffled(list),{mode:'auto',feedbackMode:'practice',topic:t});else openTopic(t.id)});
 
 // Variante greșite: mai întâi alte răspunsuri ale aceluiași verb, apoi forme ușor de confundat, apoi restul listei.
@@ -376,7 +408,7 @@ lastFlushFailed=outbox.q.length>0;flushing=false;setSync()}
 async function sync(){
 try{
 await flush();
-if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at,league_recap_seen_week,role,first_name,last_name&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();syncUserMenu();maybePrompt()}}
+if(!outbox.q.some(o=>o.k==='pf')){const pr=await api('/rest/v1/profiles?select=display_name,avatar,league_registered,league_prompt_skip,league_prompted_at,registered_at,league_recap_seen_week,role,first_name,last_name,daily_minutes&limit=1');if(pr.ok){profile=(await pr.json())[0]||{};profileFresh=true;try{localStorage.setItem(PROFKEY+sfx(),JSON.stringify(profile))}catch{}renderLeagueCard();syncUserMenu();maybePrompt();ljSyncCap()}}
 refreshLeague();
 const r=await api('/rest/v1/progress?select=item_id,box,due,seen,right_count,wrong_count,last&limit=1000');
 if(r.ok){const remote=Object.create(null),rows=await r.json();

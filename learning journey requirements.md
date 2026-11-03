@@ -1,6 +1,6 @@
 # „Călătoria ta de învățare” · recomandări de repetare și bară de efort pe categorie · cerințe
 
-**Status:** definit (2026-11-03); **faza 1 implementată și verificată în browser (2026-11-03)**, vezi secțiunea 13. **Deciziile D11–D16 (remindere) sunt confirmate de utilizator (2026-11-03);** D1–D10 sunt recomandări, încă neconfirmate explicit, și se confirmă înainte de prima sarcină (secțiunea 9).
+**Status:** definit (2026-11-03); **faza 1 și faza 2 implementate și verificate în browser (2026-11-03)**, vezi secțiunea 13. **Deciziile D11–D16 (remindere) sunt confirmate de utilizator (2026-11-03);** D1–D10 sunt recomandări, încă neconfirmate explicit, și se confirmă înainte de prima sarcină (secțiunea 9).
 
 ## 1. Cererea clientului (cuvintele lui, 2026-11-03)
 
@@ -225,4 +225,21 @@ Rata de activare a permisiunii, rata de atingere a notificării, sesiuni începu
 - **Pe telefon** (o singură coloană), ordinea este: recapitulare, planul, sesiunea liberă, progres, ligă, timp și sesiuni, butoane. Fără defilare orizontală.
 - **Motiv:** după adăugarea planului, coloana din stânga s-a lungit, iar liga ajungea sub marginea ecranului; în dreapta se vede toată, lângă informațiile de același fel (XP, timp, sesiuni).
 - **Tehnic:** elementele își păstrează identificatorii (`leagueCard`, `progressStats`, `timeStats`, `history`, `exportP` etc.); cardul din dreapta a fost împărțit în două (`progressCard` și cardul cu timpul), iar coloana are clasa `rightcol`. Codul ligii nu s-a schimbat.
+
+## 14. Faza 2: stare implementare (2026-11-03)
+
+**Ce s-a făcut** (LJ-7, LJ-8, LJ-10, D8, plus legenda cerută după feedback):
+
+- **Obiectivul zilnic în profil (D8):** coloana nouă `profiles.daily_minutes` (smallint, null sau 10 / 15 / 20 / 30), migrarea `profiles_daily_minutes` aplicată în Supabase și scrisă în `supabase/schema.sql`, secțiunea 14; utilizatorii o pot scrie doar pe ea (drepturi pe coloană; `role` rămâne protejat). În cont, valoarea din profil are prioritate și se sincronizează între dispozitive; fără cont rămâne locală. La prima autentificare, dacă profilul nu are valoare, dar există una aleasă local (alta decât 15), se trimite în profil.
+- **Stabilitate și „Ce urmează” (LJ-8, D5):** o categorie începută este **stabilă** când cel puțin **60% din întrebările începute** sunt în consolidare sau stăpânite (treapta ≥ 2), după cel puțin 5 întrebări începute (sau toate, dacă are mai puține). Clarificare față de textul inițial: se numără întrebările **începute**, nu toate întrebările categoriei, altfel o categorie de 500 de substantive n-ar deveni niciodată stabilă. Recomandările: la început, prima categorie; cât timp există categorii începute nestabile, **„De consolidat”** (cea mai puțin stabilă); când toate cele începute sunt stabile, **„Ce urmează”** (următoarea categorie neînceput, în ordinea nivelurilor). Fără blocare: orice temă se poate deschide oricând.
+- **Întrebările noi din plan:** vin din categoria recomandată când e „start” sau „open”; în starea „consolidate” rămân din prima categorie începută care mai are întrebări noi (regula din faza 1).
+- **Viteza pe categorie:** minutele fiecărei categorii folosesc mediana vitezei din sesiunile ei (cel puțin 2), altfel media generală; planul se **umple după timp** (fiecare întrebare costă timpul categoriei ei), cu capacitatea în întrebări rămasă pentru plafonul de 40% și 30%.
+- **Recuperare (LJ-10, D6):** dacă ultima sesiune a fost acum 3 zile sau mai mult și există scadente, planul începe cu „Bine ai revenit! Începem cu o parte din ce s-a adunat”; când restul nu încape, cardul spune „în ritmul de azi, tot ce e scadent acum se termină în ~N zile”, fără formule de vinovăție.
+- **Legenda** „Scadentă / Restantă / Slabă” sub lista de categorii, și explicații noi în ghidul „Cum se calculează”.
+
+**Verificat:** 25 de asertări pe date sintetice trec (cont nou, nestabil → consolidate, 70% stabil → open cu întrebări noi din categoria recomandată, pragul de exact 60%, minimul de 5 întrebări, toate stabile → fără recomandare, cea mai puțin stabilă prima, bugetul de timp cu viteze diferite, viteza pe categorie, „Bine ai revenit”, estimarea în zile, vizibilitatea blocurilor „Ce urmează” și „De consolidat”, butonul care deschide categoria); 7 asertări pentru sincronizarea obiectivului (scriere în profil, prioritatea profilului, migrarea de la local, ignorarea valorilor invalide); în baza de date, într-o tranzacție anulată: scrierea valorii 20, respingerea valorii 25, upsert-ul din aplicație și protecția coloanei `role`; la 375 px fără defilare orizontală.
+
+**Neverificat:** cu contul real (sincronizarea obiectivului între browser și iPhone), pe iPhone; efectul asupra obiceiurilor (măsurătorile din secțiunea 10).
+
+**Rămâne:** faza 2b (remindere locale în aplicația iPhone), faza 3 (prognoza pe 7 zile și harta pe niveluri), faza 4 (e-mail).
 

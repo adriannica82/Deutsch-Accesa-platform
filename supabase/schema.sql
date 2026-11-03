@@ -982,3 +982,14 @@ select cron.schedule(n, '0 ' || h || ' * * 1', $job$
       'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'league_mail_cron')),
     body := '{"mode":"send"}'::jsonb)
 $job$) from (values ('league-weekly-email-utc07', '7'), ('league-weekly-email-utc08', '8')) v(n, h);
+
+-- ======================================================================
+-- 14. „Călătoria ta de învățare”, faza 2: obiectivul zilnic în profil (migrarea profiles_daily_minutes)
+-- ======================================================================
+
+-- Timpul pe zi ales pentru planul de azi (10, 15, 20 sau 30 de minute); null = implicit (15). Se sincronizează între dispozitive.
+alter table public.profiles add column if not exists daily_minutes smallint;
+alter table public.profiles drop constraint if exists profiles_daily_minutes_valid;
+alter table public.profiles add constraint profiles_daily_minutes_valid check (daily_minutes is null or daily_minutes in (10, 15, 20, 30));
+grant insert (daily_minutes), update (daily_minutes) on public.profiles to authenticated;
+
