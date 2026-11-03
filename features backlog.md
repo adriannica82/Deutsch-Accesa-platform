@@ -238,3 +238,12 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
 - **Document complet** (cerințe TG-1…TG-13, ce se evidențiază pe teme, date, criterii de acceptare, fazele 1–3, riscuri): `test guide highlight requirements.md`.
 - **Date noi:** câmpul `gen` (`m`/`n`/`f`/`pl`) la 130 de întrebări de prepoziții (111 se deduc automat, 19 se completează manual) și `art`/`caz`/`gen` la 64 de adjective, plus marcaje `data-cell` în fișe.
 - **De decis (cu recomandare în document, secțiunea 8):** în recapitulare la mod examen, blocul deschis doar la cele greșite; blocul sub „Următoarea →”; marcarea răspunsului greșit ales (nu în prima versiune); etapa 2 pentru verbe.
+
+## 21. Aplicație iOS (iPhone), cu descărcare din aplicația web (2026-11-03)
+
+- **Cerere:** „help me define the backlog for building a mobile iOS app from this app. I would like the user to be able to download the .ipa file from the web app.”
+- **Status:** **definit, neimplementat.** Document complet: `ios app requirements.md` (realitatea tehnică, opțiuni de distribuție, abordare, decizii D1–D9 cu recomandări, 9 epice cu sarcini IOS-x.y și criterii de acceptare, faze, riscuri, costuri, surse).
+- **Concluzia principală:** aplicația se poate împacheta ca aplicație iOS fără rescriere (Capacitor în jurul lui `deutsch.html`), dar **un `.ipa` nu poate fi instalat de oricine direct de pe un site**: iOS cere semnare Apple. Singura cale apropiată (Ad Hoc, `itms-services`) merge doar pe iPhone-uri înregistrate cu UDID, aproximativ 100. Recomandare: butonul „Descarcă aplicația pentru iPhone” din aplicația web duce la **TestFlight** (faza 1), apoi la **App Store** (faza 2); între timp, **PWA** („Adaugă pe ecranul de start”) fără cont Apple.
+- **Faze:** 0 = decizii, cont Apple Developer (99 USD/an), Xcode (nu este instalat pe acest Mac), pagini legale, PWA; 1 = înveliș nativ + TestFlight + buton de descărcare; 2 = App Store (ștergere cont în aplicație, cont demo pentru recenzie, etichete de confidențialitate, capturi) + livrare continuă; 3 = push, partajare, pronunție, mod întunecat; opțional = pagină de instalare Ad Hoc.
+- **De decis (cu recomandare în document, secțiunea 5):** publicul, contul Apple (persoană fizică sau organizație), canalul, numele și bundle ID-ul, notificările, actualizarea conținutului, iPad și mod întunecat, locul butonului, Android în același proiect.
+
