@@ -1,6 +1,6 @@
 # Aplicația iOS (iPhone) a platformei · cerințe și backlog
 
-**Status:** definit (2026-11-03), neimplementat. Decis: **D3 = TestFlight, apoi App Store** (2026-11-03). Ales: identificator `deutsch-recapp` (D4, prefixul bundle ID-ului rămâne de stabilit). Rămân de hotărât D1, D2 și prefixul înainte de IOS-0.2; restul au recomandări (secțiunea 5).
+**Status:** definit (2026-11-03), neimplementat. **Decizie revizuită (2026-11-03): prima versiune se distribuie ca `.ipa` Ad Hoc descărcat din aplicația web; TestFlight și App Store se amână** (D3). Ales: identificator `deutsch-recapp` (D4, prefixul bundle ID-ului rămâne de stabilit). Rămân de hotărât D1 (în Ad Hoc: cerc restrâns, maximum aproximativ 100 de iPhone-uri), D2 și prefixul înainte de IOS-0.2.
 
 ## 1. Cererea clientului (cuvintele lui, 2026-11-03)
 
@@ -10,7 +10,7 @@
 
 1. **Aplicația se poate transforma într-o aplicație iOS fără rescriere.** Platforma este deja un singur fișier HTML/JS care merge offline, deci un „înveliș” nativ (Capacitor, un WKWebView cu pluginuri) o poate rula ca atare. Rescrierea nativă (SwiftUI) sau în React Native / Flutter ar însemna refacerea a 2106 întrebări, a repetării eșalonate, a ligii și a autentificării: nu se justifică.
 2. **Un fișier `.ipa` nu poate fi instalat pe iPhone de către oricine, direct de pe un site.** iOS instalează doar aplicații semnate de Apple sau de un cont Apple Developer, iar semnarea depinde de canalul de distribuție (secțiunea 3). Singurul canal care seamănă cu „descarc `.ipa` de pe site” este **Ad Hoc** (instalare „over the air” prin `itms-services://`), dar acesta merge **doar pe iPhone-uri ale căror UDID e înregistrat în contul tău** (limită de aproximativ 100 de dispozitive).
-3. **Varianta recomandată păstrează ideea ta:** butonul „Descarcă aplicația pentru iPhone” din aplicația web există, dar duce la **TestFlight** (apoi la **App Store**), nu la un `.ipa`. Pentru utilizator rezultatul este același: apasă un buton și aplicația ajunge pe iPhone.
+3. **Decizia curentă (D3, revizuită 2026-11-03):** prima versiune folosește exact fluxul cerut: pagina din aplicația web descarcă și instalează un `.ipa` **Ad Hoc** pe iPhone-urile înregistrate. Pentru public larg, TestFlight și App Store rămân etapa următoare (aceleași sarcini, mutate mai târziu). Condițiile Ad Hoc: cont Apple Developer plătit, UDID-ul fiecărui iPhone înregistrat în cont, instalare din **Safari**, un profil care **expiră după un an** (la expirare aplicația nu mai pornește pe niciun dispozitiv până la o versiune nouă).
 4. **Nevoie de Apple Developer Program** (99 USD/an; verifică prețul curent) pentru orice variantă în afară de PWA. Pe acest Mac este instalat doar „Command Line Tools”, **nu Xcode**; Xcode trebuie instalat (gratuit din App Store, câțiva GB) înainte de prima construcție.
 5. **Android este mai simplu:** un `.apk` poate fi descărcat direct de pe site și instalat (cu o permisiune a utilizatorului). Cu Capacitor, același cod dă și o aplicație Android; rămâne în afara acestui document.
 
@@ -25,7 +25,7 @@
 | E | **Enterprise Program** | Ca la D, fără UDID | Pentru **angajații proprii** ai unei organizații cu cel puțin 100 de angajați; distribuirea către public sau parteneri e interzisă și duce la revocare | **Nu** pentru acest proiect; doar dacă Accesa (cu acordul ei) l-ar avea deja și aplicația ar fi pur internă |
 | F | **UE: Web Distribution / magazine alternative** (DMA) | Instalare direct de pe site, în UE, de la iOS 17.5 | Reguli de eligibilitate și taxe (inclusiv o comisie pentru tehnologie de bază); criteriile au fost relaxate de Apple, dar trebuie verificate pe pagina Apple | De reevaluat mai târziu; nu este calea simplă |
 
-**Recomandare:** A imediat (fază fără risc), apoi B pentru lansarea pe iPhone, apoi C. D doar dacă vrei de la început un `.ipa` descărcat de pe site pentru o grupă mică, cu înțelegerea limitelor de mai sus.
+**Recomandare (revizuită):** Ad Hoc (D) pentru prima versiune, pentru un cerc restrâns de iPhone-uri înregistrate; A (PWA) ca soluție pentru cei fără UDID înregistrat sau peste limită; B (TestFlight) și C (App Store) pentru public larg, ulterior.
 
 ## 4. Abordare tehnică recomandată
 
@@ -39,9 +39,9 @@
 
 | # | Întrebare | Recomandare |
 |---|---|---|
-| D1 | Cine e publicul? (grup mic / public larg) | Public larg, prin TestFlight apoi App Store; un cerc mic poate folosi și PWA |
+| D1 | Cine e publicul? (grup mic / public larg) | **Pentru prima versiune: cerc restrâns** (iPhone-urile înregistrate, aproximativ 100 cel mult); public larg mai târziu, prin TestFlight și App Store. De confirmat |
 | D2 | Contul Apple Developer: persoană fizică sau organizație? | **Persoană fizică** (rapid, numele tău apare ca vânzător). Un cont de organizație cere entitate juridică și număr D-U-N-S; nu folosi numele Accesa fără acordul companiei |
-| D3 | Canal: TestFlight → App Store, sau `.ipa` Ad Hoc? | **Decis (2026-11-03): TestFlight, apoi App Store.** Varianta Ad Hoc (IOS-6.3–6.4) rămâne în afara planului, doar la cerere explicită |
+| D3 | Canal: TestFlight → App Store, sau `.ipa` Ad Hoc? | **Decis (2026-11-03), revizuit: prima versiune = `.ipa` Ad Hoc descărcat din aplicația web** (IOS-6). TestFlight și App Store rămân în plan, **amânate** (IOS-5.2, IOS-7, IOS-8.4). Apple descrie Ad Hoc ca distribuție limitată pe dispozitive înregistrate; pentru public larg nu este canalul potrivit |
 | D4 | Numele aplicației și identificatorul (bundle ID) | **Ales (2026-11-03): identificatorul `deutsch-recapp`.** Bundle ID-ul complet cere în practică formă „domeniu inversat”; propunere: `ro.deutsch-recapp` dacă domeniul este `deutsch-recapp.ro`, altfel prefixul domeniului ales (vezi nota de mai jos). Numele afișat sub pictogramă rămâne separat (de ex. „Deutsch RecApp”) și trebuie să fie liber în App Store Connect. Bundle ID-ul nu mai poate fi schimbat după publicare |
 | D5 | Notificări: acum sau mai târziu? | Locale (reamintire zilnică) în faza 1; push (rezultatele ligii) în faza 3 |
 | D6 | Cum se actualizează întrebările? | Prima versiune: conținut în pachet, cu o versiune nouă la fiecare serie de modificări. Ulterior: conținutul (JSON) se poate descărca de pe server, iar codul rămâne în pachet (Apple permite date noi, nu cod care schimbă funcțiile aplicației) |
@@ -68,6 +68,7 @@ Prioritate: **M** = obligatoriu pentru faza indicată, **S** = recomandat, **C**
 | IOS-0.4 | Fixează numele afișat și bundle ID-ul complet pornind de la `deutsch-recapp` (D4, cu nota din secțiunea 5) și rezervă-le | M | S | Aplicația creată în App Store Connect; numele este liber; bundle ID-ul respectă regulile Apple și Capacitor |
 | IOS-0.5 | Pagină cu **politica de confidențialitate** pe domeniul aplicației web (ce date: e-mail, progres, activitate; unde: Supabase; ștergerea contului) | M | S | Adresă publică, în română și engleză |
 | IOS-0.6 | Pagină de **suport** (e-mail de contact) | M | S | Adresă publică |
+| IOS-0.7 | **UDID-urile** iPhone-urilor primilor utilizatori (al tău primul): Finder / Apple Configurator, copiat exact; înregistrare în portalul Apple Developer (Devices) | M | S | Cel puțin un iPhone înregistrat; UDID-urile sunt păstrate în afara depozitului Git |
 
 ### Epic IOS-1 · PWA (faza 0, fără cont Apple)
 
@@ -114,18 +115,22 @@ Prioritate: **M** = obligatoriu pentru faza indicată, **S** = recomandat, **C**
 | ID | Sarcină | Prio | Dim. | Acceptare |
 |---|---|---|---|---|
 | IOS-5.1 | Semnare automată în Xcode; numere de versiune și de construcție (cresc la fiecare încărcare) | M | S | Arhiva se construiește și se validează |
-| IOS-5.2 | Încărcare manuală în App Store Connect (Xcode → Distribute → TestFlight) | M | S | Versiunea apare în TestFlight |
+| IOS-5.2 | *(Amânat, canal TestFlight)* Încărcare manuală în App Store Connect (Xcode → Distribute → TestFlight) | C | S | Versiunea apare în TestFlight |
 | IOS-5.3 | Construire automată (Xcode Cloud sau GitHub Actions pe macOS) la o etichetă de versiune; secrete în afara depozitului | S | M | Eticheta `ios-v1.0.0` produce o versiune în TestFlight fără pași manuali |
 | IOS-5.4 | Calendar al expirărilor: abonamentul Apple (anual), versiunile TestFlight (90 de zile), certificate și profiluri | M | S | Reamintiri stabilite cu cel puțin 30 de zile înainte |
+| IOS-5.5 | **Export Ad Hoc:** semnare cu profil de distribuție Ad Hoc, export `.ipa` cu manifest „over the air” (Xcode → Distribute App → Ad Hoc); număr de versiune și de construcție la fiecare export; script / listă de pași în README | M | S | Din Xcode rezultă `.ipa` și `manifest.plist` care instalează aplicația pe un iPhone înregistrat |
 
-### Epic IOS-6 · Descărcarea din aplicația web
+### Epic IOS-6 · Descărcarea din aplicația web (Ad Hoc `.ipa`)
 
 | ID | Sarcină | Prio | Dim. | Acceptare |
 |---|---|---|---|---|
-| IOS-6.1 | Buton „Descarcă aplicația pentru iPhone” (în meniul utilizatorului și pe ecranul de start): pe iPhone/Safari duce la TestFlight (faza 1) sau App Store (faza 2); pe desktop arată un cod QR; ascuns în aplicația nativă și pe Android | M | S | Se comportă diferit pe iPhone, desktop și în aplicație |
-| IOS-6.2 | Adresa TestFlight / App Store se citește dintr-un câmp din `config.json` (fără modificare de cod la schimbarea ei) | M | S | Schimbarea adresei nu cere reconstruirea logicii |
-| IOS-6.3 | *(Doar dacă se alege canalul D)* pagină „Instalează `.ipa`”: `manifest.plist`, `.ipa` pe HTTPS, link `itms-services://…`, formular „Trimite-mi UDID-ul” și listă în panoul de administrare cu dispozitivele aprobate | C | L | Un iPhone înregistrat instalează aplicația de pe pagină; alt iPhone primește mesaj clar |
-| IOS-6.4 | *(Doar canalul D)* proces documentat: UDID nou → înregistrare → re-semnare → încărcare `.ipa` | C | M | Pași scriși, cu timpul necesar și limita de dispozitive |
+| IOS-6.1 | Buton „Instalează aplicația pe iPhone” (meniul utilizatorului și ecranul de start): pe iPhone în Safari pornește instalarea (IOS-6.3); în alt browser de pe iPhone arată „Deschide în Safari”; pe desktop arată un cod QR către pagina de instalare; ascuns în aplicația nativă și pe Android | M | S | Comportament diferit pe iPhone (Safari), iPhone (alt browser), desktop și în aplicație |
+| IOS-6.2 | Adresele (pagina de instalare, ulterior TestFlight / App Store) se citesc dintr-un câmp din `config.json` | M | S | Schimbarea adresei nu cere schimbarea logicii |
+| IOS-6.3 | **Găzduire și manifest:** `.ipa` și `manifest.plist` pe HTTPS valid, fără redirecționări (propunere: bucket Supabase Storage, nu depozitul Git, ca istoricul să nu crească cu fișiere binare); `manifest.plist` generat la fiecare export (bundle ID, versiune, adresa `.ipa`); link `itms-services://?action=download-manifest&url=…` | M | M | Linkul deschis în Safari pe un iPhone înregistrat instalează aplicația; pe un iPhone neînregistrat apare un mesaj clar din pagină |
+| IOS-6.4 | **Proces documentat pentru un dispozitiv nou:** UDID nou → înregistrare în portal → regenerare profil Ad Hoc → export nou → încărcare → anunț; cu timpul necesar și limita de dispozitive | M | M | Pași scriși în README; un al doilea iPhone adăugat urmând doar documentul |
+| IOS-6.5 | **Acces controlat:** pagina de instalare cere autentificare; o funcție Edge (`ios-install`) verifică utilizatorul și întoarce linkuri semnate, cu expirare scurtă, pentru manifest și `.ipa`; fără linkuri publice permanente | S | M | Un vizitator neautentificat nu primește linkul; linkul expiră |
+| IOS-6.6 | **Înregistrare dispozitive:** formular „Trimite-mi UDID-ul” (cu pașii din Finder), tabel Supabase `ios_devices` (utilizator, UDID, model, stare: cerut / înregistrat / respins), listă în panoul de administrare cu contor „X din 100”; UDID-ul este dată personală și se menționează în politica de confidențialitate | S | L | Utilizatorul trimite UDID-ul; administratorul îl vede și îl marchează înregistrat |
+| IOS-6.7 | **Expirări și limite:** expirarea profilului Ad Hoc (1 an) și ocuparea locurilor (100) cu avertizări în panoul de administrare, la 30 de zile și la 90 de locuri | S | S | Avertizările apar la pragurile fixate |
 
 ### Epic IOS-7 · Pregătire pentru App Store (faza 2)
 
@@ -162,15 +167,17 @@ Prioritate: **M** = obligatoriu pentru faza indicată, **S** = recomandat, **C**
 - **Confidențialitate:** politică publică, etichetă de confidențialitate, consimțământ pentru notificări.
 - **Plăți:** aplicația nu vinde nimic; orice viitoare funcție plătită ar trece prin sistemul Apple.
 
-## 8. Faze propuse
+## 8. Faze propuse (revizuite 2026-11-03: Ad Hoc primul)
 
 | Faza | Conținut | Rezultat |
 |---|---|---|
-| 0 | IOS-0.1–0.6, IOS-1 | PWA instalabilă; cont Apple, Xcode și pagini legale pregătite |
-| 1 | IOS-2, IOS-5.1–5.2, IOS-6.1–6.2, IOS-8.1–8.2, IOS-8.4 | Aplicație pe iPhone prin **TestFlight**, cu butonul de descărcare în aplicația web |
-| 2 | IOS-3.1–3.2, IOS-3.6, IOS-7, IOS-5.3–5.4 | Aplicație în **App Store**; livrare continuă |
-| 3 | IOS-4, IOS-3.3–3.5 | Push, partajare, pronunție, mod întunecat (după nevoie) |
-| Opțional | IOS-6.3–6.4 | Pagină de instalare Ad Hoc pentru un cerc restrâns, doar dacă se cere explicit |
+| 0 · Premise | Hotărăști D1, D2 și prefixul (IOS-0.1); contul Apple Developer, Xcode, bundle ID, pagini legale, UDID-ul primului iPhone (IOS-0.2–0.7). Eu pot începe în paralel proiectul Capacitor (IOS-2.1–2.2), dar nu poate fi rulat înainte de Xcode | Cont activ, Xcode instalat, un iPhone înregistrat |
+| 1 · `.ipa` Ad Hoc | Înveliș nativ: IOS-2.1–2.3 și IOS-2.6–2.8; semnare și export Ad Hoc (IOS-5.1, IOS-5.5); găzduire, manifest, buton și proces (IOS-6.1–6.4); testare pe iPhone real (IOS-8.1–8.2). IOS-2.4 (Universal Links) poate trece în faza 1b | Un `.ipa` pe care îl instalezi de pe pagina din aplicația web, pe iPhone-urile înregistrate |
+| 1b · Control și scalare | IOS-6.5–6.7, IOS-2.4–2.5, IOS-3.1–3.2, IOS-3.6 | Acces controlat, înregistrare de dispozitive din aplicație, haptică și reamintire zilnică |
+| 2 · Public larg *(amânat)* | PWA (IOS-1), TestFlight (IOS-5.2, IOS-8.4) și apoi App Store (IOS-7), cu livrare continuă (IOS-5.3–5.4) | Instalare fără UDID, în același loc din aplicația web |
+| 3 · Extra | IOS-4, IOS-3.3–3.5 | Push, partajare, pronunție, mod întunecat (după nevoie) |
+
+**Ordinea fixă:** `.ipa`-ul vine din aplicația nativă, deci proiectul Capacitor (IOS-2) și contul Apple preced pagina de descărcare; PWA-ul nu este un `.ipa` și nu ajută la acest pas.
 
 ## 9. Riscuri
 
@@ -184,6 +191,11 @@ Prioritate: **M** = obligatoriu pentru faza indicată, **S** = recomandat, **C**
 | Actualizarea conținutului cere versiune nouă | Corecturi lente | D6 |
 | Așteptarea unui `.ipa` instalabil de oricine | Dezamăgire | Secțiunea 2, punctul 2 |
 | Costuri și timp ale contului Apple (abonament anual) | Cheltuială recurentă | Se acceptă explicit la D2 |
+| Ad Hoc este pentru distribuție limitată: limita de dispozitive (aproximativ 100, de confirmat), fiecare iPhone nou cere re-export | Nu se poate oferi aplicația oricui | Cerc restrâns; pentru public larg, faza 2 |
+| Profilul Ad Hoc expiră după un an | Aplicația nu mai pornește pe niciun iPhone până la o versiune nouă | IOS-6.7, IOS-5.4 |
+| Instalarea merge doar din Safari, cu HTTPS valid și fără redirecționări | Link care „nu face nimic” | IOS-6.1 (mesaj „Deschide în Safari”), IOS-6.3 |
+| Linkul de instalare ajunge la oricine | Un `.ipa` fără UDID înregistrat nu se instalează, dar fișierul poate fi descărcat | IOS-6.5 (linkuri semnate cu expirare) |
+| UDID-ul este dată personală | Obligații de confidențialitate | IOS-0.5, IOS-6.6 |
 
 ## 10. Costuri și cerințe prealabile
 
