@@ -172,3 +172,5 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 #planStart:disabled{opacity:.5;cursor:not-allowed}
 
 .nrow .pill{white-space:nowrap;flex:none}
+.rightcol{display:flex;flex-direction:column;gap:22px;min-width:0;align-self:start}
+

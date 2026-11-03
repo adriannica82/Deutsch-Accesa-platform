@@ -181,6 +181,8 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 #planStart:disabled{opacity:.5;cursor:not-allowed}
 
 .nrow .pill{white-space:nowrap;flex:none}
+.rightcol{display:flex;flex-direction:column;gap:22px;min-width:0;align-self:start}
+
 
 </style>
 </head><body>
@@ -196,11 +198,14 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 <div class="leftcol"><div class="card recap" id="recapCard" hidden></div><div class="card" id="planCard"><div class="label">PLANUL TĂU DE AZI</div><h2 style="margin-top:12px" id="planTitle"></h2><p class="muted small" id="planWhy"></p><div class="controls"><div class="field" style="grid-column:1/-1"><label for="planCap">Timp pe zi</label><select id="planCap"><option value="10">10 minute</option><option value="15">15 minute</option><option value="20">20 de minute</option><option value="30">30 de minute</option></select></div></div><button id="planStart" class="primary allwidth">Începe planul de azi →</button><div class="mini"><div class="label">CE REPEȚI, ÎN ORDINEA PRIORITĂȚII</div><ul class="needlist" id="needList"></ul><button type="button" class="quiet back" id="needMore" hidden></button><p class="small muted" style="margin-top:10px">Bara arată cât e scadent azi, nu cât ai de făcut obligatoriu. <button type="button" class="quiet back infolink" data-guide="plan">ⓘ Cum se calculează</button></p></div></div><div class="card"><div class="label">SESIUNE LIBERĂ</div><h2 style="margin-top:12px">Amestec din toate temele</h2><p class="muted small">Mai întâi construcțiile scadente, apoi cele noi. Tipul de exercițiu se alege automat pentru fiecare temă.</p>
 <div class="controls"><div class="field" style="grid-column:1/-1"><label for="todayCount">Număr de întrebări</label><select id="todayCount"><option value="10">10 · sesiune scurtă</option><option value="20" selected>20 · antrenament</option><option value="30">30 · sesiune lungă</option></select></div></div>
 <button id="todayStart" class="primary allwidth">Începe sesiunea liberă →</button><p class="small muted guide" id="todayInfo"></p></div>
-<div class="card" id="leagueCard" hidden></div></div>
-<aside class="card"><div class="row" style="flex-wrap:nowrap"><div class="label">PROGRESUL TĂU</div><button type="button" class="quiet back infolink" data-guide="">ⓘ Cum se calculează</button></div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” pentru a-l păstra.</p><div class="tools"><button type="button" class="quiet back" id="exportP">Exportă (.md)</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back" id="resetP">Resetează</button></div><input type="file" id="importFile" accept=".md,.markdown,text/markdown,.json,application/json" hidden>
-<div class="mini"><div class="label">TIMP DE EXERSARE</div><div id="timeStats"></div></div>
+</div>
+<aside class="rightcol">
+<div class="card" id="progressCard"><div class="row" style="flex-wrap:nowrap"><div class="label">PROGRESUL TĂU</div><button type="button" class="quiet back infolink" data-guide="">ⓘ Cum se calculează</button></div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” pentru a-l păstra.</p></div>
+<div class="card" id="leagueCard" hidden></div>
+<div class="card"><div class="label">TIMP DE EXERSARE</div><div id="timeStats"></div>
 <div class="mini"><div class="label">SESIUNI RECENTE</div><ul class="history" id="history"></ul></div>
-<p class="small muted" style="margin-top:12px" id="storeNote">Progresul se salvează doar în acest browser. Exportă-l ca să-l muți pe alt dispozitiv.</p></aside>
+<div class="tools"><button type="button" class="quiet back" id="exportP">Exportă (.md)</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back" id="resetP">Resetează</button></div><input type="file" id="importFile" accept=".md,.markdown,text/markdown,.json,application/json" hidden>
+<p class="small muted" style="margin-top:12px" id="storeNote">Progresul se salvează doar în acest browser. Exportă-l ca să-l muți pe alt dispozitiv.</p></div></aside>
 </div>
 
 <h2 class="sectionhead">Alege o temă</h2>

@@ -218,3 +218,11 @@ Rata de activare a permisiunii, rata de atingere a notificării, sesiuni începu
 
 **Rămâne pentru fazele următoare:** minute estimate pe categorie cu viteza proprie la nivel de categorie, pragul pentru categoria nouă, „Recuperare” după absențe, obiectivul în profil (faza 2); prognoza pe 7 zile și harta pe niveluri (faza 3); remindere (faza 2b); e-mailuri (faza 4).
 
+### Aranjarea paginii principale (modificat 2026-11-03, la cererea utilizatorului)
+
+- **Coloana din stânga** (ce faci acum): cardul de recapitulare săptămânală (luni, când există), „Planul tău de azi” și „Sesiune liberă”.
+- **Coloana din dreapta** (cum stai): **„Progresul tău”** (cifrele), **„Liga ta”** (mutată din stânga, deasupra timpului), apoi un card cu **„Timp de exersare”**, „Sesiuni recente” și, la sfârșit, butoanele Exportă / Importă / Resetează cu nota despre salvare.
+- **Pe telefon** (o singură coloană), ordinea este: recapitulare, planul, sesiunea liberă, progres, ligă, timp și sesiuni, butoane. Fără defilare orizontală.
+- **Motiv:** după adăugarea planului, coloana din stânga s-a lungit, iar liga ajungea sub marginea ecranului; în dreapta se vede toată, lângă informațiile de același fel (XP, timp, sesiuni).
+- **Tehnic:** elementele își păstrează identificatorii (`leagueCard`, `progressStats`, `timeStats`, `history`, `exportP` etc.); cardul din dreapta a fost împărțit în două (`progressCard` și cardul cu timpul), iar coloana are clasa `rightcol`. Codul ligii nu s-a schimbat.
+
