@@ -75,10 +75,62 @@
 | LJ-10 | „Rămase pentru mâine” și „Recuperare” după absențe, fără mesaje de vinovăție | S |
 | LJ-11 | Planul, barele și prognoza se calculează în aplicație din `progress` și istoric; fără modificări de server în prima versiune | M |
 | LJ-12 | Accesibilitate: text alternativ cu cifrele, contrast, funcționare la 375 px și în aplicația iPhone | M |
-| LJ-13 | Reamintire zilnică (notificare locală în aplicația iPhone, IOS-3.2) cu numărul scadentelor | C |
+| LJ-13 | Remindere zilnice prin notificări locale în aplicația iPhone, cu numărul scadentelor și minutele estimate (secțiunea 7a; se leagă de IOS-3.2) | S |
 | LJ-14 | Rezumat în e-mailul săptămânal: „ce ai de repetat săptămâna viitoare” | C |
+| LJ-15 | Setări de remindere în „Datele mele”: activ / oprit, ora, zilele, pauză (7 / 14 / 30 de zile), notificare de test | S |
+| LJ-16 | Reminderul se anulează dacă azi ai exersat și se omite când nu e nimic scadent; adaptare la ignorare (secțiunea 7a, regula 5) | S |
+| LJ-17 | Atingerea notificării deschide direct „Planul tău de azi” | S |
+| LJ-18 | E-mail zilnic cu consimțământ, opțional, fără a-l activa implicit (secțiunea 7a) | C |
 
 M = obligatoriu pentru prima versiune, S = recomandat, C = opțional.
+
+## 7a. Remindere zilnice legate de progres (adăugat 2026-11-03)
+
+**Cerere:** „un set de remindere zilnice legat de progres. Ce îmi recomanzi?”
+
+### Canale: ce recomand și ce nu
+
+| Canal | Verdict | Motiv |
+|---|---|---|
+| **Cardul „Planul tău de azi”** la deschiderea aplicației | **Da, baza** | Fără permisiuni; arată exact ce ar spune un reminder |
+| **Notificare locală în aplicația iPhone** | **Da, primul reminder real** | Se programează pe telefon: fără server, fără date trimise la terți, funcționează offline. Nu cere contul Apple plătit (spre deosebire de notificările push); de verificat la prima instalare prin cablu |
+| **E-mail zilnic** | **Opțional, mai târziu, doar cu acord** | Risc de oboseală și de dezabonare; infrastructura există (Brevo, cron), dar e-mailul săptămânal al ligii rămâne canalul principal pe e-mail |
+| **Notificare în browser (web)** | **Nu acum** | Pe iPhone, Safari o permite doar pentru aplicații adăugate pe ecranul de start; pe desktop cere browserul deschis; valoare mică |
+| **Notificare push de pe server (APNs)** | **Nu acum** | Cere contul Apple Developer plătit și nu aduce nimic în plus pentru reminderele zilnice, care se pot programa local |
+
+### Reguli de proiectare
+
+1. **Permisiunea se cere la momentul valorii:** după a doua sesiune terminată, cu un ecran care explică ce vei primi („Un reminder pe zi, la ora aleasă, cu ce e scadent”). iOS întreabă o singură dată; dacă refuzi, nu mai poate fi cerută din aplicație.
+2. **Un singur reminder pe zi,** la ora aleasă de utilizator. Ora propusă este **ora ta obișnuită de exersare** (mediana orelor sesiunilor din ultimele 14 zile), altfel 19:00. Un reminder legat de un moment fix din zi este mai ușor de transformat în obicei decât unul vag.
+3. **Doar când are sens:** reminderul de azi se anulează dacă ai exersat deja; se omite când nu e nimic scadent.
+4. **Conținut concret și neutru, fără vinovăție:** „Planul de azi: ~12 întrebări, ~4 min. Cel mai urgent: Verbe cu prepoziții.” După o pauză lungă: „Ai ~40 de întrebări scadente. Începem cu 15 minute?” Fără amenințări cu pierderea seriei și fără „ți-e dor de noi”.
+5. **Adaptare la ignorare:** după 3 remindere neatinse la rând, trecerea la o dată la 2 zile; după alte 3, o dată pe săptămână; revenirea la zilnic după prima sesiune. Persoana nu e hărțuită, iar permisiunea nu se pierde.
+6. **Control complet:** în „Datele mele” → „Remindere”: activ / oprit, ora, zilele, pauză de 7 / 14 / 30 de zile, notificare de test. Categorii: **Plan zilnic** (implicit pornit după acord), **Liga** (implicit oprit), **Repere** (de exemplu „100 de întrebări stăpânite”; implicit oprit).
+7. **O atingere deschide direct planul de azi.**
+8. **Text compus pe telefon:** nicio dată de progres nu pleacă la terți.
+
+### Cum se programează (propunere tehnică)
+
+- Plugin `@capacitor/local-notifications` (permisiune, programare, anulare). La fiecare deschidere a aplicației și după fiecare sesiune, se anulează notificările programate și se programează cele **7 zile următoare** la ora aleasă (iOS acceptă maximum 64 de notificări locale programate).
+- Textul fiecărei zile vine din **prognoza scadențelor** (versiune minimă a lui LJ-9): elementele deja scadente plus cele care ajung la scadență până în acea zi, plafonate la capacitatea zilnică. Zilele cu 0 scadente se sar.
+- Textul se calculează **la programare, nu la afișare**: pe iOS o notificare locală nu își poate schimba conținutul fără ca aplicația să ruleze. De aceea cifrele se rotunjesc și apar cu „~”.
+- Dacă aplicația nu se deschide 7 zile, reminderele se opresc după a 7-a zi, cu un singur mesaj blând la final („Reia de unde ai rămas”). În instalarea prin cablu cu semnare gratuită, aplicația oricum expiră după 7 zile.
+- Setările se păstrează local; în faza 2, în profil (sincronizate între dispozitive).
+- **E-mail zilnic (faza 4, opțional):** o funcție Edge ca cea săptămânală, doar pentru cei cu acord, o dată pe zi, doar dacă există scadente și nu ai exersat, cu link de dezabonare și oprire după 3 zile fără deschidere; se respectă limitele zilnice ale furnizorului de e-mail.
+
+### Cum măsurăm
+
+Rata de activare a permisiunii, rata de atingere a notificării, sesiuni începute în 60 de minute de la reminder, rata de dezactivare, zile active pe săptămână. **Criteriu de oprire:** dacă peste 10% dezactivează remindere în prima săptămână, frecvența implicită se reduce.
+
+### Criterii de acceptare (remindere)
+
+1. După a doua sesiune terminată apare ecranul explicativ, apoi cererea de permisiune a sistemului.
+2. Pe iPhone apare o notificare de test în 5 secunde din „Datele mele”.
+3. Cu reminderul activ, se programează cel mult un reminder pe zi, la ora aleasă, pentru următoarele 7 zile; zilele fără scadente nu au reminder.
+4. După o sesiune terminată azi, reminderul de azi nu mai apare; mâine rămâne programat.
+5. Atingerea notificării deschide „Planul tău de azi”.
+6. Oprirea sau pauza anulează toate notificările programate.
+7. După 3 remindere neatinse, frecvența scade conform regulii 5.
 
 ## 8. Interfață (schiță)
 
@@ -101,6 +153,12 @@ M = obligatoriu pentru prima versiune, S = recomandat, C = opțional.
 | D8 | Obiectivul zilnic se stochează pe server (profil)? | **Faza 2**, pentru sincronizare între dispozitive; local în faza 1 |
 | D9 | „Călătoria” include și o hartă pe niveluri (A1 → B1) cu etape și jaloane? | **Faza 3**; fără blocare, doar recomandare |
 | D10 | Nume în aplicație: „Călătoria ta”, „Planul tău” sau „Ce repeți azi”? | „**Planul tău de azi**” pentru card și „**Călătoria ta**” pentru pagina cu harta și prognoza, ca să nu promitem o hartă din prima zi |
+| D11 | Primul canal de remindere | **Notificări locale în aplicația iPhone**, apoi cardul din aplicație; e-mailul zilnic doar opțional |
+| D12 | Ora implicită a reminderului | **Ora obișnuită de exersare** din ultimele 14 zile, altfel 19:00 |
+| D13 | Când se cere permisiunea | **După a doua sesiune terminată**, cu ecran explicativ înainte |
+| D14 | Adaptare la ignorare | **Da**: 3 neatinse → la 2 zile → săptămânal; revine zilnic după o sesiune |
+| D15 | Liga în remindere | **Categorie separată**, implicit oprită |
+| D16 | E-mail zilnic | **Nu în prima versiune;** opțional în faza 4, doar cu consimțământ |
 
 ## 10. Faze propuse
 
@@ -109,7 +167,8 @@ M = obligatoriu pentru prima versiune, S = recomandat, C = opțional.
 | 1 | LJ-1, LJ-2, LJ-3, LJ-4 (local), LJ-5, LJ-6, LJ-11, LJ-12 | Planul de azi și barele de necesar pe categorii, calculate local |
 | 2 | LJ-7, LJ-8, LJ-10, D8 (obiectivul în profil, cu migrare în `supabase/schema.sql`) | Minute estimate pe baza vitezei tale, recomandarea categoriei noi, recuperare după absențe, obiectiv sincronizat |
 | 3 | LJ-9, harta pe niveluri (D9) | Prognoza pe 7 zile și parcursul pe niveluri |
-| 4 | LJ-13, LJ-14 | Reamintire zilnică în aplicația iPhone și rezumat în e-mailul săptămânal |
+| 2b | LJ-13, LJ-15, LJ-16, LJ-17 (cu prognoza minimă din LJ-9) | Remindere zilnice prin notificări locale în aplicația iPhone |
+| 4 | LJ-14, LJ-18 | Rezumat în e-mailul săptămânal și e-mail zilnic opțional, cu consimțământ |
 
 **Cum măsurăm dacă ajută (după lansare):** (1) ponderea răspunsurilor corecte la elementele scadente (calibrare); (2) zile active pe săptămână; (3) cât din plan se termină; (4) restanțele medii pe utilizator; (5) retenția la 14 și la 30 de zile pe elementele din cutiile 3–5; compararea cu perioada de dinainte, cu grija utilizatorilor puțini.
 
@@ -123,6 +182,9 @@ M = obligatoriu pentru prima versiune, S = recomandat, C = opțional.
 | Ordinea temelor noi nu se potrivește tuturor | Nemulțumire | Recomandare, nu blocare; utilizatorul poate alege orice temă |
 | Intervalele standard nu se potrivesc tuturor | Retenție mai slabă la unii | Măsurăm; faza ulterioară poate ajusta intervalele pe utilizator |
 | Suprapunere cu XP-ul ligii (stimulează volum) | Supraexersare | Planul pune un plafon de capacitate; XP-ul rămâne separat |
+| Oboseala de notificări | Dezactivare sau refuzul permisiunii (iOS nu o mai cere) | Un singur reminder pe zi, adaptare la ignorare, ton neutru, cerere la momentul valorii, control complet |
+| Textul notificării calculat la programare poate fi depășit | Cifre nepotrivite | Rotunjire cu „~”, reprogramare la fiecare deschidere și după fiecare sesiune |
+| Aplicația cu semnare gratuită expiră după 7 zile | Reminderele se opresc cu aplicația | Notat în documentație; dispare cu un cont plătit sau la reinstalare |
 
 ## 12. Criterii de acceptare (faza 1)
 

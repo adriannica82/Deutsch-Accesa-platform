@@ -98,7 +98,7 @@ Prioritate: **M** = obligatoriu pentru faza indicată, **S** = recomandat, **C**
 | ID | Sarcină | Prio | Dim. | Acceptare |
 |---|---|---|---|---|
 | IOS-3.1 | Haptică la răspuns corect / greșit și la sfârșitul sesiunii (cu opțiune de dezactivare) | S | S | Vibrații scurte diferite pentru corect / greșit |
-| IOS-3.2 | Reamintire zilnică prin notificare locală („Ai X întrebări de repetat”), la ora aleasă de utilizator | S | M | Se programează, se poate opri; funcționează cu aplicația închisă |
+| IOS-3.2 | Reamintire zilnică prin notificare locală („Ai X întrebări de repetat”), la ora aleasă de utilizator | S | M | Se programează, se poate opri; funcționează cu aplicația închisă | *(specificație completă: `learning journey requirements.md`, secțiunea 7a)*
 | IOS-3.3 | Partajare nativă (rezultatul unui test, invitație în ligă) | C | S | Foaia de partajare iOS se deschide cu textul și linkul |
 | IOS-3.4 | Pronunție în germană (sinteză vocală nativă) la cuvinte și exemple | C | M | Buton „Ascultă” care citește în germană |
 | IOS-3.5 | Mod întunecat (D7) | C | L | Toate ecranele și blocul „Din fișă” lizibile; contrast verificat |
