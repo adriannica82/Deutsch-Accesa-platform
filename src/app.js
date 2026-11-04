@@ -127,9 +127,9 @@ if(topicId){const own=all.filter(h=>h.topic===topicId).slice(-LJ.sessions);if(ow
 const r=all.slice(-LJ.sessions).map(h=>h.sec/h.n);return r.length?ljClamp(ljMedian(r)):LJ.defAvg}
 // Necesarul unei categorii: scadente (din care restante, adică scadente de peste o zi), slabe (subset al scadentelor) și câte întrebări începute sunt deja în consolidare sau stăpânite (treapta 2 sau mai sus).
 function ljNeed(t,now){
-let due=0,over=0,weak=0,oldest=Infinity,started=0,next=Infinity,fresh=0,settled=0;
-for(const q of t.qs){const p=P(q);if(!p){fresh++;continue}started++;if(p.box>=2)settled++;if(p.due<=now){due++;if(p.due<=now-DAY){over++;oldest=Math.min(oldest,p.due)}if(p.wrong>0&&p.box<=2)weak++}else next=Math.min(next,p.due)}
-return{t,due,over,weak,oldest,started,fresh,next,settled}}
+let due=0,over=0,weak=0,oldest=Infinity,started=0,next=Infinity,fresh=0,settled=0,l0=0,l1=0;
+for(const q of t.qs){const p=P(q);if(!p){fresh++;continue}started++;if(p.box>=2)settled++;else if(p.box===1)l1++;else l0++;if(p.due<=now){due++;if(p.due<=now-DAY){over++;oldest=Math.min(oldest,p.due)}if(p.wrong>0&&p.box<=2)weak++}else next=Math.min(next,p.due)}
+return{t,due,over,weak,oldest,started,fresh,next,settled,l0,l1}}
 // O categorie începută e „stabilă” când cel puțin 60% din întrebările începute sunt în consolidare sau stăpânite (și are cel puțin 5 întrebări începute, sau toate dacă are mai puține).
 const ljStable=n=>n.started>0&&n.started>=Math.min(LJ.stableMin,n.t.qs.length)&&n.settled/n.started>=LJ.stableAt;
 // Ce urmează: la început, prima categorie; cât timp există categorii începute care nu sunt stabile, se recomandă consolidarea celei mai puțin stabile; când toate cele începute sunt stabile, următoarea categorie neînceput, în ordinea nivelurilor.
@@ -137,7 +137,7 @@ function ljNext(needs){
 const st=needs.filter(n=>n.started>0),fresh=needs.find(n=>!n.started);
 if(!st.length)return needs.length?{kind:'start',t:needs[0].t}:null;
 const sum=st.reduce((a,n)=>a+n.started,0),ok=st.reduce((a,n)=>a+n.settled,0),unstable=st.filter(n=>!ljStable(n));
-if(unstable.length){const w=unstable.slice().sort((a,b)=>a.settled/a.started-b.settled/b.started)[0];return{kind:'consolidate',t:w.t,ratio:w.settled/w.started,all:ok/sum}}
+if(unstable.length){const w=unstable.slice().sort((a,b)=>a.settled/a.started-b.settled/b.started)[0];return{kind:'consolidate',t:w.t,n:w,ratio:w.settled/w.started,all:ok/sum}}
 return fresh?{kind:'open',t:fresh.t,all:ok/sum}:null}
 // Prioritatea: întâi categoriile cu restanțe (cea mai veche restanță prima), apoi cele cu scadente (mai multe slabe, apoi mai multe scadente), apoi cele la zi, apoi cele noi.
 function ljRank(list){
@@ -167,15 +167,21 @@ else txt='<b>Nouă</b> · '+countRo(n.fresh,['întrebare','întrebări'])+' · �
 const plain=c.title+'. '+txt.replace(/<[^>]+>/g,'');
 return '<li><button type="button" class="need" data-need="'+c.id+'" aria-label="'+escape(plain)+'"><span class="nrow"><b>'+escape(c.title)+'</b><span class="pill">'+escape(c.level)+'</span></span><span class="nbar" aria-hidden="true"><i class="od" style="width:'+(od*100).toFixed(1)+'%"></i><i class="du" style="width:'+(du*100).toFixed(1)+'%"></i></span><span class="ntxt">'+txt+'</span></button></li>'}
 const ljPct=x=>Math.round(x*100)+'%';
-function ljNextHtml(x){
+function ljNextHtml(x,now){
 if(!x)return '';
-const t=x.t,pill=' <span class="pill">'+escape(t.level)+'</span>';
-let msg;
+const t=x.t,n=x.n,pill=' <span class="pill">'+escape(t.level)+'</span>';
+let msg,btn;
 if(x.kind==='start')msg='Începe cu această categorie: e prima în ordinea nivelurilor.';
-else if(x.kind==='consolidate')msg='Mai întâi consolidează ce ai deschis: la această categorie '+ljPct(x.ratio)+' din întrebările începute sunt stabile (ținta e '+ljPct(LJ.stableAt)+'). Apoi îți recomand o categorie nouă.';
+else if(x.kind==='consolidate'){
+const bits=[n.settled+' stabile (ținta e '+ljPct(LJ.stableAt)+')',n.l1?n.l1+' pe treapta 1':'',n.l0?n.l0+' pe treapta 0':''].filter(Boolean).join(', ');
+msg='La această categorie ai '+countRo(n.started,['întrebare începută','întrebări începute'])+': '+bits+'.';
+if(n.due)msg+=' Ai '+n.due+(n.due===1?' scadentă':' scadente')+' aici: repetă-le ca să avansezi.';
+else if(isFinite(n.next))msg+=' Nu ai nimic scadent aici acum; următoarea repetare: '+ljNextText(n.next,now)+'.';
+msg+=' O întrebare devine stabilă după 2 răspunsuri corecte, la zile diferite; repetările făcute înainte de scadență aduc puțin. Apoi îți recomand o categorie nouă.';
+btn=n.due?'<button type="button" class="quiet back" data-need="'+t.id+'">Repetă cele '+n.due+(n.due===1?' scadentă':' scadente')+' →</button>':'<button type="button" class="quiet back" data-next="'+t.id+'">Vezi categoria →</button>'}
 else msg='Ai consolidat '+ljPct(x.all)+' din ce ai deschis (ținta e '+ljPct(LJ.stableAt)+'): poți deschide o categorie nouă.';
-const head=x.kind==='consolidate'?'DE CONSOLIDAT':'CE URMEAZĂ';
-return '<div class="label">'+head+'</div><p style="margin:8px 0 4px"><b>'+escape(t.title)+'</b>'+pill+'</p><p class="small muted" style="margin:0 0 10px">'+msg+'</p><button type="button" class="quiet back" data-next="'+t.id+'">'+(x.kind==='consolidate'?'Deschide categoria':'Vezi categoria')+' →</button>'}
+if(!btn)btn='<button type="button" class="quiet back" data-next="'+t.id+'">Vezi categoria →</button>';
+return '<div class="label">'+(x.kind==='consolidate'?'DE CONSOLIDAT':'CE URMEAZĂ')+'</div><p style="margin:8px 0 4px"><b>'+escape(t.title)+'</b>'+pill+'</p><p class="small muted" style="margin:0 0 10px">'+msg+'</p>'+btn}
 function renderPlan(){
 const card=$('planCard');if(!card)return;
 const now=Date.now(),p=ljPlan(now),started=allItems.some(q=>P(q));
@@ -196,13 +202,14 @@ $('planStart').disabled=!n;
 const ranked=ljRank(p.needs),shown=ljAll?ranked:ranked.slice(0,LJ.top);
 $('needList').innerHTML=shown.map(x=>ljNeedHtml(x,p,now)).join('');
 const more=$('needMore');more.hidden=ranked.length<=LJ.top;more.textContent=ljAll?'Arată doar primele '+LJ.top:'Vezi toate cele '+ranked.length+' categorii';
-const nc=$('nextCat'),h=ljNextHtml(started?p.next:null);nc.hidden=!h;nc.innerHTML=h}
+const nc=$('nextCat'),h=ljNextHtml(started?p.next:null,now);nc.hidden=!h;nc.innerHTML=h}
 $('planStart').onclick=()=>{const p=ljPlan();if(p.qs.length)begin(p.qs,{mode:'auto',feedbackMode:'practice',topic:null})};
 $('planCap').addEventListener('change',e=>{ljSetCap(Number(e.target.value));renderPlan()});
 $('needMore').onclick=()=>{ljAll=!ljAll;renderPlan()};
-$('nextCat').addEventListener('click',e=>{const b=e.target.closest('[data-next]');if(b)openTopic(b.dataset.next)});
-$('needList').addEventListener('click',e=>{const b=e.target.closest('[data-need]');if(!b)return;const t=topicById[b.dataset.need],now=Date.now(),p=ljPlan(now),list=t.qs.map(q=>({q,p:P(q)})).filter(x=>x.p&&x.p.due<=now).sort((a,b)=>(a.p.due<=now-DAY)===(b.p.due<=now-DAY)?a.p.box-b.p.box||a.p.due-b.p.due:a.p.due<=now-DAY?-1:1).slice(0,Math.max(5,Math.floor(p.capMin*60/p.avgOf(t.id)))).map(x=>x.q);
-if(list.length)begin(shuffled(list),{mode:'auto',feedbackMode:'practice',topic:t});else openTopic(t.id)});
+$('nextCat').addEventListener('click',e=>{const d=e.target.closest('[data-need]');if(d)return ljStartDue(d.dataset.need);const b=e.target.closest('[data-next]');if(b)openTopic(b.dataset.next)});
+function ljStartDue(id){const t=topicById[id],now=Date.now(),p=ljPlan(now),list=t.qs.map(q=>({q,p:P(q)})).filter(x=>x.p&&x.p.due<=now).sort((a,b)=>(a.p.due<=now-DAY)===(b.p.due<=now-DAY)?a.p.box-b.p.box||a.p.due-b.p.due:a.p.due<=now-DAY?-1:1).slice(0,Math.max(5,Math.floor(p.capMin*60/p.avgOf(t.id)))).map(x=>x.q);
+if(list.length)begin(shuffled(list),{mode:'auto',feedbackMode:'practice',topic:t});else openTopic(t.id)}
+$('needList').addEventListener('click',e=>{const b=e.target.closest('[data-need]');if(b)ljStartDue(b.dataset.need)});
 
 // Variante greșite: mai întâi alte răspunsuri ale aceluiași verb, apoi forme ușor de confundat, apoi restul listei.
 function optionsFor(q){
