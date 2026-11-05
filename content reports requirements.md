@@ -30,6 +30,7 @@
 | `app_version` | versiunea aplicației (data din `version.json`) |
 | `status` | `new` (implicit), `confirmed`, `fixed`, `rejected`, `duplicate` |
 | `resolution`, `resolved_at` | ce s-a hotărât și când (scrise de mine la verificare) |
+| `notified_at` | când i-am trimis celui care a raportat emailul cu rezoluția (gol = încă netrimis) |
 
 **Securitate:** fiecare utilizator poate **adăuga** rapoarte (doar în numele lui) și **vedea doar rapoartele lui**; nu poate modifica, șterge sau scrie starea. Limită: **50 de rapoarte pe zi** pe utilizator (declanșator în baza de date). Copia întrebării are cel mult 8 KB. Schema: `supabase/schema.sql`, secțiunea 15.
 
@@ -42,7 +43,8 @@
    - **`rejected`:** conținutul e corect; scriu motivul (de exemplu regula gramaticală), ca să îl poți spune celui care a raportat;
    - **`confirmed`:** problema e reală, dar cere o decizie de-a ta (de exemplu două variante corecte, de ales);
    - **`duplicate`:** același lucru ca un alt raport.
-4. **Îți dau un rezumat:** ce am corectat, ce am respins și de ce, ce așteaptă decizia ta. Modificările de conținut ajung pe iPhone prin actualizarea automată.
+4. **Trimit emailul cu rezoluția** fiecărui utilizator care a raportat (decizie permanentă a utilizatorului, 2026-11-05: „când te rog să procesezi fișierul de erori, trimite email către cei care au raportat erorile cu rezoluția”). Mesajul se trimite din Gmail-ul conectat, către adresa din `auth.users`, în română, și cuprinde: tema și întrebarea raportată, ce am hotărât (corectat / conținutul e corect, cu motivul / duplicat), ce s-a schimbat dacă e cazul, invitația de a răspunde sau de a raporta din nou dacă a văzut altceva. După trimitere setez `notified_at = now()`. **Nu trimit** pentru rapoartele cu starea `confirmed` (în așteptarea unei decizii a ta) și nu retrimit unde `notified_at` e deja completat. Un singur email pe utilizator pentru mai multe rapoarte, dacă a trimis mai multe în același lot.
+5. **Îți dau un rezumat:** ce am corectat, ce am respins și de ce, ce așteaptă decizia ta. Modificările de conținut ajung pe iPhone prin actualizarea automată.
 
 **Interogarea de bază** (o rulez eu; o poți rula și tu în Supabase, la SQL):
 
@@ -61,6 +63,10 @@ where r.status = 'new' order by r.created_at;
 ## 6. Extinderi posibile
 
 - Un ecran în panoul de administrare, cu rapoartele, filtre după stare și temă, și butoane pentru stare.
-- Răspuns către utilizator („am corectat, mulțumesc”) în aplicație sau pe e-mail.
+- Răspuns către utilizator și în aplicație (acum se trimite doar pe e-mail, la procesare).
 - Raportarea cuvintelor din „Fișa de recapitulare” (nu doar din test).
 - Contor al rapoartelor pe întrebare, ca să apară primele cele raportate de mai mulți.
+
+## 7. Istoric
+
+- **2026-11-05:** primul raport real (test, fără comentariu, `v5-die-sonnencreme`) ajuns în baza de date; verificat, trecut la `rejected`, emailul cu rezoluția trimis către adresa de la cont (`notified_at` completat). Coloana `notified_at` adăugată (migrarea `content_reports_notified_at`).

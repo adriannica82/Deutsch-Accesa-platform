@@ -1012,6 +1012,7 @@ create table public.content_reports (
   status text not null default 'new' check (status in ('new', 'confirmed', 'fixed', 'rejected', 'duplicate')),
   resolution text check (resolution is null or char_length(resolution) <= 2000),
   resolved_at timestamptz,
+  notified_at timestamptz,
   created_at timestamptz not null default now()
 );
 create index content_reports_status_idx on public.content_reports (status, created_at desc);
