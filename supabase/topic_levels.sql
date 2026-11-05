@@ -14,5 +14,6 @@ insert into public.topic_levels (topic_id, level, multiplier) values
   ('trennbare-verben', 'A2', 1.25),
   ('verbe-neregulate-perfekt', 'A2–B1', 1.5),
   ('verben-praepositionen', 'A2–B1', 1.5),
+  ('vocabular-b1', 'B1', 2.0),
   ('wechselpraepositionen', 'A2', 1.25)
 on conflict (topic_id) do update set level = excluded.level, multiplier = excluded.multiplier;
