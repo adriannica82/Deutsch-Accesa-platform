@@ -282,3 +282,12 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
 - **Extinderi posibile:** mai multe cuvinte pe unitate (acum 37–42), exerciții „potrivește cuvântul cu sensul”, vocabular din părțile „Wissenswertes” sau din „Rückblick” ale fiecărei unități.
 - **Controale suplimentare la extindere:** niciun cuvânt nu se repetă (etichete unice), toate propozițiile sunt unice, iar răspunsul sau o variantă greșită nu apare în propoziție (am corectat două propoziții care dădeau răspunsul: „kostet” și „schmeckt”); acceptarea majusculelor și a ae/oe/ue la „scrie” verificată pe întrebări din tot setul; filtrul pe o unitate dă numărul corect.
 
+## 24. Raportarea greșelilor din întrebări, cu jurnal în baza de date (2026-11-05)
+
+- **Cerere:** „pe fiecare răspuns posibilitatea să reclam greșeala gramaticală; toate greșelile logate în baza de date unde poți să-ți solicit să faci verificări.”
+- **Status:** **implementat și verificat** (în browser cu cont simulat și în baza de date, în tranzacții anulate); neverificat cu un cont real și pe iPhone.
+- **Ce face:** după fiecare răspuns (și în recapitulările testelor, inclusiv mod examen și „Sesiuni recente”) apare **„Raportează o greșeală”**: 5 categorii (greșeală gramaticală sau de limbă, traducere, răspuns corect greșit sau ambiguu, explicație, altceva) și detalii opționale; se salvează în tabela **`content_reports`** împreună cu o **copie a întrebării**, răspunsul dat, utilizatorul și versiunea aplicației. Funcționează și offline (coadă) și doar în cont.
+- **Securitate:** utilizatorii adaugă și văd doar rapoartele lor; starea o scriu doar eu / SQL-ul manual; limită de 50 de rapoarte pe zi.
+- **Verificarea (fluxul tău cu mine):** îmi ceri „verifică rapoartele noi”; le citesc, compar cu conținutul, corectez (`fixed`), resping cu motiv (`rejected`), marchez ce cere decizia ta (`confirmed`) sau dublurile (`duplicate`), public și îți dau un rezumat. Detalii și interogarea de bază: `content reports requirements.md`.
+- **Fișiere:** `supabase/schema.sql` (secțiunea 15, migrarea `content_reports` aplicată), `src/app.js` (`reportHtml`, `rpSend`, tipul `rp` în coadă), `src/style.css`, `content reports requirements.md`; regenerat `deutsch.html` și `version.json`.
+

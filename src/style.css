@@ -176,4 +176,12 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 .legend{margin:12px 0 0;line-height:1.5}
 .nextcat{margin-top:16px;padding:14px;border:1px solid var(--line);border-left:4px solid var(--green);border-radius:12px;background:#f3f8ee}
 .nextcat .label{margin-bottom:0}
+.reportbox{margin-top:12px}
+.report>summary{font-size:13px;color:var(--muted);cursor:pointer;display:inline-block;padding:6px 0}
+.report[open]>summary{color:var(--ink);font-weight:700}
+.rpform{margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fafbf8}
+.rpform fieldset{border:0;margin:0 0 10px;padding:0}.rpform legend{padding:0;margin-bottom:6px}
+.rpopt{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:14px;cursor:pointer}.rpopt input{margin-top:3px}
+.rptext{width:100%;margin:6px 0 10px;padding:10px 12px;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;resize:vertical;min-height:72px}
+.rpacts{margin-bottom:8px}.rpdone{margin:0}
 

@@ -993,3 +993,48 @@ alter table public.profiles drop constraint if exists profiles_daily_minutes_val
 alter table public.profiles add constraint profiles_daily_minutes_valid check (daily_minutes is null or daily_minutes in (10, 15, 20, 30));
 grant insert (daily_minutes), update (daily_minutes) on public.profiles to authenticated;
 
+-- ======================================================================
+-- 15. Rapoarte despre greșeli în întrebări (migrarea content_reports)
+-- ======================================================================
+
+-- Utilizatorii raportează din test o greșeală (gramatică, traducere, răspuns, explicație); rândul păstrează o copie a întrebării
+-- („snapshot”) ca să poată fi verificat chiar dacă întrebarea se schimbă. Starea și rezoluția le scrie doar serverul / SQL-ul manual.
+create table public.content_reports (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  topic_id text not null check (char_length(topic_id) between 1 and 120),
+  item_id text not null check (char_length(item_id) between 1 and 160),
+  category text not null check (category in ('grammar', 'translation', 'answer', 'explanation', 'other')),
+  comment text check (comment is null or char_length(comment) <= 600),
+  given text check (given is null or char_length(given) <= 200),
+  snapshot jsonb not null check (pg_column_size(snapshot) <= 8000),
+  app_version text check (app_version is null or char_length(app_version) <= 40),
+  status text not null default 'new' check (status in ('new', 'confirmed', 'fixed', 'rejected', 'duplicate')),
+  resolution text check (resolution is null or char_length(resolution) <= 2000),
+  resolved_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create index content_reports_status_idx on public.content_reports (status, created_at desc);
+create index content_reports_item_idx on public.content_reports (topic_id, item_id);
+create index content_reports_user_idx on public.content_reports (user_id, created_at desc);
+
+alter table public.content_reports enable row level security;
+revoke all on public.content_reports from anon, authenticated;
+grant select on public.content_reports to authenticated;
+grant insert (user_id, topic_id, item_id, category, comment, given, snapshot, app_version) on public.content_reports to authenticated;
+
+create policy content_reports_select_own on public.content_reports for select to authenticated using (user_id = (select auth.uid()));
+create policy content_reports_insert_own on public.content_reports for insert to authenticated with check (user_id = (select auth.uid()));
+
+-- Limită: cel mult 50 de rapoarte pe zi și pe utilizator.
+create or replace function public.content_reports_limit()
+returns trigger language plpgsql security definer set search_path = '' as $$
+begin
+  if (select count(*) from public.content_reports where user_id = new.user_id and created_at > now() - interval '1 day') >= 50 then
+    raise exception 'Ai trimis prea multe rapoarte azi; încearcă mâine.' using errcode = 'P0001';
+  end if;
+  return new;
+end $$;
+revoke all on function public.content_reports_limit() from public, anon, authenticated;
+create trigger content_reports_limit_trg before insert on public.content_reports for each row execute function public.content_reports_limit();
+
