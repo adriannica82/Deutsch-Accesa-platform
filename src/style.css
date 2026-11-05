@@ -160,7 +160,6 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 .secthead{margin:26px 0 4px;font-size:18px}.prep-group li.hl{padding:6px 8px;margin-left:-6px;list-style-position:inside}.hlblock .prep-group li.hl{margin-left:0}
 .prep-group li.hl{font-weight:400}
 @media(max-width:720px){.vp th,.vp td,.vp td:first-child{min-width:0}.vp th,.vp td{padding:9px 6px;font-size:14px}.vp th{font-size:10.5px;letter-spacing:.4px}}
-#planCard .mini{margin-top:18px}
 .needlist{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px}
 .need{display:grid;gap:7px;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fafbf8;font-weight:400;min-height:44px}
 .need:hover{border-color:var(--green)}
@@ -169,7 +168,6 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 .nbar .od{background:var(--orange)}.nbar .du{background:var(--green)}
 .ntxt{font-size:14px;color:var(--muted)}.ntxt b{color:var(--ink)}
 #needMore{margin-top:10px}
-#planStart:disabled{opacity:.5;cursor:not-allowed}
 
 .nrow .pill{white-space:nowrap;flex:none}
 .rightcol{display:flex;flex-direction:column;gap:22px;min-width:0;align-self:start}

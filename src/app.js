@@ -96,7 +96,7 @@ const r=pickFrom(allItems,'smart',Number($('todayCount').value)),due=allItems.fi
 $('todayInfo').textContent=r.filled?'Nu mai ai nimic scadent; primești cele mai apropiate repetări.':due+' de repetat acum · '+fresh+' noi, din '+allItems.length+' întrebări în toate temele.';
 const LEVEL_DESC={'A1–A2':'Începător','A2':'Elementar','A2–B1':'De la elementar spre intermediar','B1':'Intermediar'};
 $('topicGrid').innerHTML=topics.map((t,i)=>{const c=counts(t.qs),due=t.qs.filter(isDue).length,same=topics.filter(x=>x.level===t.level),head=i&&topics[i-1].level===t.level?'':'<h2 class="levelhead"><span class="lv">'+escape(t.level)+'</span><span class="ld">'+escape(LEVEL_DESC[t.level]||'')+'</span><span class="ln">'+same.length+(same.length===1?' temă · ':' teme · ')+same.reduce((n,x)=>n+x.qs.length,0)+' întrebări</span></h2>';return head+'<button type="button" class="topic" data-topic="'+t.id+'"><div class="row"><span class="label">'+escape(t.level)+'</span><span class="pills"><span class="pill">'+countRo(t.qs.length,t.unit)+'</span>'+(auth&&t.xp>1?'<span class="pill xp">×'+fmtMult(t.xp)+' XP</span>':'')+'</span></div><h3>'+escape(t.title)+'</h3><div class="small muted" lang="de">'+escape(t.titleDe||'')+'</div><p class="small">'+escape(t.summary)+'</p>'+bar(c,t.qs.length)+'<div class="small muted">'+(due?due+' de repetat · ':'')+c.new+' noi · '+c.done+' stăpânite</div></button>'}).join('');
-renderHistoryList();renderLeagueCard();maybePrompt();loadSessXp();renderPlan()}
+renderHistoryList();renderLeagueCard();maybePrompt();loadSessXp()}
 function openTopic(id){
 cur=topicById[id];$('tLevel').textContent='TEMĂ · '+cur.level;$('tTitle').textContent=cur.title;$('tSummary').textContent=cur.summary;
 if(builtFor!==id){
@@ -201,34 +201,6 @@ btn=n.due?'<button type="button" class="quiet back" data-need="'+t.id+'">Repetă
 else msg='Ai consolidat '+ljPct(x.all)+' din ce ai deschis (ținta e '+ljPct(LJ.stableAt)+'): poți deschide o categorie nouă.';
 if(!btn)btn='<button type="button" class="quiet back" data-next="'+t.id+'">Vezi categoria →</button>';
 return '<div class="label">'+(x.kind==='consolidate'?'DE CONSOLIDAT':'CE URMEAZĂ')+'</div><p style="margin:8px 0 4px"><b>'+escape(t.title)+'</b>'+pill+'</p><p class="small muted" style="margin:0 0 10px">'+msg+'</p>'+btn}
-function renderPlan(){
-const card=$('planCard');if(!card)return;
-const now=Date.now(),p=ljPlan(now),started=allItems.some(q=>P(q));
-$('planCap').value=String(p.capMin);
-const n=p.qs.length;
-$('planTitle').textContent=n?'~'+countRo(n,['întrebare','întrebări'])+' · ~'+p.minutes+' min':'Ești la zi';
-const parts=[];
-if(p.nDue)parts.push('<b>'+p.nDue+(p.nDue===1?' scadentă':' scadente')+'</b>'+(p.nOver?' ('+p.nOver+(p.nOver===1?' restantă':' restante')+')':''));
-if(p.nNew)parts.push('<b>'+p.nNew+(p.nNew===1?' nouă':' noi')+'</b> din „'+escape(p.newT.title)+'”');
-let why=parts.join(' · ');
-const last=history.length?history[history.length-1].t:0;
-if(!started&&n)why='Începi cu primele întrebări din „'+escape(p.newT.title)+'”. Pe măsură ce răspunzi, aici apare ce trebuie repetat și când.';
-else if(!n){const nx=Math.min(...p.needs.map(x=>x.next));why='Nu ai nimic scadent azi.'+(isFinite(nx)?' Următoarea repetare: '+ljNextText(nx,now)+'.':'')}
-else if(last&&now-last>=LJ.backAfter*DAY&&p.dueTotal)why='Bine ai revenit! Începem cu o parte din ce s-a adunat: '+why;
-if(p.leftover){const days=p.nDue?Math.ceil(p.dueTotal/p.nDue):0;why+=(why?'. ':'')+'Încă '+p.leftover+(p.leftover===1?' scadentă rămâne':' scadente rămân')+' pentru mâine'+(days>=2?'; în ritmul de azi, tot ce e scadent acum se termină în ~'+countRo(days,['zi','zile']):'')+'.'}
-$('planWhy').innerHTML=why;
-$('planStart').disabled=!n;
-const ranked=ljRank(p.needs),shown=ljAll?ranked:ranked.slice(0,LJ.top);
-$('needList').innerHTML=shown.map(x=>ljNeedHtml(x,p,now)).join('');
-const more=$('needMore');more.hidden=ranked.length<=LJ.top;more.textContent=ljAll?'Arată doar primele '+LJ.top:'Vezi toate cele '+ranked.length+' categorii';
-const nc=$('nextCat'),h=ljNextHtml(started?p.next:null,now);nc.hidden=!h;nc.innerHTML=h}
-$('planStart').onclick=()=>{const p=ljPlan();if(p.qs.length)begin(p.qs,{mode:'auto',feedbackMode:'practice',topic:null})};
-$('planCap').addEventListener('change',e=>{ljSetCap(Number(e.target.value));renderPlan()});
-$('needMore').onclick=()=>{ljAll=!ljAll;renderPlan()};
-$('nextCat').addEventListener('click',e=>{const d=e.target.closest('[data-need]');if(d)return ljStartDue(d.dataset.need);const b=e.target.closest('[data-next]');if(b)openTopic(b.dataset.next)});
-function ljStartDue(id){const t=topicById[id],now=Date.now(),p=ljPlan(now),list=t.qs.map(q=>({q,p:P(q)})).filter(x=>x.p&&x.p.due<=now).sort((a,b)=>(a.p.due<=now-DAY)===(b.p.due<=now-DAY)?a.p.box-b.p.box||a.p.due-b.p.due:a.p.due<=now-DAY?-1:1).slice(0,Math.max(5,Math.floor(p.capMin*60/p.avgOf(t.id)))).map(x=>x.q);
-if(list.length)begin(shuffled(list),{mode:'auto',feedbackMode:'practice',topic:t});else openTopic(t.id)}
-$('needList').addEventListener('click',e=>{const b=e.target.closest('[data-need]');if(b)ljStartDue(b.dataset.need)});
 
 // Variante greșite: mai întâi alte răspunsuri ale aceluiași verb, apoi forme ușor de confundat, apoi restul listei.
 function optionsFor(q){

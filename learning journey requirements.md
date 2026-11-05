@@ -1,5 +1,7 @@
 # „Călătoria ta de învățare” · recomandări de repetare și bară de efort pe categorie · cerințe
 
+> **Scos din ecranul principal la cererea utilizatorului (2026-11-05):** „scoate secțiunea de PLANUL TĂU DE AZI, încarcă prea mult home screen-ul și nu mă ajută”. Au dispărut cardul „Planul tău de azi” (întrebări și minute, selectorul „Timp pe zi”, „Începe planul de azi”, lista „Ce repeți, în ordinea priorității”, blocul „De consolidat / Ce urmează”, legenda) și cardul „Cum se calculează planul de azi” din ghid. Rămân pe ecranul principal: „Sesiune liberă”, „Progresul tău”, liga, timpul de exersare, sesiunile recente și lista temelor (cu numărul „de repetat” pe temă). Motorul de calcul din `src/app.js` (`ljNeed`, `ljPlan`, `ljRank`, `ljNext` etc.) a rămas în cod, nefolosit, ca să poată fi reluat; interfața se poate recupera din istoricul git (commitul dinaintea acestei modificări). Coloana `profiles.daily_minutes` rămâne în baza de date, neafectată.
+
 **Status:** definit (2026-11-03); **faza 1 și faza 2 implementate și verificate în browser (2026-11-03)**, vezi secțiunea 13. **Deciziile D11–D16 (remindere) sunt confirmate de utilizator (2026-11-03);** D1–D10 sunt recomandări, încă neconfirmate explicit, și se confirmă înainte de prima sarcină (secțiunea 9).
 
 ## 1. Cererea clientului (cuvintele lui, 2026-11-03)
