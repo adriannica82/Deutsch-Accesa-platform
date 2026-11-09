@@ -135,7 +135,7 @@ let ljAll=false;
 // Timpul pe zi: din profil (sincronizat între dispozitive) când ești în cont, altfel local; implicit 15 minute.
 function ljCap(){const pv=auth&&profile?Number(profile.daily_minutes):0;if(LJ.caps.includes(pv))return pv;try{const v=Number(localStorage.getItem(LJ.capKey+sfx()));if(LJ.caps.includes(v))return v}catch{}return 15}
 // După autentificare: dacă profilul nu are încă obiectivul, dar există unul ales local, se trimite în profil; altfel obiectivul din profil se afișează.
-function ljSyncCap(){if(!auth||!profile)return;if(profile.daily_minutes==null){try{const v=Number(localStorage.getItem(LJ.capKey+sfx()));if(LJ.caps.includes(v)&&v!==15)patchProfile({daily_minutes:v})}catch{}}if(currentView==='home')renderPlan()}
+function ljSyncCap(){if(!auth||!profile)return;if(profile.daily_minutes==null){try{const v=Number(localStorage.getItem(LJ.capKey+sfx()));if(LJ.caps.includes(v)&&v!==15)patchProfile({daily_minutes:v})}catch{}}}
 function ljSetCap(v){try{localStorage.setItem(LJ.capKey+sfx(),String(v))}catch{}if(auth)patchProfile({daily_minutes:v})}
 const ljClamp=v=>Math.min(LJ.maxAvg,Math.max(LJ.minAvg,Math.round(v)));
 const ljMedian=r=>{r.sort((a,b)=>a-b);return r.length%2?r[(r.length-1)/2]:(r[r.length/2-1]+r[r.length/2])/2};
