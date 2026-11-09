@@ -739,7 +739,11 @@ setInterval(()=>{if(auth)flush()},30000)}
 
 // ---------- Liga: clasament ----------
 // Clasamentul vine de la server (funcția league_standings): doar numele, avatarul și XP-ul celor înscriși, niciodată răspunsurile.
-let standings=null,standingsErr=false;
+let standings=null,standingsErr=false,standingsMsg='',standingsTry=0;
+const SKEY='deutsch-standings-v1';
+function standingsSave(){try{localStorage.setItem(SKEY+sfx(),JSON.stringify(standings))}catch{}}
+function standingsLoad(){try{const c=JSON.parse(localStorage.getItem(SKEY+sfx()));return c&&c.registered&&Array.isArray(c.members)?c:null}catch{return null}}
+const staleNote=()=>standingsErr&&standings?'<p class="small muted" style="margin-top:10px">Clasamentul e din ultima încărcare reușită; acum nu l-am putut actualiza'+(standingsMsg?' ('+escape(standingsMsg)+')':'')+'. Se reîncearcă automat.</p>':'';
 // Treptele ligii (WL-27): cine se înscrie începe în prima; promovările și retrogradările se fac luni dimineața, la închiderea săptămânii.
 const TIERS=[['A1 Anfänger','🌱'],['A2 Entdecker','🧭'],['B1 Profi','🏅'],['B2 Meister','👑']];
 const tierName=n=>TIERS[n-1]?TIERS[n-1][1]+' '+TIERS[n-1][0]:'';
@@ -784,8 +788,9 @@ else{const need=Math.max(0,50-me.xp);
 if(me.rank<=slots)t=need?'Ești în zona de promovare, dar mai ai nevoie de '+need+' XP ca să contezi (minimum 50 XP).':'Ești în zona de promovare: luni urci în '+tierName(standings.tier+1)+' dacă rămâi acolo.';
 else{const g=ms[slots-1].xp-me.xp;t='Luni '+(slots===1?'urcă doar locul 1':'urcă primii 3')+' (minimum 50 XP). Îți mai trebuie '+Math.max(g,need)+' XP față de ultimul loc de promovare.'}}
 return '<p class="small muted" style="margin-top:10px"><span aria-hidden="true">🎯</span> '+escape(t)+'</p>'}
-function standingHtml(){
-if(standingsErr&&!standings)return '<p class="small muted">Clasamentul nu a putut fi încărcat acum.</p>';
+function standingHtml(){return standingHtmlCore()+staleNote()}
+function standingHtmlCore(){
+if(standingsErr&&!standings)return '<p class="small muted">Clasamentul nu a putut fi încărcat acum'+(standingsMsg?' ('+escape(standingsMsg)+')':'')+'. Se reîncearcă automat.</p>';
 if(!standings)return '<p class="small muted">Se încarcă clasamentul…</p>';
 const ms=standings.members||[],me=ms.find(m=>m.me);if(!standings.registered||!me)return '';
 if(ms.length===1)return soloHtml(me)+'<p class="small muted">'+weekLeft()+'</p>'+promoHint();
@@ -795,19 +800,24 @@ else{const up=ms[me.rank-2],g=up.xp-me.xp;gap=g>0?'Încă '+g+' XP până la loc
 return '<p class="rankline"><b>Locul '+me.rank+'</b> din '+ms.length+' · '+me.xp+' XP săptămâna aceasta</p><p class="small">'+gap+' '+weekLeft()+'</p>'+rankRows(ms.filter(m=>Math.abs(m.rank-me.rank)<=2)).replace('class="rank"','class="rank mini"')+promoHint()}
 async function refreshStandings(){
 if(!auth||!profile||!profile.league_registered){standings=null;standingsErr=false;renderLeagueCard();if(currentView==='league')renderLeague();return}
-try{const r=await api('/rest/v1/rpc/league_standings',{method:'POST',body:{}});if(r.ok){standings=await r.json();standingsErr=false}else standingsErr=true}catch{standingsErr=true}
-renderLeagueCard();if(currentView==='league')renderLeague()}
+if(!standings){const c=standingsLoad();if(c){standings=c;renderLeagueCard();if(currentView==='league')renderLeague()}}
+try{const r=await api('/rest/v1/rpc/league_standings',{method:'POST',body:{}});
+if(r.ok){const j=await r.json();if(!j||typeof j!=='object')throw new Error('răspuns gol');standings=j;standingsErr=false;standingsMsg='';standingsTry=0;if(j.registered)standingsSave()}
+else{standingsErr=true;let m='';try{m=(await r.json()).message||''}catch{}standingsMsg='eroare '+r.status+(m?': '+m.slice(0,80):'')}}
+catch(e){standingsErr=true;standingsMsg=e&&e.message==='auth'?'sesiunea a expirat, intră din nou':!navigator.onLine?'fără rețea':'fără răspuns de la server'}
+renderLeagueCard();if(currentView==='league')renderLeague();
+if(standingsErr&&auth&&standingsTry<3){standingsTry++;setTimeout(()=>{if(auth&&standingsErr)refreshStandings()},4000*standingsTry)}}
 const refreshLeague=()=>{refreshXpSummary();refreshStandings()};
 function renderLeague(){
 const body=$('leagueBody'),reg=profile&&profile.league_registered;
 $('leagueRefresh').hidden=!reg;
 if(!reg){$('leagueMeta').textContent='';body.innerHTML='<p class="muted">Înscrie-te la provocarea săptămânală ca să vezi clasamentul și să apari în el.</p><button type="button" class="primary" data-league="join">Înscrie-te</button>'}
-else if(standingsErr&&!standings){$('leagueMeta').textContent='';body.innerHTML='<p class="muted">Clasamentul nu a putut fi încărcat acum. Încearcă din nou.</p>'}
+else if(standingsErr&&!standings){$('leagueMeta').textContent='';body.innerHTML='<p class="muted">Clasamentul nu a putut fi încărcat acum'+(standingsMsg?' ('+escape(standingsMsg)+')':'')+'. Se reîncearcă automat; poți apăsa și „Actualizează”.</p>'}
 else if(!standings||!standings.registered){$('leagueMeta').textContent='';body.innerHTML='<p class="muted">Se încarcă clasamentul…</p>'}
 else{
 const ms=standings.members||[],me=ms.find(m=>m.me),a=new Date(standings.week_start+'T00:00:00'),b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+6),f=d=>d.toLocaleDateString('ro-RO',{day:'numeric',month:'short'});
 $('leagueMeta').innerHTML=tierPill(standings.tier)+' '+escape('Săptămâna '+f(a)+' – '+f(b)+' · '+weekLeft());
-body.innerHTML=(ms.length===1&&me?soloHtml(me):'')+rankRows(ms)+(ms.length===1?'':'<p class="small muted" style="margin-top:12px">Săgețile arată schimbarea locului față de săptămâna trecută. La egalitate de XP contează acuratețea, apoi cine a ajuns primul la scor.</p>')+promoHint()}
+body.innerHTML=(ms.length===1&&me?soloHtml(me):'')+rankRows(ms)+(ms.length===1?'':'<p class="small muted" style="margin-top:12px">Săgețile arată schimbarea locului față de săptămâna trecută. La egalitate de XP contează acuratețea, apoi cine a ajuns primul la scor.</p>')+promoHint()+staleNote()}
 renderHistory();
 $('leagueHowBody').innerHTML='<ul class="xplist"><li>Răspuns corect: <b>10</b> puncte de bază la o întrebare nouă, <b>15</b> la una scadentă, <b>5</b> la o reluare înainte de scadență, <b>+5</b> dacă ai greșit-o data trecută.</li><li>La „scrie” punctele se înmulțesc cu <b>1,5</b>, la „scrie + caz” cu <b>2</b>.</li><li>Primele 400 de puncte pe zi contează întregi, restul doar 25%.</li><li>Apoi se înmulțesc cu <b>multiplicatorul temei</b>: '+[...new Set(topics.map(t=>t.level+' ×'+fmtMult(t.xp)))].join(' · ')+'.</li><li>Bonusuri: <b>+20 XP</b> pentru o sesiune cu minimum 10 întrebări și minimum 60% corecte, <b>+10 XP</b> pentru prima sesiune a zilei.</li><li>Săptămâna începe luni și se încheie duminică (ora României). Clasamentul se actualizează după fiecare sesiune terminată.</li></ul>'}
 function openLeague(){show('league');refreshStandings()}
