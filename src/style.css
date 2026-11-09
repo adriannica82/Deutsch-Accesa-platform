@@ -190,4 +190,21 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 .dangerbtn{color:var(--red);border-color:#e6c6c7}.dangerbtn:hover:not(:disabled){background:#faf0f0}
 .toolsbox{border-top:1px solid var(--line);margin-top:12px;padding-top:4px}
 @media(max-width:720px){.card.compact{padding:14px 14px}}
-
+.card.lg{padding:16px 18px}
+.lghead{display:flex;justify-content:space-between;align-items:center;gap:8px}.lghead .label{margin:0}
+.lgtools,.lgtier{display:inline-flex;align-items:center;gap:2px}
+.lgrow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
+.lgwho{font-weight:700;font-size:18px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-flex;align-items:center;gap:2px}
+.lgrank{white-space:nowrap;font-size:15px;display:inline-flex;align-items:center;gap:3px}
+.lgxp{margin:4px 0 0;font-size:12.5px;color:var(--muted)}.lgxp b{color:var(--ink)}
+.lgacts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.lgacts button{min-height:36px;padding:6px 12px;font-size:14px}
+.lg .rank.mini{margin-top:6px}.lg .rank.mini li{min-height:34px;padding:3px 6px;grid-template-columns:26px 26px minmax(0,1fr) auto auto;gap:6px;font-size:14px}
+.lg .pill.tier{font-size:12px;padding:3px 9px}
+.tip{position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:24px;min-height:24px;margin:0;padding:0 3px;border:0;border-radius:50%;background:none;color:var(--muted);font-size:13px;font-weight:400;line-height:1;cursor:help;box-shadow:none}
+.tip.warn{color:var(--orange)}
+.tip::after{content:attr(data-tip);position:absolute;z-index:30;right:-4px;top:calc(100% + 6px);width:max-content;max-width:min(250px,72vw);padding:8px 10px;border-radius:10px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:400;line-height:1.4;letter-spacing:0;text-align:left;white-space:normal;box-shadow:0 6px 20px rgba(23,49,57,.22);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s}
+.tip:hover::after,.tip:focus-visible::after,.tip.open::after{opacity:1;visibility:visible}
+.tip:focus-visible{outline:2px solid var(--green);outline-offset:1px}
+@media(pointer:coarse){.tip{min-width:32px;min-height:32px}}
+@media(max-width:720px){.card.lg{padding:14px 14px}}
+.lgacts{flex-wrap:nowrap}.lgacts button{white-space:nowrap}

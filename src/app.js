@@ -481,7 +481,8 @@ return '<li class="'+(m.me?'me':'')+'"><span class="pos" aria-label="Locul '+m.r
 function weekLeft(){if(!standings||!standings.week_end)return '';const ms=new Date(standings.week_end)-Date.now();return ms<=0?'Săptămâna s-a încheiat.':ms<DAY?'Săptămâna se încheie în mai puțin de 24 de ore.':'Mai sunt '+dayWord(Math.ceil(ms/DAY))+' până la sfârșitul săptămânii (duminică).'}
 function soloHtml(me){const pct=me.last_xp>0?Math.round((me.xp-me.last_xp)/me.last_xp*100):null;
 return '<p class="rankline"><b>'+me.xp+' XP</b> săptămâna aceasta · '+me.last_xp+' XP săptămâna trecută'+(pct==null?' (prima ta săptămână)':' ('+(pct>=0?'+':'')+pct+'%)')+'</p><p class="small muted">Ești singurul înscris deocamdată, deci te compari cu propria săptămână anterioară. Clasamentul apare când se înscriu și alți colegi.</p>'}
-function promoHint(){
+function promoHint(){const t=promoText();return t?'<p class="small muted" style="margin-top:10px"><span aria-hidden="true">🎯</span> '+escape(t)+'</p>':''}
+function promoText(){
 if(!standings||!standings.tier)return '';const ms=standings.members||[],me=ms.find(m=>m.me);if(!me)return '';
 const n=ms.length,slots=n>=8?3:1;let t;
 if(standings.tier>=TIERS.length)t='Ești pe cea mai înaltă treaptă; de aici rămâne doar clasamentul grupei.';
@@ -489,7 +490,7 @@ else if(n<4)t='Treapta se poate schimba luni, la închiderea săptămânii, dar 
 else{const need=Math.max(0,50-me.xp);
 if(me.rank<=slots)t=need?'Ești în zona de promovare, dar mai ai nevoie de '+need+' XP ca să contezi (minimum 50 XP).':'Ești în zona de promovare: luni urci în '+tierName(standings.tier+1)+' dacă rămâi acolo.';
 else{const g=ms[slots-1].xp-me.xp;t='Luni '+(slots===1?'urcă doar locul 1':'urcă primii 3')+' (minimum 50 XP). Îți mai trebuie '+Math.max(g,need)+' XP față de ultimul loc de promovare.'}}
-return '<p class="small muted" style="margin-top:10px"><span aria-hidden="true">🎯</span> '+escape(t)+'</p>'}
+return t}
 function standingHtml(){return standingHtmlCore()+staleNote()}
 function standingHtmlCore(){
 if(standingsErr&&!standings)return '<p class="small muted">Clasamentul nu a putut fi încărcat acum'+(standingsMsg?' ('+escape(standingsMsg)+')':'')+'. Se reîncearcă automat.</p>';
@@ -865,9 +866,31 @@ function renderLeagueCard(){
 renderRecap();const c=$('leagueCard');if(!c)return;
 if(!CLOUD||!auth||(!profile&&!profileFresh)){c.hidden=true;return}
 const reg=profile&&profile.league_registered;c.hidden=false;
-c.innerHTML=reg
-?'<div class="label">LIGA TA</div><h2 style="margin-top:12px"><span aria-hidden="true">'+escape(profile.avatar)+'</span> '+escape(profile.display_name)+'</h2>'+tierLine()+'<p class="muted small">Ești înscris la provocarea săptămânală.</p>'+standingHtml()+xpLine()+'<div class="tools" style="margin-top:0"><button type="button" class="primary back" data-league="open">Clasament complet</button><button type="button" class="quiet back" data-league="edit">Editează profilul</button><button type="button" class="quiet back" data-league="leave">Retrage-te</button></div>'
-:'<div class="label">LIGA TA</div><h2 style="margin-top:12px">Provocarea săptămânală</h2><p class="muted small">Aduni XP din teste și te compari cu colegii într-un clasament de luni până duminică. Temele mai grele aduc mai multe puncte.</p>'+xpLine()+'<button type="button" class="primary allwidth" data-league="join">Înscrie-te</button>'}
+c.classList.add('lg');c.innerHTML=reg?leagueRegHtml():leagueJoinHtml()}
+// ---------- Cardul „Liga ta” (compact): informațiile secundare stau în baloane la hover, la atingere sau la focus ----------
+const tip=(txt,cls)=>txt?'<button type="button" class="tip'+(cls?' '+cls:'')+'" data-tip="'+escape(txt)+'" aria-label="'+escape(txt)+'">'+(cls==='warn'?'⚠':'ⓘ')+'</button>':'';
+function gapText(ms,me){
+if(ms.length<2)return '';
+if(me.rank===1){const lead=me.xp-ms[1].xp;return lead>0?'Ești pe primul loc, cu '+lead+' XP avans.':'Ești pe primul loc la egalitate de XP; contează acuratețea.'}
+const up=ms[me.rank-2],g=up.xp-me.xp;return g>0?'Încă '+g+' XP până la locul '+up.rank+'.':'Ești la egalitate de XP cu locul '+up.rank+'; contează acuratețea.'}
+const xpShort=()=>xpSummary?'<p class="lgxp">Azi <b>'+xpSummary.today+'</b> XP · săptămâna trecută '+xpSummary.last_week+' XP</p>':'';
+function leagueRegHtml(){
+const ms=(standings&&standings.members)||[],me=ms.find(m=>m.me),ok=!!(standings&&standings.registered&&me);
+const warn=standingsErr?tip((ok?'Clasamentul e din ultima încărcare reușită; acum nu l-am putut actualiza':'Clasamentul nu a putut fi încărcat acum')+(standingsMsg?' ('+standingsMsg+')':'')+'. Se reîncearcă automat.','warn'):'';
+const pill=standings&&standings.tier?'<span class="lgtier">'+tierPill(standings.tier)+tip('Treapta ta în ligă. '+promoText())+'</span>':'';
+let mid;
+if(!ok)mid='<div class="lgrow"><span class="lgwho"><span aria-hidden="true">'+escape(profile.avatar)+'</span> '+escape(profile.display_name)+'</span><span class="lgrank muted small">'+(standingsErr?'Neîncărcat':'Se încarcă…')+'</span></div>';
+else if(ms.length===1){const pct=me.last_xp>0?Math.round((me.xp-me.last_xp)/me.last_xp*100):null;
+mid='<div class="lgrow"><span class="lgwho"><span aria-hidden="true">'+escape(profile.avatar)+'</span> '+escape(profile.display_name)+'</span><span class="lgrank"><span><b>'+me.xp+' XP</b> săpt.</span>'+tip('Ești singurul înscris deocamdată, deci te compari cu propria săptămână anterioară: '+me.last_xp+' XP'+(pct==null?' (prima ta săptămână)':' ('+(pct>=0?'+':'')+pct+'%)')+'. Clasamentul apare când se înscriu și alți colegi. '+weekLeft())+'</span></div>'}
+else mid='<div class="lgrow"><span class="lgwho"><span aria-hidden="true">'+escape(profile.avatar)+'</span> '+escape(profile.display_name)+'</span><span class="lgrank"><span>Locul <b>'+me.rank+'</b>/'+ms.length+'</span>'+tip(gapText(ms,me)+' '+weekLeft()+' Săgețile arată schimbarea locului față de săptămâna trecută.')+'</span></div>'
++rankRows(ms.filter(m=>Math.abs(m.rank-me.rank)<=1)).replace('class="rank"','class="rank mini"');
+return '<div class="lghead"><div class="label">LIGA TA</div><span class="lgtools">'+warn+pill+'</span></div>'+mid+xpShort()
++'<div class="lgacts"><button type="button" class="primary" data-league="open" title="Clasamentul complet al grupei, istoric și regulile punctelor">Clasament</button><button type="button" class="quiet back" data-league="edit" title="Editează numele și avatarul">Profil</button><button type="button" class="quiet back" data-league="leave" title="Te retragi din provocarea săptămânală">Retrage-te</button></div>'}
+function leagueJoinHtml(){
+return '<div class="lghead"><div class="label">LIGA TA</div></div><div class="lgrow"><span class="lgwho">Provocarea săptămânală'+tip('Aduni XP din teste și te compari cu colegii într-un clasament de luni până duminică. Temele mai grele aduc mai multe puncte.')+'</span><button type="button" class="primary" data-league="join">Înscrie-te</button></div>'+xpShort()}
+// Balon: la atingere se deschide / se închide (pe telefon nu există hover); la hover și focus se arată din CSS.
+document.addEventListener('click',e=>{const t=e.target.closest('.tip');document.querySelectorAll('.tip.open').forEach(x=>{if(x!==t)x.classList.remove('open')});if(t){e.preventDefault();t.classList.toggle('open')}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.tip.open').forEach(x=>x.classList.remove('open'))});
 function openLeagueDialog(mode){
 ldMode=mode;ldHandled=false;
 const d=$('leagueDialog'),p=profile||{};
