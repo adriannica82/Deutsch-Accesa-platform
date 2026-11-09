@@ -182,4 +182,12 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 .rpopt{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:14px;cursor:pointer}.rpopt input{margin-top:3px}
 .rptext{width:100%;margin:6px 0 10px;padding:10px 12px;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;resize:vertical;min-height:72px}
 .rpacts{margin-bottom:8px}.rpdone{margin:0}
+.card.compact{padding:18px 20px}
+.tsum{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 14px;margin:4px 0 0;font-size:13px;color:var(--muted)}.tsum b{font-size:18px;letter-spacing:-.3px;color:var(--ink);font-weight:700}
+.compact .week{margin-top:8px;gap:5px}.compact .week .col{height:32px}.compact .week .d{gap:2px}.compact .week .d span{font-size:11px;line-height:1.2;text-align:center;color:var(--muted)}
+.compact .mini{margin-top:10px;padding-top:8px}.compact .mini .label{margin-bottom:2px}
+.compact .history li .sesrow{min-height:40px;padding:4px 6px}
+.dangerbtn{color:var(--red);border-color:#e6c6c7}.dangerbtn:hover:not(:disabled){background:#faf0f0}
+.toolsbox{border-top:1px solid var(--line);margin-top:12px;padding-top:4px}
+@media(max-width:720px){.card.compact{padding:14px 14px}}
 

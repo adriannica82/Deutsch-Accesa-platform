@@ -333,7 +333,7 @@ for(const id in timeLog){const e=timeLog[id];if(e.t>=today)t+=e.sec;if(e.t>=week
 return{today:t,week:w,lastWeek:lw,days,dow}}
 function timeHtml(){
 const s=timeStats(),max=Math.max(60,...s.days);
-return '<div class="mstats"><div><b>'+fmtShort(s.today)+'</b><span>Azi</span></div><div><b>'+fmtShort(s.week)+'</b><span>Săptămâna aceasta</span></div></div><div class="week" role="img" aria-label="Timp de exersare pe zile: '+s.days.map((v,i)=>DAYS[i]+' '+fmtShort(v)).join(', ')+'">'+s.days.map((v,i)=>'<div class="d'+(i===s.dow?' today':i>s.dow?' future':'')+'" title="'+DAYSFULL[i]+': '+fmtShort(v)+'"><div class="col"><i class="bar" style="height:'+(v>0?Math.max(8,Math.round(v/max*100)):0)+'%"></i></div><span>'+DAYS[i]+'</span></div>').join('')+'</div><p class="small muted" style="margin-top:10px">Săptămâna trecută: '+fmtShort(s.lastWeek)+'. Se numără doar timpul activ din teste.</p>'}
+return '<p class="tsum"><span><b>'+fmtShort(s.today)+'</b> azi</span><span><b>'+fmtShort(s.week)+'</b> săpt. aceasta</span><span>'+fmtShort(s.lastWeek)+' săpt. trecută</span></p><div class="week" role="img" aria-label="Timp de exersare pe zile: '+s.days.map((v,i)=>DAYS[i]+' '+fmtShort(v)).join(', ')+'">'+s.days.map((v,i)=>'<div class="d'+(i===s.dow?' today':i>s.dow?' future':'')+'" title="'+DAYSFULL[i]+': '+fmtShort(v)+'"><div class="col"><i class="bar" style="height:'+(v>0?Math.max(8,Math.round(v/max*100)):0)+'%"></i></div><span>'+DAYS[i]+'</span></div>').join('')+'</div>'}
 const timeResultHtml=(dur,n)=>{const s=timeStats();return '<div><strong>'+fmtDur(dur)+'</strong><span>Durata sesiunii</span></div><div><strong>'+(n?fmtDur(dur/n):'–')+'</strong><span>Medie pe întrebare</span></div><div><strong>'+fmtShort(s.today)+'</strong><span>Azi</span></div><div><strong>'+fmtShort(s.week)+'</strong><span>Săptămâna aceasta</span></div>'};
 $('timer').onclick=()=>{timerHidden=!timerHidden;try{localStorage.setItem('deutsch-timer-hidden',timerHidden?'1':'0')}catch{}renderTimer()};
 
@@ -428,6 +428,7 @@ loadProgress();loadOutbox();loadProfile();
 $('storeNote').textContent='Conectat ca '+auth.user.email+'. Progresul și sesiunile tale se salvează în contul tău și se sincronizează între dispozitive. Exportă-l dacă vrei o copie.';
 $('footNote').textContent='Exemple adaptate pentru test · Date salvate în contul personal.';
 show('home');setSync();sync()}
+if(!CLOUD){const pt=$('progressTools');pt.classList.remove('card');pt.classList.add('toolsbox');$('timeCard').appendChild(pt)}
 if(CLOUD){
 $('footNote').textContent='Exemple adaptate pentru test · Date salvate în contul personal.';
 $('loginForm').onsubmit=async e=>{e.preventDefault();const b=$('loginBtn');b.disabled=true;$('loginError').hidden=true;
@@ -550,7 +551,7 @@ const x=sessXp.get(h.id),open=!!(auth&&h.id),title=h.topic==='mix'?'Repetiția d
 const body='<span class="sesmain"><b>'+escape(title)+'</b><span class="small muted">'+new Date(h.t).toLocaleDateString('ro-RO')+(h.sec?' · '+fmtShort(h.sec):'')+'</span></span><span class="sesres"><b>'+h.pct+'% · '+h.correct+'/'+h.n+'</b>'+(auth&&x!==undefined?'<span class="sesxp">'+(x>0?'+':'')+x+' XP</span>':'')+'</span>';
 return open?'<li><button type="button" class="sesrow" data-sid="'+h.id+'" aria-label="Deschide sesiunea: '+escape(title)+', '+h.pct+'% corecte">'+body+'<span class="seschev" aria-hidden="true">›</span></button></li>':'<li><div class="sesrow plain">'+body+'</div></li>'}
 function renderHistoryList(){
-const recent=history.slice(-5).reverse();
+const recent=history.slice(-3).reverse();
 $('history').innerHTML=recent.length?recent.map(sessRowHtml).join(''):'<li class="muted">Încă nu ai finalizat o sesiune.</li>'}
 // XP-ul fiecărei sesiuni afișate, dintr-o singură cerere; nu se cere cât timp mai sunt date netrimise (ar apărea 0 greșit).
 async function loadSessXp(){

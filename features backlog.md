@@ -293,3 +293,18 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
 - **Verificarea (fluxul tău cu mine):** îmi ceri „verifică rapoartele noi”; le citesc, compar cu conținutul, corectez (`fixed`), resping cu motiv (`rejected`), marchez ce cere decizia ta (`confirmed`) sau dublurile (`duplicate`), public și îți dau un rezumat. Detalii și interogarea de bază: `content reports requirements.md`.
 - **Fișiere:** `supabase/schema.sql` (secțiunea 15, migrarea `content_reports` aplicată), `src/app.js` (`reportHtml`, `rpSend`, tipul `rp` în coadă), `src/style.css`, `content reports requirements.md`; regenerat `deutsch.html` și `version.json`.
 
+
+## 25. „Timp de exersare” compact; export / import / resetare mutate în Cont (2026-11-09)
+
+- **Cererea utilizatorului:** „refă zona de «timp de exersare» încât să ocupe mai puțin spațiu. Mută «exportă», «importă» și «resetează» în zona de administrare a contului. Redu la doar 3 sesiuni istoric. Caută și alte metode să minimizezi footprintul acestei arii.”
+- **Status:** implementat și verificat în browser (desktop și 375 px).
+- **Mutat în Cont** („Datele mele”, cardul nou „Progresul tău”, înaintea cardului Securitate): butoanele **Exportă (.md)**, **Importă** și **Resetează progresul** (cu text roșu, ca să nu fie apăsat din greșeală), plus nota despre unde se salvează progresul și o explicație scurtă: ce șterge resetarea (starea de repetare; istoricul sesiunilor și XP-ul rămân), că nu poate fi anulată (se recomandă un export înainte) și că resetarea trebuie făcută pe fiecare dispozitiv, altfel dispozitivul neresetat retrimite progresul în cont. Aceleași elemente și aceleași funcții, doar în alt loc. În versiunea locală (fără cont, fără `config.json`) pagina Cont nu există, așa că acolo instrumentele rămân în cardul de timp.
+- **Istoric:** doar **ultimele 3 sesiuni** (înainte 5); titlul „Ultimele 3 sesiuni”; rândurile sunt mai joase (40 px, tot ușor de atins).
+- **Alte metode de reducere a spațiului:**
+  - cele două cifre mari „Azi” / „Săptămâna aceasta” și nota „Săptămâna trecută: … Se numără doar timpul activ din teste.” au devenit **o singură linie** („4 min azi · 4 min săpt. aceasta · 1 h 35 min săpt. trecută”); explicația cu timpul activ a trecut în indiciul (tooltip) de pe titlu;
+  - graficul pe 7 zile are **32 px** înălțime (înainte 52), cu etichete mai mici și spațiu mai mic între bare;
+  - paragraful lung de sub butoane a dispărut din ecranul principal (acum e în Cont);
+  - umplutura cardului (padding) și spațiile dintre secțiuni sunt reduse (18/20 px pe desktop, 14 px pe telefon).
+- **Rezultat (aceleași date de test):** la 375 px cardul a scăzut de la **850 px la ~360 px** (cu 3 sesiuni, aproape o treime din înălțimea ecranului unui telefon obișnuit în loc de peste un ecran întreg); pe desktop e ~390 px. Fără defilare orizontală.
+- **Verificat:** butoanele din Cont funcționează: Exportă descarcă fișierul, Importă deschide selectorul de fișiere, Resetează cere confirmarea (la „Cancel” progresul rămâne); pe ecranul principal nu mai există butoanele; ecranul rezultatelor (care are propriul rezumat de timp) neschimbat; analiză statică `no-undef` fără probleme noi.
+- **Fișiere:** `src/template.html`, `src/app.js` (`timeHtml`, `renderHistoryList`, fallback local), `src/style.css`; regenerat `deutsch.html` și `version.json`.

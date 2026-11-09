@@ -191,6 +191,14 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 .rpopt{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:14px;cursor:pointer}.rpopt input{margin-top:3px}
 .rptext{width:100%;margin:6px 0 10px;padding:10px 12px;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;resize:vertical;min-height:72px}
 .rpacts{margin-bottom:8px}.rpdone{margin:0}
+.card.compact{padding:18px 20px}
+.tsum{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 14px;margin:4px 0 0;font-size:13px;color:var(--muted)}.tsum b{font-size:18px;letter-spacing:-.3px;color:var(--ink);font-weight:700}
+.compact .week{margin-top:8px;gap:5px}.compact .week .col{height:32px}.compact .week .d{gap:2px}.compact .week .d span{font-size:11px;line-height:1.2;text-align:center;color:var(--muted)}
+.compact .mini{margin-top:10px;padding-top:8px}.compact .mini .label{margin-bottom:2px}
+.compact .history li .sesrow{min-height:40px;padding:4px 6px}
+.dangerbtn{color:var(--red);border-color:#e6c6c7}.dangerbtn:hover:not(:disabled){background:#faf0f0}
+.toolsbox{border-top:1px solid var(--line);margin-top:12px;padding-top:4px}
+@media(max-width:720px){.card.compact{padding:14px 14px}}
 
 
 </style>
@@ -209,12 +217,10 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 <button id="todayStart" class="primary allwidth">Începe sesiunea liberă →</button><p class="small muted guide" id="todayInfo"></p></div>
 </div>
 <aside class="rightcol">
-<div class="card" id="progressCard"><div class="row" style="flex-wrap:nowrap"><div class="label">PROGRESUL TĂU</div><button type="button" class="quiet back infolink" data-guide="">ⓘ Cum se calculează</button></div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” pentru a-l păstra.</p></div>
+<div class="card" id="progressCard"><div class="row" style="flex-wrap:nowrap"><div class="label">PROGRESUL TĂU</div><button type="button" class="quiet back infolink" data-guide="">ⓘ Cum se calculează</button></div><div id="progressStats"></div><p class="small error" id="storeWarn" hidden>Acest browser nu permite salvarea locală: progresul se pierde când închizi pagina. Folosește „Exportă” din Contul tău pentru a-l păstra.</p></div>
 <div class="card" id="leagueCard" hidden></div>
-<div class="card"><div class="label">TIMP DE EXERSARE</div><div id="timeStats"></div>
-<div class="mini"><div class="label">SESIUNI RECENTE</div><ul class="history" id="history"></ul></div>
-<div class="tools"><button type="button" class="quiet back" id="exportP">Exportă (.md)</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back" id="resetP">Resetează</button></div><input type="file" id="importFile" accept=".md,.markdown,text/markdown,.json,application/json" hidden>
-<p class="small muted" style="margin-top:12px" id="storeNote">Progresul se salvează doar în acest browser. Exportă-l ca să-l muți pe alt dispozitiv.</p></div></aside>
+<div class="card compact" id="timeCard"><div class="label" title="Se numără doar timpul activ din teste">TIMP DE EXERSARE</div><div id="timeStats"></div>
+<div class="mini"><div class="label">ULTIMELE 3 SESIUNI</div><ul class="history" id="history"></ul></div></div></aside>
 </div>
 
 <h2 class="sectionhead">Alege o temă</h2>
@@ -246,7 +252,7 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 <div class="card"><div class="label">LIGA</div><p class="muted" id="acLeagueState" style="margin-top:8px"></p><form id="acLeagueForm" novalidate><div class="field"><label for="acName">Nume afișat</label><input type="text" id="acName" maxlength="24" autocomplete="nickname" autocapitalize="words" enterkeyhint="done"></div><fieldset class="avatarset"><legend>Avatar</legend><div class="avatars" id="acAvatars"></div></fieldset>
 <p class="small muted">Ceilalți utilizatori văd numele, avatarul, XP-ul și treapta ta; niciodată răspunsurile.</p>
 <p class="error" id="acErr2" role="alert" hidden></p><p class="small ok" id="acOk2" role="status" hidden></p>
-<div class="tools"><button type="submit" class="primary" id="acSave2">Salvează</button><button type="button" id="acJoin">Înscrie-te la provocare</button><button type="button" class="quiet back" id="acLeave">Retrage-te</button></div></form></div><div class="card"><div class="label">SECURITATE</div><h2 style="margin-top:10px;font-size:22px">Schimbă parola</h2><form id="acPassForm" novalidate><div class="field"><label for="acPass1">Parola nouă</label><input type="password" id="acPass1" maxlength="72" autocomplete="new-password" enterkeyhint="next"><span class="small muted">Cel puțin 8 caractere.</span></div><div class="field" style="margin-top:14px"><label for="acPass2">Repetă parola nouă</label><input type="password" id="acPass2" maxlength="72" autocomplete="new-password" enterkeyhint="done"></div><label class="checkbox"><input type="checkbox" id="acPassShow"> Arată parolele</label>
+<div class="tools"><button type="submit" class="primary" id="acSave2">Salvează</button><button type="button" id="acJoin">Înscrie-te la provocare</button><button type="button" class="quiet back" id="acLeave">Retrage-te</button></div></form></div><div class="card" id="progressTools"><div class="label">PROGRESUL TĂU</div><p class="muted small" id="storeNote" style="margin-top:8px">Progresul se salvează doar în acest browser. Exportă-l ca să-l muți pe alt dispozitiv.</p><div class="tools"><button type="button" class="quiet back" id="exportP">Exportă (.md)</button><button type="button" class="quiet back" id="importP">Importă</button><button type="button" class="quiet back dangerbtn" id="resetP">Resetează progresul</button></div><input type="file" id="importFile" accept=".md,.markdown,text/markdown,.json,application/json" hidden><p class="small muted" style="margin-top:12px"><b>Exportă</b> descarcă progresul într-un fișier; <b>Importă</b> îl reîncarcă din fișier. <b>Resetează</b> șterge starea de repetare a tuturor întrebărilor (istoricul sesiunilor și XP-ul rămân) și nu poate fi anulată; fă mai întâi un export. Dacă folosești mai multe dispozitive, resetează-l pe fiecare, altfel un dispozitiv neresetat îl retrimite în cont.</p></div><div class="card"><div class="label">SECURITATE</div><h2 style="margin-top:10px;font-size:22px">Schimbă parola</h2><form id="acPassForm" novalidate><div class="field"><label for="acPass1">Parola nouă</label><input type="password" id="acPass1" maxlength="72" autocomplete="new-password" enterkeyhint="next"><span class="small muted">Cel puțin 8 caractere.</span></div><div class="field" style="margin-top:14px"><label for="acPass2">Repetă parola nouă</label><input type="password" id="acPass2" maxlength="72" autocomplete="new-password" enterkeyhint="done"></div><label class="checkbox"><input type="checkbox" id="acPassShow"> Arată parolele</label>
 <p class="error" id="acErr3" role="alert" hidden></p><p class="small ok" id="acOk3" role="status" hidden></p>
 <div class="tools"><button type="submit" class="primary" id="acSave3">Schimbă parola</button><button type="button" class="quiet back" id="acReset">Trimite-mi un email de resetare</button></div></form></div></section>
 <section id="admin" hidden><div class="row"><div><div class="label">ADMINISTRARE</div><h1 style="font-size:36px">Utilizatori</h1></div><div class="tools" style="margin:0"><button id="admInvite" class="primary">+ Invită utilizator</button><button id="adminBack" class="quiet back">← Înapoi</button></div></div><p class="muted" id="adminMeta"></p>
@@ -632,7 +638,7 @@ for(const id in timeLog){const e=timeLog[id];if(e.t>=today)t+=e.sec;if(e.t>=week
 return{today:t,week:w,lastWeek:lw,days,dow}}
 function timeHtml(){
 const s=timeStats(),max=Math.max(60,...s.days);
-return '<div class="mstats"><div><b>'+fmtShort(s.today)+'</b><span>Azi</span></div><div><b>'+fmtShort(s.week)+'</b><span>Săptămâna aceasta</span></div></div><div class="week" role="img" aria-label="Timp de exersare pe zile: '+s.days.map((v,i)=>DAYS[i]+' '+fmtShort(v)).join(', ')+'">'+s.days.map((v,i)=>'<div class="d'+(i===s.dow?' today':i>s.dow?' future':'')+'" title="'+DAYSFULL[i]+': '+fmtShort(v)+'"><div class="col"><i class="bar" style="height:'+(v>0?Math.max(8,Math.round(v/max*100)):0)+'%"></i></div><span>'+DAYS[i]+'</span></div>').join('')+'</div><p class="small muted" style="margin-top:10px">Săptămâna trecută: '+fmtShort(s.lastWeek)+'. Se numără doar timpul activ din teste.</p>'}
+return '<p class="tsum"><span><b>'+fmtShort(s.today)+'</b> azi</span><span><b>'+fmtShort(s.week)+'</b> săpt. aceasta</span><span>'+fmtShort(s.lastWeek)+' săpt. trecută</span></p><div class="week" role="img" aria-label="Timp de exersare pe zile: '+s.days.map((v,i)=>DAYS[i]+' '+fmtShort(v)).join(', ')+'">'+s.days.map((v,i)=>'<div class="d'+(i===s.dow?' today':i>s.dow?' future':'')+'" title="'+DAYSFULL[i]+': '+fmtShort(v)+'"><div class="col"><i class="bar" style="height:'+(v>0?Math.max(8,Math.round(v/max*100)):0)+'%"></i></div><span>'+DAYS[i]+'</span></div>').join('')+'</div>'}
 const timeResultHtml=(dur,n)=>{const s=timeStats();return '<div><strong>'+fmtDur(dur)+'</strong><span>Durata sesiunii</span></div><div><strong>'+(n?fmtDur(dur/n):'–')+'</strong><span>Medie pe întrebare</span></div><div><strong>'+fmtShort(s.today)+'</strong><span>Azi</span></div><div><strong>'+fmtShort(s.week)+'</strong><span>Săptămâna aceasta</span></div>'};
 $('timer').onclick=()=>{timerHidden=!timerHidden;try{localStorage.setItem('deutsch-timer-hidden',timerHidden?'1':'0')}catch{}renderTimer()};
 
@@ -727,6 +733,7 @@ loadProgress();loadOutbox();loadProfile();
 $('storeNote').textContent='Conectat ca '+auth.user.email+'. Progresul și sesiunile tale se salvează în contul tău și se sincronizează între dispozitive. Exportă-l dacă vrei o copie.';
 $('footNote').textContent='Exemple adaptate pentru test · Date salvate în contul personal.';
 show('home');setSync();sync()}
+if(!CLOUD){const pt=$('progressTools');pt.classList.remove('card');pt.classList.add('toolsbox');$('timeCard').appendChild(pt)}
 if(CLOUD){
 $('footNote').textContent='Exemple adaptate pentru test · Date salvate în contul personal.';
 $('loginForm').onsubmit=async e=>{e.preventDefault();const b=$('loginBtn');b.disabled=true;$('loginError').hidden=true;
@@ -849,7 +856,7 @@ const x=sessXp.get(h.id),open=!!(auth&&h.id),title=h.topic==='mix'?'Repetiția d
 const body='<span class="sesmain"><b>'+escape(title)+'</b><span class="small muted">'+new Date(h.t).toLocaleDateString('ro-RO')+(h.sec?' · '+fmtShort(h.sec):'')+'</span></span><span class="sesres"><b>'+h.pct+'% · '+h.correct+'/'+h.n+'</b>'+(auth&&x!==undefined?'<span class="sesxp">'+(x>0?'+':'')+x+' XP</span>':'')+'</span>';
 return open?'<li><button type="button" class="sesrow" data-sid="'+h.id+'" aria-label="Deschide sesiunea: '+escape(title)+', '+h.pct+'% corecte">'+body+'<span class="seschev" aria-hidden="true">›</span></button></li>':'<li><div class="sesrow plain">'+body+'</div></li>'}
 function renderHistoryList(){
-const recent=history.slice(-5).reverse();
+const recent=history.slice(-3).reverse();
 $('history').innerHTML=recent.length?recent.map(sessRowHtml).join(''):'<li class="muted">Încă nu ai finalizat o sesiune.</li>'}
 // XP-ul fiecărei sesiuni afișate, dintr-o singură cerere; nu se cere cât timp mai sunt date netrimise (ar apărea 0 greșit).
 async function loadSessXp(){
