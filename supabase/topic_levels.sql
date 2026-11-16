@@ -11,6 +11,7 @@ insert into public.topic_levels (topic_id, level, multiplier) values
   ('praesens-unregelmaessig', 'A1–A2', 1.0),
   ('praeteritum-sein-haben-modal', 'A2', 1.25),
   ('reflexive-verben', 'A2', 1.25),
+  ('schubert-b1', 'B1', 2.0),
   ('trennbare-verben', 'A2', 1.25),
   ('verbe-neregulate-perfekt', 'A2–B1', 1.5),
   ('verben-praepositionen', 'A2–B1', 1.5),

@@ -1,6 +1,6 @@
 # Categorie nouă „Schubert B1” · teste de înțelegere a vocabularului (DE→RO și RO→DE) · cerințe
 
-**Status:** epic rafinat; **deciziile D1–D8 confirmate de utilizator pe 2026-11-16 („Da, de acord”), cu recomandările din secțiunea 9**; implementarea (Faza 1) nu a început, așteaptă un „începe” explicit.
+**Status:** **Faza 1 implementată și verificată în browser (2026-11-16)**; deciziile D1–D8 confirmate de utilizator (2026-11-16). Faza 2 („Scrie” la RO→DE, baloane „ⓘ” cu regulile prefixelor) și Faza 3 (pagini noi) nu au început.
 
 ## 1. Cererea utilizatorului (cuvintele lui, 2026-11-16)
 
@@ -128,3 +128,23 @@ Nu se schimbă schema bazei de date: progresul se salvează tot pe `item_id`, do
 6. Fișa de recapitulare listează fiecare cuvânt o singură dată, cu căutare.
 7. „Raportează o greșeală” funcționează în noua temă; XP-ul are multiplicatorul B1 (×2,0).
 8. Nicio schimbare a întrebărilor existente (comparare înainte / după) și niciun risc pentru progresul salvat.
+
+## 11. Faza 1: stare implementare (2026-11-16)
+
+**Ce există acum**
+- Tema **„Schubert B1 · Vocabular”** (`content/schubert-b1.json`, nivel B1, ×2,0 XP; rândul `('schubert-b1','B1',2.0)` este în `supabase/topic_levels.sql` și în tabela `topic_levels` din Supabase): **117 de verbe**, **234 de întrebări** (câte una pe direcție), în 5 grupe după paginile 14–17: Prefix separabil (20), Prefix neseparabil (8), durch-/über-/um-/unter-/wider-/wieder-/hinter- (31), Exerciții: birou și zi de zi (27), miss-/ver-/zer-/er-/ent- (31). Moduri: doar „Alege”.
+- **Întrebări:** „**überleben** înseamnă:” cu 4 sensuri românești, și „Cum se spune în germană **„a supraviețui”**?” cu 4 verbe germane (limba corectă marcată la cuvânt și la variante). Variantele greșite sunt alese din aceeași familie de prefix, apoi din aceeași grupă, cu aceeași formă (la verbele reflexive, doar alte verbe reflexive); un tabel de ~80 de perechi cu sensuri apropiate (de exemplu *verändern*/*verbessern*/*verschönern*, *zerbrechen*/*zerstören*, *vorstellen*/*präsentieren*, *wiederkommen*/*zurückkommen*) nu au voie să apară împreună. Am revăzut manual toate cele 117 de seturi de variante.
+- **După răspuns:** titlul cu verbul și sensul, propoziția-exemplu cu traducere și explicația (tipul de prefix, formele 3-a persoană Präsens – Präteritum – Perfekt, note: cazul cerut, „sein”, excepții de prefix).
+- **Pagina temei:** filtrul nou **„Direcția”** (Ambele / Germană → română / Română → germană) și filtrul „Secțiunea din carte”; o sesiune ia **cel mult o întrebare pe cuvânt**, ca o direcție să nu dea răspunsul celeilalte.
+- **Fișa de recapitulare:** un rând pe cuvânt (117), cu sensul, exemplul și progresul **pe ambele direcții**; căutare după cuvântul german (și fără umlaut), sens sau exemplu; ghidul temei (prefix separabil / neseparabil, excepții din carte).
+- **Raportarea greșelilor:** funcționează și aici; copia întrebării păstrează `dir`, forma germană și sensul.
+
+**Schimbări de motor (E1–E8)**
+- `build.py`: temă `type: "vocab"` (promptul fără `___`); `check_vocab_item` cere `word`, `dir`, `label`, `gloss`, `ex` și `exRo`, exact 4 variante, răspunsul = `gloss` la de-ro și `label` la ro-de, variante românești care încep cu „a ” / „a-”, variante germane care sunt verbe la infinitiv; câte o întrebare pe direcție pentru fiecare cuvânt; un cuvânt german nu apare de două ori; două cuvinte nu au același sens românesc (altfel RO→DE ar fi ambiguu).
+- `src/app.js`: `qHeadHtml` (antetul întrebării), `ansHtml` (răspunsul în feedback și în recapitulări), `lang="de"` pe variantele RO→DE, filtrul `dir` în `pool()`, `oneWord()` în `pickFrom()`, `vocabRow()` în fișă, `dir` în instantaneul raportului; `src/template.html` (câmpul „Direcția”); `src/style.css` (`.vq`, `.vword`, `.vdir`).
+- Neschimbat: toate întrebările existente (verificat: feedbackul și recapitulările temelor vechi arată ca înainte), schema bazei de date (progresul se salvează tot pe `item_id`, `sch-<cuvânt>-de-ro` / `-ro-de`).
+
+**Verificat:** `build.py` trece (17 teme, 2681 de întrebări); analiză statică `no-undef` curată; în browser: filtrele dau 234 / 117 / 117 întrebări, pe grupa 1 sunt 40; o sesiune de 20 nu are cuvinte duplicate; ambele direcții se afișează cu limba corectă; răspunsul corect urcă treapta, cel greșit coboară la 0, separat pe direcție; recapitularea și fișa arată corect; raportarea trimite `dir` și copia întrebării; 375 px fără defilare orizontală.
+
+**De știut:** glosarele românești și propozițiile sunt scrise de mine, deci o verificare cu dicționar sau de un vorbitor nativ este recomandată (în aplicație: „Raportează o greșeală”). Cuvintele cu mai multe sensuri au sensul din contextul cărții (de exemplu *erhalten* „a primi (oficial)”, *umziehen* „a se muta”). Nu s-a verificat încă pe iPhone (modificarea ajunge după două porniri) și nici cu un cont real.
+

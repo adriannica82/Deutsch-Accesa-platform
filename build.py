@@ -204,6 +204,36 @@ def check_guide_highlight(t, it, marks, where, err):
         err(where, f"celula {art} {case}-{gen} are terminația „{text.strip()}”, dar răspunsul este „{it['answer']}”")
 
 
+VOCAB_DIRS = ("de-ro", "ro-de")
+
+
+def check_vocab_item(t, it, where, err):
+    """Teme de tip „vocab” (sens DE→RO și RO→DE): câmpuri, 4 variante de aceeași formă, id-uri pereche."""
+    for k in ("word", "dir", "label", "gloss"):
+        if not isinstance(it.get(k), str) or not it[k].strip():
+            err(where, f"la o temă „vocab” lipsește „{k}”")
+    d = it.get("dir")
+    if d not in VOCAB_DIRS:
+        err(where, f"„dir” trebuie să fie unul din {VOCAB_DIRS}")
+        return
+    if not it.get("ex") or not it.get("exRo"):
+        err(where, "la o temă „vocab” fiecare cuvânt are propoziție-exemplu („ex” și „exRo”)")
+    opts = it.get("options") or []
+    if len(opts) != 4:
+        err(where, "la o temă „vocab” sunt exact 4 variante în „options”")
+    answer = it.get("answer", "")
+    if d == "de-ro":
+        if answer != it.get("gloss"):
+            err(where, "la direcția de-ro răspunsul trebuie să fie sensul românesc („gloss”)")
+        if not all(str(o).startswith(("a ", "a-")) for o in opts):
+            err(where, "la de-ro toate variantele încep cu „a ” sau „a-” (infinitiv românesc)")
+    else:
+        if answer != it.get("label"):
+            err(where, "la direcția ro-de răspunsul trebuie să fie forma germană („label”)")
+        if not all(re.fullmatch(r"(sich )?([a-zäöüß]+ )?[a-zäöüß]+(en|ern|eln|n)", str(o)) for o in opts):
+            err(where, "la ro-de toate variantele sunt verbe la infinitiv")
+
+
 def validate(topics):
     errors, warnings = [], []
     ids = set()
@@ -244,6 +274,7 @@ def validate(topics):
         if not items:
             err(tid, "nu are întrebări")
         seen = set()
+        words, labels = {}, {}
         pool = t.get("pool") or []
         marks = None
         if t.get("guideHighlight") is not None:
@@ -265,7 +296,12 @@ def validate(topics):
             for k in ("prompt", "ro", "answer", "explain"):
                 if not isinstance(it.get(k), str) or not it[k].strip():
                     err(where, f"lipsește „{k}” (traducerea și explicația în română sunt obligatorii)")
-            if it.get("prompt", "").count("___") != 1:
+            vocab = t.get("type") == "vocab"
+            if vocab:
+                if "___" in it.get("prompt", ""):
+                    err(where, "la o temă „vocab” promptul nu are gol (___)")
+                check_vocab_item(t, it, where, err)
+            elif it.get("prompt", "").count("___") != 1:
                 err(where, "„prompt” trebuie să conțină exact un gol: ___")
             alts = it.get("alt", [])
             answers = {canon(it.get("answer", "")), *(canon(a) for a in alts)}
@@ -286,6 +322,9 @@ def validate(topics):
                     err(where, "modul cu alegere cere „pool” cu cel puțin 2 variante greșite sau „options” pe întrebare")
             if marks is not None:
                 check_guide_highlight(t, it, marks, where, err)
+            if t.get("type") == "vocab":
+                words.setdefault(it.get("word"), []).append(it.get("dir"))
+                labels.setdefault(it.get("dir"), []).append((it.get("label"), it.get("gloss"), iid))
             if bool(it.get("ex")) != bool(it.get("exRo")):
                 err(where, "„ex” (propoziție germană) și „exRo” (traducerea ei) merg împreună")
             if t.get("requireExample") and not it.get("ex"):
@@ -293,6 +332,23 @@ def validate(topics):
             for k in ("ro", "exRo", "explain", "gloss", "hint"):
                 if any(c in str(it.get(k, "")) for c in BAD_DIACRITICS):
                     warnings.append(f"[{where}] „{k}” folosește ş/ţ cu sedilă; în română se scrie ș/ț")
+        if t.get("type") == "vocab":
+            for w, ds in words.items():
+                if sorted(ds) != sorted(VOCAB_DIRS):
+                    err(tid, f"cuvântul „{w}” trebuie să aibă exact câte o întrebare pe direcție (are {ds})")
+            for d, rows in labels.items():
+                seen_l = {}
+                for lab, gl, iid in rows:
+                    if lab in seen_l:
+                        err(tid, f"cuvântul german „{lab}” apare de două ori la direcția {d} ({seen_l[lab]} și {iid})")
+                    seen_l[lab] = iid
+            # două cuvinte cu același sens românesc ar face ambigue întrebările RO→DE
+            by_gloss = {}
+            for lab, gl, iid in labels.get("ro-de", []):
+                by_gloss.setdefault(gl, []).append(lab)
+            for gl, labs in by_gloss.items():
+                if len(labs) > 1:
+                    err(tid, f"sensul „{gl}” este folosit de mai multe cuvinte ({', '.join(labs)}); RO→DE ar fi ambiguu, diferențiază sensurile")
     return errors, warnings
 
 
