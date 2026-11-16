@@ -1,6 +1,6 @@
 # Categorie nouă „Schubert B1” · teste de înțelegere a vocabularului (DE→RO și RO→DE) · cerințe
 
-**Status:** epic în rafinare (2026-11-16); nimic implementat încă. Documentul se actualizează după răspunsurile la deciziile din secțiunea 9.
+**Status:** epic rafinat; **deciziile D1–D8 confirmate de utilizator pe 2026-11-16 („Da, de acord”), cu recomandările din secțiunea 9**; implementarea (Faza 1) nu a început, așteaptă un „începe” explicit.
 
 ## 1. Cererea utilizatorului (cuvintele lui, 2026-11-16)
 
@@ -105,7 +105,7 @@ Nu se schimbă schema bazei de date: progresul se salvează tot pe `item_id`, do
 - **Drepturi de autor:** se folosesc doar cuvintele (fapte) și structura (grupele); propozițiile, explicațiile și traducerile sunt originale; în aplicație se menționează sursa („după B-Grammatik, Schubert Verlag”) doar ca referință.
 - **Dimensiunea:** ~240 de întrebări noi adaugă ~60 KB în `deutsch.html` (acum 1,36 MB), fără impact vizibil.
 
-## 9. Decizii deschise, cu recomandare
+## 9. Decizii (confirmate 2026-11-16), cu recomandare
 
 | Cod | Întrebare | Recomandare |
 |---|---|---|

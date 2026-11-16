@@ -324,8 +324,8 @@ feature 6: (cerută în conversație) gamification între utilizatori, începân
 ## 27. Epic: categoria „Schubert B1 · Vocabular”, teste de înțelegere a sensului (DE→RO și RO→DE) (2026-11-16)
 
 - **Cererea utilizatorului:** „refine a new epic: new rehearsal category: Schubert B1 … a vocabulary rehearsal set of tests focused on understanding the meaning of a german word – de exemplu: überleben înseamnă: a) a supraviețui b) … c) … d) …; sau: cum se traduce în germană «a supraviețui» a) … b) überleben c) … d) …”
-- **Status:** **în rafinare, neimplementat.** Documentul de cerințe: `schubert b1 requirements.md` (sursa, inventar, exemple lucrate, cerințe, schimbări tehnice E1–E8, faze, riscuri, deciziile D1–D8 cu recomandare, criterii de acceptare).
+- **Status:** **rafinat, decizii confirmate, neimplementat.** Documentul de cerințe: `schubert b1 requirements.md` (sursa, inventar, exemple lucrate, cerințe, schimbări tehnice E1–E8, faze, riscuri, deciziile D1–D8 cu recomandare, criterii de acceptare).
 - **Sursa:** 5 pagini foto (`IMG_4128.pdf`) din *B-Grammatik, Übungsgrammatik DaF, B1·B2* (Buscha / Szita, Schubert Verlag): pagina 14–17, capitolul 1.1 „Verben · Tempora: Präsens” (prefixe separabile și neseparabile, miss-/ver-/zer-/er-/ent-); circa **120 de verbe** de bază.
 - **Propunere:** o temă nouă `schubert-b1` (nivel B1, ×2,0 XP), cu două întrebări pe cuvânt (câte una pe direcție, progres separat), 4 variante cu variante greșite din aceeași familie de prefixe, filtre pe direcție și pe grupele cărții, fișă de recapitulare, ghid, baloane la hover pentru regulile prefixelor; „Scrie” la RO→DE în a doua fază.
 - **Schimbare de motor necesară:** testele actuale sunt propoziții cu un gol `___`; întrebările de „sens” cer un tip de temă nou (`type: "vocab"`), afișare cu limba corectă, moduri pe întrebare și filtru „Direcția”.
-- **Decizii așteptate:** D1–D8 din document (recomandările sunt scrise acolo).
+- **Decizii:** D1–D8 **confirmate de utilizator (2026-11-16, „Da, de acord”)**, conform recomandărilor din document. Implementarea (Faza 1) începe la un „începe” explicit.
