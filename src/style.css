@@ -210,4 +210,6 @@ tr.hlrow>td{background:#fff9e6}tr.hlrow>td.hlh{background:#fff4d6}.hlp{backgroun
 .lgacts{flex-wrap:nowrap}.lgacts button{white-space:nowrap}
 .sentence.vq{font-size:24px;line-height:1.3}.vword{font-weight:800;letter-spacing:-.3px}.vq2{font-weight:500;color:var(--muted);font-size:.8em}
 .vdir{display:inline-block;min-width:54px;font-size:11px;letter-spacing:.4px;color:var(--muted);font-weight:700}
-
+.tip.left::after{left:-4px;right:auto}
+.nw{white-space:nowrap}
+.tip::after{transform:translateX(var(--tipshift,0px))}

@@ -322,6 +322,14 @@ def validate(topics):
                     err(where, "modul cu alegere cere „pool” cu cel puțin 2 variante greșite sau „options” pe întrebare")
             if marks is not None:
                 check_guide_highlight(t, it, marks, where, err)
+            im = it.get("modes")
+            if im is not None:
+                if not (isinstance(im, list) and im and set(im) <= set(modes)):
+                    err(where, "„modes” al întrebării trebuie să fie o listă nevidă inclusă în modurile temei")
+                elif t.get("type") == "vocab" and it.get("dir") == "de-ro" and im != ["choice"]:
+                    err(where, "la direcția de-ro modul este doar „choice” (răspunsul liber în română nu se poate verifica)")
+            if "tip" in it and not (isinstance(it["tip"], str) and 0 < len(it["tip"]) <= 500):
+                err(where, "„tip” trebuie să fie un text de cel mult 500 de caractere")
             if t.get("type") == "vocab":
                 words.setdefault(it.get("word"), []).append(it.get("dir"))
                 labels.setdefault(it.get("dir"), []).append((it.get("label"), it.get("gloss"), iid))

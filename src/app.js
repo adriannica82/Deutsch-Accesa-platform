@@ -34,7 +34,7 @@ const counts=qs=>{const c={new:0,learn:0,mid:0,done:0};qs.forEach(q=>c[status(P(
 const bar=(c,n)=>'<div class="stack" role="img" aria-label="'+['learn','mid','done'].map(k=>statusLabel[k]+': '+c[k]).join(', ')+'">'+['done','mid','learn'].map(k=>'<i class="s-'+k+'" style="width:'+(c[k]/n*100)+'%"></i>').join('')+'</div>';
 const statsHtml=qs=>{const c=counts(qs);return bar(c,qs.length)+'<div class="mstats">'+['new','learn','mid','done'].map(k=>'<button type="button" class="stlink" data-guide="'+k+'" aria-label="'+statusLabel[k]+': '+c[k]+'. Vezi cum se calculează"><b>'+c[k]+'</b><span>'+statusLabel[k]+'</span></button>').join('')+'</div>'};
 const groupPill=g=>'<span class="pill '+(g==='Dativ'?'dat':g==='Akkusativ'?'akk':'')+'">'+escape(g)+'</span>';
-const modeLabel=(t,m)=>m==='choice'?'Alege '+t.answerNoun:m==='write'?'Scrie '+t.answerNoun:'Scrie '+t.answerNoun+' + alege '+t.extra.label.toLowerCase();
+const modeLabel=(t,m)=>t.type==='vocab'?(m==='choice'?'Alege din 4 variante':'Scrie cuvântul german (doar la Română → germană)'):m==='choice'?'Alege '+t.answerNoun:m==='write'?'Scrie '+t.answerNoun:'Scrie '+t.answerNoun+' + alege '+t.extra.label.toLowerCase();
 const guideDetails=(t,open)=>t.guideHtml?'<details class="card prep-guide"'+(open?' open':'')+'><summary>'+escape(t.guideTitle)+'</summary>'+t.guideHtml+'</details>':'';
 const focusHl=box=>box.querySelectorAll('.tablewrap').forEach(w=>{const c=w.querySelector('td.hl');if(c&&w.scrollWidth>w.clientWidth)w.scrollLeft=Math.max(0,c.getBoundingClientRect().left-w.getBoundingClientRect().left+w.scrollLeft-(w.clientWidth-c.offsetWidth)/2)});
 document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('rvguide')&&e.target.open)focusHl(e.target)},true);
@@ -127,8 +127,9 @@ let t=r.qs.length+' întrebări în sesiune din '+base.length+' disponibile. ';
 if(sel==='smart')t+=r.filled?'Nu mai ai nimic scadent; primești cele mai apropiate repetări. ':nDue+' de repetat acum · '+nNew+' noi. ';
 if(sel==='weak'&&!r.qs.length)t='Nu ai încă puncte slabe. Răspunde la câteva întrebări sau alege altă selecție.';
 else t+='Fără repetări în aceeași sesiune.';
+if(cur.type==='vocab'&&$('mode').value==='write'&&$('dir').value!=='ro-de')t+=' La Germană → română răspunsul rămâne „Alege”.';
 $('poolInfo').textContent=t}
-['filter','dir','count','selection','shuffle'].forEach(id=>$(id).addEventListener('change',updateInfo));
+['filter','dir','mode','count','selection','shuffle'].forEach(id=>$(id).addEventListener('change',updateInfo));
 $('todayCount').addEventListener('change',renderHome);
 // ---------- Planul de azi și necesarul pe categorii (epicul „Călătoria ta”, fazele 1 și 2) ----------
 // Regulile sunt în „learning journey requirements.md”, secțiunea 5. Totul se calculează local, din progres și din istoricul sesiunilor.
@@ -207,7 +208,7 @@ return '<div class="label">'+(x.kind==='consolidate'?'DE CONSOLIDAT':'CE URMEAZ�
 // Antetul întrebării: propoziție cu gol (temele obișnuite) sau întrebare de sens (temele „vocab”, DE→RO și RO→DE).
 function qHeadHtml(q,m,t){
 if(t.type==='vocab'){const de=q.dir==='de-ro';
-return '<p class="sentence vq">'+(de?'<span lang="de" class="vword">'+escape(q.label)+'</span> <span class="vq2">înseamnă:</span>':'<span class="vq2">Cum se spune în germană</span> <span class="vword">„'+escape(q.gloss)+'”</span>?')+'</p><p class="small muted">'+escape(de?'Alege sensul corect în română.':'Alege cuvântul german corect.')+'</p>'}
+return '<p class="sentence vq">'+(de?'<span lang="de" class="vword">'+escape(q.label)+'</span> <span class="vq2">înseamnă:</span>':'<span class="vq2">Cum se spune în germană</span> <span class="vword">„'+escape(q.gloss)+'”</span>?')+'</p><p class="small muted">'+escape(de?'Alege sensul corect în română.':m==='write'?'Scrie verbul german la infinitiv, într-un singur cuvânt (de exemplu „anfangen”).':'Alege cuvântul german corect.')+'</p>'}
 return '<p class="sentence" lang="de">'+escape(q.prompt).replace('___','<span class="blank">…</span>')+'</p>'+(q.hint?'<p class="small hint">'+escape(q.hint)+'</p>':'')+'<p class="muted">'+escape(q.ro)+'</p><p class="small muted">'+(m==='both'?'Completează răspunsul și alege '+escape(t.extra.label.toLowerCase())+'.':escape(t.instruction))+'</p>'}
 // Răspunsul sub întrebare, în feedback și în recapitulări: propoziția cu răspunsul și traducerea ei; la „vocab” doar întrebarea în recapitulări (sensul e deja în feedback).
 function ansHtml(q,review){
@@ -220,7 +221,7 @@ const bad=new Set([q.answer,...q.alt].map(canon)),chosen=[],same=t.qs.filter(x=>
 for(const p of [...shuffled(same),...shuffled((t.confusable||{})[q.answer]||[]),...shuffled(t.pool||[])]){if(!bad.has(canon(p))&&!chosen.some(c=>canon(c)===canon(p)))chosen.push(p);if(chosen.length===3)break}
 return shuffled([q.answer,...chosen])}
 // Tipul exercițiului pentru o întrebare: într-o sesiune mixtă ("auto") fiecare temă folosește modul ei potrivit.
-function modeFor(q){const ms=q.topic.modes,m=state.mode;return m==='auto'?(ms.includes('choice')?'choice':ms[0]):ms.includes(m)?m:m==='both'&&ms.includes('write')?'write':ms[0]}
+function modeFor(q){const ms=q.modes||q.topic.modes,m=state.mode;return m==='auto'?(ms.includes('choice')?'choice':ms[0]):ms.includes(m)?m:m==='both'&&ms.includes('write')?'write':ms[0]}
 
 // ---------- Sesiunea de test ----------
 function begin(qs,cfg){if(!qs.length)return;state={active:true,qs,index:0,answers:[],opts:[],mode:cfg.mode,feedbackMode:cfg.feedbackMode,topic:cfg.topic,selected:'',selectedCase:'',locked:false,sid:uuid()};if(auth)enqueue({k:'s',row:{id:state.sid,topic:cfg.topic?cfg.topic.id:'mix',mode:cfg.mode,feedback_mode:cfg.feedbackMode,started_at:new Date().toISOString()}});startClock();show('quiz');renderQuestion();renderTimer()}
@@ -249,7 +250,7 @@ if(exam){advance();return}
 state.locked=true;record(q,a.ok);save();if(auth)enqueue({k:'a',rows:[answerRow(a,state.index)]});
 $('answerArea').querySelectorAll('input,button').forEach(x=>x.disabled=true);$('answerArea').querySelectorAll('[data-value]').forEach(b=>{b.classList.toggle('correct',b.dataset.value===q.answer);b.classList.toggle('incorrect',!a.ok&&canon(b.dataset.value)===prep&&prep!==canon(q.answer))});
 const title=a.ok?'Corect!':skip?'De reținut':a.prepOK&&m==='both'?'Răspunsul este corect. Verifică '+q.topic.extra.label.toLowerCase()+'.':'Răspunsul corect';
-$('feedback').innerHTML='<div class="feedback '+(a.ok?'':'wrong')+'"><strong>'+title+(q.label?' · <span lang="de">'+escape(q.label)+'</span>':'')+(q.extra?' + '+escape(q.extra):'')+'</strong>'+(q.gloss?'<p class="small">Sens: <b>'+escape(q.gloss)+'</b></p>':'')+ansHtml(q,false)+(q.ex?'<p class="small"><b>Exemplu:</b> <span lang="de">'+escape(q.ex)+'</span></p><p class="small muted">'+escape(q.exRo)+'</p>':'')+(a.viaAlt?'<p class="small">Varianta ta, „<span lang="de">'+escape(prep)+'</span>”, este corectă și ea; forma standard în acest test este „<span lang="de">'+escape(q.answer)+'</span>”.</p>':'')+'<p class="small">'+escape(q.explain)+'</p><p class="small muted">Revezi '+nextText(progress[q.gid])+'.</p>'+reportHtml(q,raw)+'</div>';
+$('feedback').innerHTML='<div class="feedback '+(a.ok?'':'wrong')+'"><strong>'+title+(q.label?' · <span class="nw"><span lang="de">'+escape(q.label)+'</span>'+(q.tip?tip(q.tip,'left'):'')+'</span>':'')+(q.extra?' + '+escape(q.extra):'')+'</strong>'+(q.gloss?'<p class="small">Sens: <b>'+escape(q.gloss)+'</b></p>':'')+ansHtml(q,false)+(q.ex?'<p class="small"><b>Exemplu:</b> <span lang="de">'+escape(q.ex)+'</span></p><p class="small muted">'+escape(q.exRo)+'</p>':'')+(a.viaAlt?'<p class="small">Varianta ta, „<span lang="de">'+escape(prep)+'</span>”, este corectă și ea; forma standard în acest test este „<span lang="de">'+escape(q.answer)+'</span>”.</p>':'')+'<p class="small">'+escape(q.explain)+'</p><p class="small muted">Revezi '+nextText(progress[q.gid])+'.</p>'+reportHtml(q,raw)+'</div>';
 $('guideBlock').innerHTML=guideBlock(q);focusHl($('guideBlock'));
 $('check').hidden=true;$('skip').hidden=true;$('next').hidden=false;$('next').textContent=state.index===state.qs.length-1?'Vezi rezultatele →':'Următoarea →';$('next').focus({preventScroll:true});$('feedback').scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
 function advance(){
@@ -260,7 +261,7 @@ if(open.length){if(!confirm('Mai ai '+open.length+(open.length===1?' întrebare 
 finish();return}
 if(!last){state.index++;renderQuestion()}else finish()}
 function rvGuide(q,a){const g=q.topic.guideHighlight?guideBlock(q,true):'';return g?'<details class="rvguide"'+(a.ok?'':' open')+'><summary>Vezi în fișă</summary>'+g+'</details>':''}
-function reviewHtml(answers,t,withNext){return answers.map((a,i)=>{const q=byId[a.id],p=withNext?progress[q.gid]:null,both=a.mode==='both';return '<div class="review"><div class="row"><b class="'+(a.ok?'good':'bad')+'">'+(i+1)+'. '+(a.ok?'Corect':a.skip?'Nu ai știut':'De repetat')+'</b><span>'+(t?'':'<span class="pill">'+escape(q.topic.title)+'</span> ')+(q.group?groupPill(q.group):'')+'</span></div>'+ansHtml(q,true)+(q.ex?'<p class="small"><b>Exemplu:</b> <span lang="de">'+escape(q.ex)+'</span></p><p class="small muted">'+escape(q.exRo)+'</p>':'')+'<p class="small">Răspunsul tău: <b>'+escape(a.skip?'Nu știu':a.raw+(both?' + '+a.cas:''))+'</b>'+(a.viaAlt?' (variantă acceptată)':'')+' · Corect: <b>'+escape(q.answer+(both?' + '+q.extra:''))+'</b></p><p class="small">'+(q.label?'<b lang="de">'+escape(q.label)+'</b>'+(q.gloss?' = '+escape(q.gloss):'')+' — ':'')+escape(q.explain)+'</p>'+rvGuide(q,a)+(p?'<p class="small muted">Revezi '+nextText(p)+'.</p>':'')+reportHtml(q,a.skip?'':a.raw)+'</div>'}).join('')}
+function reviewHtml(answers,t,withNext){return answers.map((a,i)=>{const q=byId[a.id],p=withNext?progress[q.gid]:null,both=a.mode==='both';return '<div class="review"><div class="row"><b class="'+(a.ok?'good':'bad')+'">'+(i+1)+'. '+(a.ok?'Corect':a.skip?'Nu ai știut':'De repetat')+'</b><span>'+(t?'':'<span class="pill">'+escape(q.topic.title)+'</span> ')+(q.group?groupPill(q.group):'')+'</span></div>'+ansHtml(q,true)+(q.ex?'<p class="small"><b>Exemplu:</b> <span lang="de">'+escape(q.ex)+'</span></p><p class="small muted">'+escape(q.exRo)+'</p>':'')+'<p class="small">Răspunsul tău: <b>'+escape(a.skip?'Nu știu':a.raw+(both?' + '+a.cas:''))+'</b>'+(a.viaAlt?' (variantă acceptată)':'')+' · Corect: <b>'+escape(q.answer+(both?' + '+q.extra:''))+'</b></p><p class="small">'+(q.label?'<span class="nw"><b lang="de">'+escape(q.label)+'</b>'+(q.tip?tip(q.tip,'left'):'')+'</span>'+(q.gloss?' = '+escape(q.gloss):'')+' — ':'')+escape(q.explain)+'</p>'+rvGuide(q,a)+(p?'<p class="small muted">Revezi '+nextText(p)+'.</p>':'')+reportHtml(q,a.skip?'':a.raw)+'</div>'}).join('')}
 function finish(){
 state.active=false;
 if(auth&&state.feedbackMode==='exam'){const rows=[];state.answers.forEach((a,i)=>rows.push(answerRow(a,i)));if(rows.length)enqueue({k:'a',rows})}
@@ -283,7 +284,7 @@ $('reviewList').innerHTML=reviewHtml(state.answers,t,true);focusHl($('reviewList
 // Fișa unei teme „vocab”: cuvântul german, sensul, exemplul și progresul pe fiecare direcție.
 function vocabRow(q){
 const other=byId[q.topic.id+'/'+q.id.replace(/-de-ro$/,'-ro-de')],pill=(x,l)=>{const p=P(x),st=status(p);return '<span class="vdir">'+l+'</span> <span class="pill p-'+st+'">'+statusLabel[st]+'</span>'+(p?' <span class="small muted">'+p.right+'/'+p.seen+'</span>':'')};
-return '<tr><td data-label="Element"><b lang="de">'+escape(q.label)+'</b>'+(q.group?'<br>'+groupPill(q.group):'')+'</td><td data-label="Sens"><b>'+escape(q.gloss)+'</b></td><td data-label="Exemplu"><span lang="de">'+escape(q.ex)+'</span><br><span class="small muted">'+escape(q.exRo)+'</span></td><td data-label="Progres">'+pill(q,'DE→RO')+(other?'<br>'+pill(other,'RO→DE'):'')+'</td></tr>'}
+return '<tr><td data-label="Element"><span class="nw"><b lang="de">'+escape(q.label)+'</b>'+(q.tip?tip(q.tip,'left'):'')+'</span>'+(q.group?'<br>'+groupPill(q.group):'')+'</td><td data-label="Sens"><b>'+escape(q.gloss)+'</b></td><td data-label="Exemplu"><span lang="de">'+escape(q.ex)+'</span><br><span class="small muted">'+escape(q.exRo)+'</span></td><td data-label="Progres">'+pill(q,'DE→RO')+(other?'<br>'+pill(other,'RO→DE'):'')+'</td></tr>'}
 function renderStudy(){
 const t=studyTopic,query=fold($('search').value.trim()),g=$('studyFilter').value,qs=t.qs.filter(q=>(t.type!=='vocab'||q.dir==='de-ro')&&(g==='all'||q.group===g)&&[q.label||'',q.answer,q.gloss||'',q.hint||'',q.ro,q.prompt,q.ex||''].some(s=>fold(s).includes(query)));
 $('studyCount').textContent=countRo(qs.length,t.unit)+' afișate';
@@ -883,7 +884,7 @@ if(!CLOUD||!auth||(!profile&&!profileFresh)){c.hidden=true;return}
 const reg=profile&&profile.league_registered;c.hidden=false;
 c.classList.add('lg');c.innerHTML=reg?leagueRegHtml():leagueJoinHtml()}
 // ---------- Cardul „Liga ta” (compact): informațiile secundare stau în baloane la hover, la atingere sau la focus ----------
-const tip=(txt,cls)=>txt?'<button type="button" class="tip'+(cls?' '+cls:'')+'" data-tip="'+escape(txt)+'" aria-label="'+escape(txt)+'">'+(cls==='warn'?'⚠':'ⓘ')+'</button>':'';
+const tip=(txt,cls)=>txt?'<button type="button" lang="ro" class="tip'+(cls?' '+cls:'')+'" data-tip="'+escape(txt)+'" aria-label="'+escape(txt)+'">'+(cls==='warn'?'⚠':'ⓘ')+'</button>':'';
 function gapText(ms,me){
 if(ms.length<2)return '';
 if(me.rank===1){const lead=me.xp-ms[1].xp;return lead>0?'Ești pe primul loc, cu '+lead+' XP avans.':'Ești pe primul loc la egalitate de XP; contează acuratețea.'}
@@ -904,7 +905,10 @@ return '<div class="lghead"><div class="label">LIGA TA</div><span class="lgtools
 function leagueJoinHtml(){
 return '<div class="lghead"><div class="label">LIGA TA</div></div><div class="lgrow"><span class="lgwho">Provocarea săptămânală'+tip('Aduni XP din teste și te compari cu colegii într-un clasament de luni până duminică. Temele mai grele aduc mai multe puncte.')+'</span><button type="button" class="primary" data-league="join">Înscrie-te</button></div>'+xpShort()}
 // Balon: la atingere se deschide / se închide (pe telefon nu există hover); la hover și focus se arată din CSS.
-document.addEventListener('click',e=>{const t=e.target.closest('.tip');document.querySelectorAll('.tip.open').forEach(x=>{if(x!==t)x.classList.remove('open')});if(t){e.preventDefault();t.classList.toggle('open')}});
+// Poziția balonului se corectează ca să rămână în ecran (se calculează la hover, focus și atingere).
+function tipFit(t){const w=Math.min(250,innerWidth*.72),r=t.getBoundingClientRect(),left=t.classList.contains('left')?r.left-4:r.right+4-w;let s=0;if(left<8)s=8-left;else if(left+w>innerWidth-8)s=innerWidth-8-(left+w);t.style.setProperty('--tipshift',Math.round(s)+'px')}
+['mouseover','focusin'].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target.closest&&e.target.closest('.tip');if(t)tipFit(t)}));
+document.addEventListener('click',e=>{const t=e.target.closest('.tip');document.querySelectorAll('.tip.open').forEach(x=>{if(x!==t)x.classList.remove('open')});if(t){e.preventDefault();tipFit(t);t.classList.toggle('open')}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.tip.open').forEach(x=>x.classList.remove('open'))});
 function openLeagueDialog(mode){
 ldMode=mode;ldHandled=false;

@@ -1,6 +1,6 @@
 # Categorie nouă „Schubert B1” · teste de înțelegere a vocabularului (DE→RO și RO→DE) · cerințe
 
-**Status:** **Faza 1 implementată și verificată în browser (2026-11-16)**; deciziile D1–D8 confirmate de utilizator (2026-11-16). Faza 2 („Scrie” la RO→DE, baloane „ⓘ” cu regulile prefixelor) și Faza 3 (pagini noi) nu au început.
+**Status:** **Fazele 1 și 2 implementate și verificate în browser (2026-11-16 / 2026-11-17)**; deciziile D1–D8 confirmate de utilizator (2026-11-16). Faza 3 (pagini noi din carte) începe când trimiți paginile.
 
 ## 1. Cererea utilizatorului (cuvintele lui, 2026-11-16)
 
@@ -147,4 +147,19 @@ Nu se schimbă schema bazei de date: progresul se salvează tot pe `item_id`, do
 **Verificat:** `build.py` trece (17 teme, 2681 de întrebări); analiză statică `no-undef` curată; în browser: filtrele dau 234 / 117 / 117 întrebări, pe grupa 1 sunt 40; o sesiune de 20 nu are cuvinte duplicate; ambele direcții se afișează cu limba corectă; răspunsul corect urcă treapta, cel greșit coboară la 0, separat pe direcție; recapitularea și fișa arată corect; raportarea trimite `dir` și copia întrebării; 375 px fără defilare orizontală.
 
 **De știut:** glosarele românești și propozițiile sunt scrise de mine, deci o verificare cu dicționar sau de un vorbitor nativ este recomandată (în aplicație: „Raportează o greșeală”). Cuvintele cu mai multe sensuri au sensul din contextul cărții (de exemplu *erhalten* „a primi (oficial)”, *umziehen* „a se muta”). Nu s-a verificat încă pe iPhone (modificarea ajunge după două porniri) și nici cu un cont real.
+
+## 12. Faza 2: stare implementare (2026-11-17)
+
+**Ce s-a adăugat**
+- **Modul „Scrie” la Română → germană:** pe pagina temei, „Tip de exercițiu” are acum „Alege din 4 variante” și „Scrie cuvântul german (doar la Română → germană)”. În modul „Scrie”, întrebările RO→DE cer verbul german la infinitiv, într-un singur cuvânt (de exemplu *anfangen*); se acceptă *ä/ö/ü/ß* și *ae/oe/ue/ss*, majuscule sau minuscule. Întrebările DE→RO rămân „Alege” (răspunsul liber în română nu se poate verifica sigur); pagina temei spune asta când alegi „Scrie” cu direcția „Ambele”.
+- **D7 (confirmat):** la verbele reflexive „sich” este opțional (*unterhalten* este acceptat pentru *sich unterhalten*, cu mesajul „Varianta ta … este corectă și ea; forma standard este …”), iar *spazierengehen* este acceptat pentru *spazieren gehen*.
+- **Baloane „ⓘ” cu regula prefixului** (hover, focus sau atingere) lângă verb, **după răspuns** (în feedback), în recapitulări și în fișa de recapitulare; niciodată în întrebare, ca să nu dea indicii. 109 din 117 verbe au balon; cele 8 fără prefix de reținut (*präsentieren, sammeln, spülen, korrigieren, spazieren gehen, honorieren, investieren, sich orientieren*) nu au. Conținutul: prefixele separabile și accentuate (*an-, auf-, aus-…*) cu exemplul verbului; prefixele neseparabile (*be-, emp-, ge-, ent-, er-, ver-, zer-, miss-*) cu sensul frecvent al prefixului din carte; prefixele „mixte” (*durch-, um-, wieder-, über-, unter-, wider-, hinter-*) cu regula obișnuită, excepțiile din carte și tipul verbului respectiv.
+- **Poziția balonului** se ajustează automat ca să rămână în ecran (pe telefon și lângă marginea cardului); folosește același mecanism ca balonul din „Liga ta”.
+
+**Schimbări tehnice**
+- `modes` și `alt` pe întrebare (în JSON, generate): DE→RO are `["choice"]`, RO→DE are `["choice","write"]` (+ `alt` unde e cazul); `tip` pe întrebare (text de cel mult 500 de caractere). `build.py` verifică: `modes` e inclus în modurile temei, DE→RO nu primește „write”, `tip` are lungime validă (și `alt` nu apare printre variante, ca până acum).
+- `src/app.js`: `modeFor` ține cont de `modes` pe întrebare; `modeLabel` și antetul întrebării pentru „vocab”; `tipFit` (poziția balonului); `tip` marchează limba română (`lang="ro"`) pentru cititoarele de ecran; informația „La Germană → română răspunsul rămâne «Alege»” pe pagina temei. Fișiere: `src/app.js`, `src/style.css`, `build.py`, `content/schubert-b1.json` (regenerat).
+- Neschimbat: celelalte teme, progresul salvat (aceleași `item_id`), schema bazei de date.
+
+**Verificat:** `build.py` trece; analiză statică `no-undef` curată; în browser: selectorul de mod arată cele două moduri; o sesiune „Scrie” cu perechi dă „Alege” la DE→RO și câmp de text la RO→DE (cu `lang="de"`); *Ueberleben* este acceptat; *unterhalten* pentru *sich unterhalten* și *spazierengehen* sunt acceptate cu mesajul potrivit; răspunsul greșit afișează forma corectă și balonul; recapitularea și fișa (109 baloane) afișează baloanele; la 375 px nu există defilare orizontală, iar balonul din feedback rămâne în ecran.
 
